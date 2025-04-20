@@ -1,0 +1,12 @@
+{
+  "database": {
+    "url": "postgresql://postgres:tecno407982@app.tecnoelectronics.com.ve:5432/s_personal"
+  },
+  "logging": {
+    "log_level": "debug"
+  },
+  "address": {
+    "host": "127.0.0.1",
+    "port": 3000
+  }
+}
