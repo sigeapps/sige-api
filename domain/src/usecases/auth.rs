@@ -13,9 +13,8 @@ impl<R: UserRepository> LoginUseCase<R> {
 
     pub async fn execute(&self, request: LoginRequest) {
         // AI, there is an error!
-        let user = self
-            .user_repository
-            .find_by_username(&request.username)
+        let user = R::find_by_username(request.username.clone()) // Use associated function call and clone username
             .await;
+        // TODO: Handle the user result (e.g., check password, generate token)
     }
 }
