@@ -1,3 +1,9 @@
 /target
 /migration/target
-/server/target
+/infrastructure/web/target
+/infrastructure/database/target
+/domain/target
+/application/target
+.aider*
+.env
+.env

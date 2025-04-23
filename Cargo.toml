@@ -6,7 +6,12 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.98"
 clap = { version = "4.5.37", features = ["derive"] }
-server = { path = "./server/" }
+web = { path = "infrastructure/web" }
+application = { path = "application" }
 config = "0.15.11"
 serde = "1.0.219"
 tracing = "0.1.41"
+password-auth = "1.0.0"
+
+[workspace]
+members = ["infrastructure/web", "domain", "application"]

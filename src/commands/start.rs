@@ -6,7 +6,7 @@ pub fn start(settings: &Settings) {
         settings.address.host, settings.address.port
     );
 
-    server::start(
+    web::start(
         &settings.address.host,
         settings.address.port,
         &settings.database.url,

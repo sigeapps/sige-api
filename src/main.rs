@@ -10,6 +10,7 @@ fn main() -> anyhow::Result<()> {
 
     match &args.command {
         Some(Commands::Start) => Ok(start::start(&settings)),
+        Some(Commands::Dev) => Ok(start::start(&settings)),
         None => Ok(()),
     }
 }

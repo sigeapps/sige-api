@@ -1,7 +1,10 @@
+use crate::{entities::user, error::AuthError, repositories::user_repository::UserRepository};
 use application::dtos::auth::LoginRequest;
+use password_auth::verify_password;
 
-use crate::repositories::user_repository::UserRepository;
+use tokio::task;
 
+/// Caso de uso para autenticar un usuario
 pub struct LoginUseCase<R: UserRepository> {
     user_repository: R,
 }
@@ -11,10 +14,12 @@ impl<R: UserRepository> LoginUseCase<R> {
         Self { user_repository }
     }
 
-    pub async fn execute(&self, request: LoginRequest) {
-        // AI, there is an error!
-        let user = R::find_by_username(request.username.clone()) // Use associated function call and clone username
-            .await;
-        // TODO: Handle the user result (e.g., check password, generate token)
+    pub async fn execute(&self, request: LoginRequest) -> Result<Option<user::Model>, AuthError> {
+        let user = R::find_by_username(request.username).await;
+
+        task::spawn_blocking(|| {
+            Ok(user.filter(|user| verify_password(request.password, &user.password_hash).is_ok()))
+        })
+        .await?
     }
 }

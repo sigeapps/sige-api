@@ -5,6 +5,8 @@ use clap::{Parser, Subcommand};
 pub enum Commands {
     #[command(about = "Start the api on production mode")]
     Start,
+    #[command(about = "Start the api on development mode")]
+    Dev,
 }
 
 #[derive(Parser, Debug)]
