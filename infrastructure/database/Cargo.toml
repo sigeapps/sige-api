@@ -4,3 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+sea-orm = { version = "1.1.10", features = [
+  "sqlx-postgres",
+  "runtime-tokio-rustls",
+  "macros",
+] }
+domain = { path = "../../domain" }
+async-trait = "0.1.88"
+tokio = "1.44.2"
+thiserror = "2.0.12"
+password-auth = "1.0.0"

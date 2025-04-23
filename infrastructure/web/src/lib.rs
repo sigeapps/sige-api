@@ -1,4 +1,5 @@
 pub mod auth;
+
 use axum::{routing::get, Router};
 
 #[tokio::main]

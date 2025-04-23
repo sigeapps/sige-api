@@ -6,12 +6,14 @@ use domain::{
     repositories::user_repository::UserRepository,
 };
 use password_auth::verify_password;
+use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 use std::sync::Arc;
 
 // Use a named field to avoid accessing via .0
-#[derive(Debug, Clone)]
-struct User {
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct User {
+    #[serde(flatten)]
     model: user::Model,
 }
 
@@ -27,11 +29,11 @@ impl AuthUser for User {
     type Id = i32;
 
     fn id(&self) -> Self::Id {
-        self.model.id
+        self.id
     }
 
     fn session_auth_hash(&self) -> &[u8] {
-        self.model.password_hash.as_bytes()
+        self.password_hash.as_bytes()
     }
 }
 
@@ -59,7 +61,7 @@ where
         &self,
         creds: Self::Credentials,
     ) -> Result<Option<Self::User>, Self::Error> {
-        let user = R::find_by_username(creds.username).await;
+        let user = self.user_repository.find_by_username(creds.username).await; // Asume que find_by_username devuelve Option<user::Model>
 
         match user {
             Some(u) => {
@@ -74,7 +76,7 @@ where
     }
 
     async fn get_user(&self, user_id: &UserId<Self>) -> Result<Option<Self::User>, Self::Error> {
-        let user = R::find_by_id(*user_id).await; // Asume que find_by_id devuelve Option<user::Model>
+        let user = self.user_repository.find_by_id(*user_id).await; // Asume que find_by_id devuelve Option<user::Model>
 
         Ok(user.map(|u| User { model: u }))
     }

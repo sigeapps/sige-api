@@ -11,7 +11,11 @@ application = { path = "application" }
 config = "0.15.11"
 serde = "1.0.219"
 tracing = "0.1.41"
-password-auth = "1.0.0"
 
 [workspace]
-members = ["infrastructure/web", "domain", "application"]
+members = [
+  "infrastructure/web",
+  "domain",
+  "application",
+  "infrastructure/database",
+]

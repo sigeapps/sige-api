@@ -1,3 +1,3 @@
-pub mod entities;
+pub mod connection;
 pub mod error;
 pub mod repositories;
