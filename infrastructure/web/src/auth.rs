@@ -9,15 +9,17 @@ use password_auth::verify_password;
 use std::ops::Deref;
 use std::sync::Arc;
 
-// AI prevent to use .0
+// Use a named field to avoid accessing via .0
 #[derive(Debug, Clone)]
-struct User(user::Model);
+struct User {
+    model: user::Model,
+}
 
 impl Deref for User {
     type Target = user::Model;
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        &self.model
     }
 }
 
@@ -25,11 +27,11 @@ impl AuthUser for User {
     type Id = i32;
 
     fn id(&self) -> Self::Id {
-        self.0.id
+        self.model.id
     }
 
     fn session_auth_hash(&self) -> &[u8] {
-        self.0.password_hash.as_bytes()
+        self.model.password_hash.as_bytes()
     }
 }
 
@@ -62,7 +64,7 @@ where
         match user {
             Some(u) => {
                 if verify_password(&creds.password, &u.password_hash).is_ok() {
-                    Ok(Some(u))
+                    Ok(Some(User { model: u }))
                 } else {
                     Ok(None) // Contraseña incorrecta
                 }
@@ -72,10 +74,9 @@ where
     }
 
     async fn get_user(&self, user_id: &UserId<Self>) -> Result<Option<Self::User>, Self::Error> {
-        let user = R::find_by_id(*user_id) // Asume que
-            .await;
+        let user = R::find_by_id(*user_id).await; // Asume que find_by_id devuelve Option<user::Model>
 
-        Ok(user)
+        Ok(user.map(|u| User { model: u }))
     }
 }
 
