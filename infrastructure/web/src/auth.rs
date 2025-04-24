@@ -9,8 +9,8 @@ use password_auth::verify_password;
 use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 use std::sync::Arc;
+use tracing::debug;
 
-// Use a named field to avoid accessing via .0
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct User {
     #[serde(flatten)]
@@ -39,7 +39,7 @@ impl AuthUser for User {
 
 #[derive(Debug, Clone)]
 pub struct AuthBackend<R: UserRepository + Clone> {
-    user_repository: Arc<R>,
+    pub user_repository: Arc<R>,
 }
 
 impl<R: UserRepository + Clone> AuthBackend<R> {
@@ -61,22 +61,31 @@ where
         &self,
         creds: Self::Credentials,
     ) -> Result<Option<Self::User>, Self::Error> {
-        let user = self.user_repository.find_by_username(creds.username).await; // Asume que find_by_username devuelve Option<user::Model>
+        let user = self
+            .user_repository
+            .find_by_username(creds.username)
+            .await?;
 
         match user {
             Some(u) => {
-                if verify_password(&creds.password, &u.password_hash).is_ok() {
+                if verify_password(creds.password, &u.password_hash).is_ok() {
                     Ok(Some(User { model: u }))
                 } else {
-                    Ok(None) // Contraseña incorrecta
+                    debug!("Invalid password for user");
+
+                    Ok(None)
                 }
             }
-            None => Ok(None), // Usuario no encontrado
+            None => {
+                debug!("User not found");
+
+                Ok(None)
+            }
         }
     }
 
     async fn get_user(&self, user_id: &UserId<Self>) -> Result<Option<Self::User>, Self::Error> {
-        let user = self.user_repository.find_by_id(*user_id).await; // Asume que find_by_id devuelve Option<user::Model>
+        let user = self.user_repository.find_by_id(*user_id).await?;
 
         Ok(user.map(|u| User { model: u }))
     }

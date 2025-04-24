@@ -8,5 +8,5 @@ pub trait UserRepository: Send + Sync + 'static {
         username: String,
     ) -> Result<Option<user::Model>, RepositoryError>;
     async fn find_by_id(&self, id: i32) -> Result<Option<user::Model>, RepositoryError>;
-    async fn create(&self, user: user::Model) -> Result<(), RepositoryError>;
+    async fn create(&self, user: user::ActiveModel) -> Result<(), RepositoryError>;
 }

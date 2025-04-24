@@ -27,7 +27,7 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(User::Name).string().not_null())
                     .col(ColumnDef::new(User::PasswordHash).string().not_null())
-                    .col(ColumnDef::new(User::RoleId).integer().not_null())
+                    .col(ColumnDef::new(User::RoleId).integer().default(1).not_null())
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk-user-role_id")

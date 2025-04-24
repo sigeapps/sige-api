@@ -4,52 +4,42 @@ pub struct Migration;
 
 impl MigrationName for Migration {
     fn name(&self) -> &str {
-        "m20250419_000001_create_role_table.rs" // Make sure this matches with the file name
+        "m20250419_000002_create_permission_table.rs"
     }
 }
 
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
-    // Define how to apply this migration: Create the Bakery table.
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
             .create_table(
                 Table::create()
-                    .table(Role::Table)
+                    .table(Permission::Table)
                     .col(
-                        ColumnDef::new(Role::Id)
+                        ColumnDef::new(Permission::Id)
                             .integer()
                             .not_null()
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Role::Name).string().not_null())
+                    .col(ColumnDef::new(Permission::Name).string().not_null())
+                    .col(ColumnDef::new(Permission::Description).string())
                     .to_owned(),
             )
-            .await?;
-
-        let insert = Query::insert()
-            .into_table(Role::Table)
-            .columns([Role::Name])
-            .values_panic(["user".into()])
-            .to_owned();
-
-        manager.exec_stmt(insert).await?;
-
-        Ok(())
+            .await
     }
 
-    // Define how to rollback this migration: Drop the Bakery table.
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Role::Table).to_owned())
+            .drop_table(Table::drop().table(Permission::Table).to_owned())
             .await
     }
 }
 
 #[derive(Iden)]
-pub enum Role {
+pub enum Permission {
     Table,
     Id,
     Name,
+    Description,
 }

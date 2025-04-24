@@ -3,19 +3,18 @@
 use sea_orm::entity::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
-#[sea_orm(table_name = "role")]
+#[sea_orm(table_name = "permission")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub name: String,
+    pub description: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(has_many = "super::role_permission::Entity")]
     RolePermission,
-    #[sea_orm(has_many = "super::user::Entity")]
-    User,
 }
 
 impl Related<super::role_permission::Entity> for Entity {
@@ -24,18 +23,12 @@ impl Related<super::role_permission::Entity> for Entity {
     }
 }
 
-impl Related<super::user::Entity> for Entity {
+impl Related<super::role::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::User.def()
-    }
-}
-
-impl Related<super::permission::Entity> for Entity {
-    fn to() -> RelationDef {
-        super::role_permission::Relation::Permission.def()
+        super::role_permission::Relation::Role.def()
     }
     fn via() -> Option<RelationDef> {
-        Some(super::role_permission::Relation::Role.def().rev())
+        Some(super::role_permission::Relation::Permission.def().rev())
     }
 }
 
