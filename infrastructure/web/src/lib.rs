@@ -34,7 +34,8 @@ pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<
     let app = Router::new()
         .route("/", get(root))
         .with_state(app_state.clone())
-        .merge(routes::auth::auth_routes(app_state))
+        .merge(routes::auth::auth_routes(&app_state))
+        .merge(routes::prevention::prevention(&app_state))
         .layer(CorsLayer::very_permissive())
         .layer(auth_layer);
 

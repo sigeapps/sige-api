@@ -4,7 +4,7 @@ use crate::controllers::auth::{login, register};
 use crate::state::AppState;
 use std::sync::Arc;
 
-pub fn auth_routes(app_state: Arc<AppState>) -> Router {
+pub fn auth_routes(app_state: &Arc<AppState>) -> Router {
     Router::new()
         .route("/login", post(login))
         .route("/register", post(register))

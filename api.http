@@ -15,3 +15,25 @@ Content-Type: application/json
     "password": "tallers"
 }
 
+
+### CREATE A REGISTER
+POST http://127.0.0.1:3000/prevention/register
+Content-Type: application/json
+
+{
+  "id": 1,
+  "photo": "path/to/photo.jpg",
+  "ci": "12345678",
+  "last_name": "Doe",
+  "first_name": "John",
+  "organism": 1,
+  "division": 1,
+  "is_official": true,
+  "entry_date": "2024-01-31T21:02:04.715486Z",
+  "exit_date": "2024-01-31T21:02:04.715486Z",
+  "visit_reason": "Business meeting",
+  "observations": "Arrived on time"
+}
+
+### GET REGISTERS 
+GET http://127.0.0.1:3000/prevention/register
