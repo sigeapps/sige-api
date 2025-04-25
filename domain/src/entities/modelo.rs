@@ -4,30 +4,30 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "user")]
+#[sea_orm(table_name = "modelo")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    pub name: String,
-    pub password_hash: String,
-    pub role_id: i32,
+    #[sea_orm(unique)]
+    pub nombre: String,
+    pub marca: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "super::role::Entity",
-        from = "Column::RoleId",
-        to = "super::role::Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
+        belongs_to = "super::marca::Entity",
+        from = "Column::Marca",
+        to = "super::marca::Column::Nombre",
+        on_update = "Cascade",
+        on_delete = "Cascade"
     )]
-    Role,
+    Marca,
 }
 
-impl Related<super::role::Entity> for Entity {
+impl Related<super::marca::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Role.def()
+        Relation::Marca.def()
     }
 }
 

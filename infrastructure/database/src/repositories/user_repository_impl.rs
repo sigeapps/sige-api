@@ -3,7 +3,8 @@ use domain::entities::{prelude::*, *};
 use domain::error::RepositoryError;
 use domain::repositories::user_repository::UserRepository;
 use sea_orm::*;
-use tracing::info;
+
+use crate::connection::connect;
 
 #[derive(Clone, Debug)]
 pub struct SeaOrmUserRepository {
@@ -12,11 +13,9 @@ pub struct SeaOrmUserRepository {
 
 impl SeaOrmUserRepository {
     pub async fn new(database_url: &str) -> Result<Self, RepositoryError> {
-        let db = Database::connect(database_url)
+        let db = connect(database_url)
             .await
             .map_err(|e| RepositoryError::Database(e.to_string()))?;
-
-        info!("Database connected");
 
         Ok(Self { db })
     }
