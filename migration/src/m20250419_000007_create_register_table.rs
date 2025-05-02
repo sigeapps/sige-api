@@ -51,8 +51,13 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .default(false),
                     )
-                    .col(ColumnDef::new(Register::EntryDate).date_time().not_null())
-                    .col(ColumnDef::new(Register::ExitDate).date_time().null())
+                    .col(
+                        ColumnDef::new(Register::EntryDate)
+                            .timestamp()
+                            .not_null()
+                            .default(SimpleExpr::Keyword(Keyword::CurrentTimestamp)),
+                    )
+                    .col(ColumnDef::new(Register::ExitDate).timestamp().null())
                     .col(ColumnDef::new(Register::VisitReason).string().not_null())
                     .col(ColumnDef::new(Register::Observations).string().null())
                     .to_owned(),
