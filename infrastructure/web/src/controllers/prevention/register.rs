@@ -1,4 +1,4 @@
-use application::dtos::prevention::register::CreateRegister;
+use application::dtos::prevention::register::{CreateRegister, RegisterExit};
 use axum::http::StatusCode;
 use axum::{extract::State, response::IntoResponse, Json};
 use domain::entities::register;
@@ -68,21 +68,35 @@ pub async fn get_register_by_id(
     }
 }
 
-/// TODO: Make that this donts need all the Register model
-/// TODO: Use the id path
+/// TODO: Refactor this to an use case
 #[axum::debug_handler]
 pub async fn update_register_exit(
     State(app_state): State<AppState>,
     axum::extract::Path(id): axum::extract::Path<i32>,
-    Json(register): Json<register::Model>,
-) -> impl IntoResponse {
-    match app_state.register_repository.update(register.into()).await {
-        Ok(_) => (StatusCode::OK, "Register updated successfully").into_response(),
+    Json(register): Json<RegisterExit>,
+) -> Result<impl IntoResponse, StatusCode> {
+    let old_register = app_state
+        .register_repository
+        .find_by_id(id)
+        .await
+        .map_err(|e| {
+            error!("Error updating register: {:?}", e);
+
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?
+        .ok_or(StatusCode::NOT_FOUND)?;
+
+    let mut active_model: register::ActiveModel = old_register.into();
+
+    active_model.observations = Set(Some(register.observations));
+
+    match app_state.register_repository.update(active_model).await {
+        Ok(_) => Ok(StatusCode::OK),
 
         Err(e) => {
             error!("Error updating register: {}", e.to_string());
 
-            (StatusCode::INTERNAL_SERVER_ERROR, "Error updating register").into_response()
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }
 }

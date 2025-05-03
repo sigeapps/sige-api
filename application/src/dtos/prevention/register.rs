@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RegisterExit {
-    pub exit_date: String,
-    pub observation: String,
+    pub observations: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
