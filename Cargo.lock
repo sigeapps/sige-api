@@ -910,6 +910,7 @@ dependencies = [
  "serde",
  "thiserror",
  "tokio",
+ "tracing",
 ]
 
 [[package]]

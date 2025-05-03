@@ -1,9 +1,43 @@
-use crate::repositories::user_repository::UserRepository;
+use sea_orm::ActiveValue::Set;
+use serde::{Deserialize, Serialize};
 
-pub struct RegisterExitUseCase<R: UserRepository> {
-    pub user_repository: R,
+use crate::{
+    entities::register, error::RepositoryError,
+    repositories::register_repository::RegisterRepository,
+};
+
+#[derive(Deserialize, Serialize)]
+pub struct RegisterExitInput {
+    observations: String,
 }
 
-impl R for RegisterExitUseCase<R> {
-    fn execute(&self) {}
+pub struct RegisterExitUseCase<R: RegisterRepository> {
+    pub register_repository: R,
+}
+
+impl<R: RegisterRepository> RegisterExitUseCase<R> {
+    pub fn new(register_repository: R) -> Self {
+        RegisterExitUseCase {
+            register_repository,
+        }
+    }
+    pub async fn execute(
+        &self,
+        register_exit: RegisterExitInput,
+        register_id: i32,
+    ) -> Result<(), RepositoryError> {
+        let old_register = self
+            .register_repository
+            .find_by_id(register_id)
+            .await?
+            .ok_or(RepositoryError::NotFound)?;
+
+        let mut active_register: register::ActiveModel = old_register.into();
+
+        active_register.observations = Set(Some(register_exit.observations));
+
+        self.register_repository.update(active_register).await?;
+
+        Ok(())
+    }
 }

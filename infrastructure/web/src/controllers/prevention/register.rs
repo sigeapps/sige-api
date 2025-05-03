@@ -3,6 +3,7 @@ use axum::http::StatusCode;
 use axum::{extract::State, response::IntoResponse, Json};
 use domain::entities::register;
 use domain::repositories::register_repository::RegisterRepository;
+use domain::usecases::prevention::register::{RegisterExitInput, RegisterExitUseCase};
 use sea_orm::ActiveValue::Set;
 use tracing::error;
 
@@ -73,30 +74,18 @@ pub async fn get_register_by_id(
 pub async fn update_register_exit(
     State(app_state): State<AppState>,
     axum::extract::Path(id): axum::extract::Path<i32>,
-    Json(register): Json<RegisterExit>,
+    Json(register): Json<RegisterExitInput>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let old_register = app_state
-        .register_repository
-        .find_by_id(id)
+    let register_exit_use_case = RegisterExitUseCase::new(app_state.register_repository);
+
+    register_exit_use_case
+        .execute(register, id)
         .await
         .map_err(|e| {
-            error!("Error updating register: {:?}", e);
+            error!("Error updating register exit use case: {}", e);
 
             StatusCode::INTERNAL_SERVER_ERROR
-        })?
-        .ok_or(StatusCode::NOT_FOUND)?;
+        })?;
 
-    let mut active_model: register::ActiveModel = old_register.into();
-
-    active_model.observations = Set(Some(register.observations));
-
-    match app_state.register_repository.update(active_model).await {
-        Ok(_) => Ok(StatusCode::OK),
-
-        Err(e) => {
-            error!("Error updating register: {}", e.to_string());
-
-            Err(StatusCode::INTERNAL_SERVER_ERROR)
-        }
-    }
+    Ok(StatusCode::OK)
 }
