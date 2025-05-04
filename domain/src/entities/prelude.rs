@@ -2,13 +2,24 @@
 
 pub use super::brand::Entity as Brand;
 pub use super::brigade::Entity as Brigade;
+pub use super::charge::Entity as Charge;
+pub use super::commission::Entity as Commission;
+pub use super::commission_actual_exit::Entity as CommissionActualExit;
+pub use super::commission_official::Entity as CommissionOfficial;
+pub use super::commission_reason::Entity as CommissionReason;
+pub use super::commission_transport::Entity as CommissionTransport;
 pub use super::division::Entity as Division;
+pub use super::hierarchy::Entity as Hierarchy;
 pub use super::municipality::Entity as Municipality;
+pub use super::official::Entity as Official;
 pub use super::organism::Entity as Organism;
 pub use super::permission::Entity as Permission;
 pub use super::register::Entity as Register;
 pub use super::role::Entity as Role;
 pub use super::role_permission::Entity as RolePermission;
 pub use super::state::Entity as State;
+pub use super::transport::Entity as Transport;
+pub use super::transport_statuses::Entity as TransportStatuses;
+pub use super::transport_type::Entity as TransportType;
 pub use super::user::Entity as User;
 pub use super::vehicle_model::Entity as VehicleModel;

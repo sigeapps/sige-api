@@ -4,32 +4,37 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "vehicle_model")]
+#[sea_orm(table_name = "commission_transport")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    #[sea_orm(unique)]
-    pub name: String,
-    pub brand: i32,
+    pub commission_id: i32,
+    pub transport_id: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "super::brand::Entity",
-        from = "Column::Brand",
-        to = "super::brand::Column::Id",
-        on_update = "Cascade",
+        belongs_to = "super::commission::Entity",
+        from = "Column::CommissionId",
+        to = "super::commission::Column::Id",
+        on_update = "NoAction",
         on_delete = "Cascade"
     )]
-    Brand,
-    #[sea_orm(has_many = "super::transport::Entity")]
+    Commission,
+    #[sea_orm(
+        belongs_to = "super::transport::Entity",
+        from = "Column::TransportId",
+        to = "super::transport::Column::Id",
+        on_update = "NoAction",
+        on_delete = "Restrict"
+    )]
     Transport,
 }
 
-impl Related<super::brand::Entity> for Entity {
+impl Related<super::commission::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Brand.def()
+        Relation::Commission.def()
     }
 }
 

@@ -4,31 +4,33 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "brigade")]
+#[sea_orm(table_name = "commission_actual_exit")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     #[sea_orm(unique)]
-    pub name: String,
+    pub commission_id: i32,
+    pub actual_exit_at: Option<DateTimeWithTimeZone>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub observations: Option<String>,
+    pub created_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::commission::Entity")]
+    #[sea_orm(
+        belongs_to = "super::commission::Entity",
+        from = "Column::CommissionId",
+        to = "super::commission::Column::Id",
+        on_update = "NoAction",
+        on_delete = "Cascade"
+    )]
     Commission,
-    #[sea_orm(has_many = "super::official::Entity")]
-    Official,
 }
 
 impl Related<super::commission::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Commission.def()
-    }
-}
-
-impl Related<super::official::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Official.def()
     }
 }
 

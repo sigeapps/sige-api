@@ -28,16 +28,12 @@ impl MigrationTrait for Migration {
                             .unique_key()
                             .not_null(),
                     )
-                    .col(
-                        ColumnDef::new(VehicleModel::Brand)
-                            .string_len(255)
-                            .not_null(),
-                    )
+                    .col(ColumnDef::new(VehicleModel::Brand).integer().not_null())
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_vehicle_model_brand")
                             .from(VehicleModel::Table, VehicleModel::Brand)
-                            .to(Brand::Table, Brand::Name)
+                            .to(Brand::Table, Brand::Id)
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
                     )
@@ -64,5 +60,5 @@ pub enum VehicleModel {
 #[derive(Iden)]
 pub enum Brand {
     Table,
-    Name,
+    Id,
 }
