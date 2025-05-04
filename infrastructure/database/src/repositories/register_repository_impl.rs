@@ -41,11 +41,24 @@ impl RegisterRepository for SeaOrmRegisterRepository {
         Ok(register)
     }
 
-    async fn find_all(&self) -> Result<Vec<register::Model>, RepositoryError> {
+    async fn find(&self) -> Result<Vec<register::Model>, RepositoryError> {
         Register::find()
             .all(&self.db)
             .await
             .map_err(|e| RepositoryError::Database(e.to_string()))
+    }
+
+    async fn find_partial<R>(&self) -> Result<Vec<R>, RepositoryError>
+    where
+        R: PartialModelTrait + FromQueryResult + Send + Sync,
+    {
+        let query = Register::find()
+            .into_partial_model::<R>()
+            .all(&self.db)
+            .await
+            .map_err(|e| RepositoryError::Database(e.to_string()))?;
+
+        Ok(query)
     }
 
     async fn update(&self, register: register::ActiveModel) -> Result<(), RepositoryError> {

@@ -4,25 +4,23 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "division")]
+#[sea_orm(table_name = "state")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     #[sea_orm(unique)]
     pub name: String,
-    #[sea_orm(column_type = "Text")]
-    pub state: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::register::Entity")]
-    Register,
+    #[sea_orm(has_many = "super::municipality::Entity")]
+    Municipality,
 }
 
-impl Related<super::register::Entity> for Entity {
+impl Related<super::municipality::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Register.def()
+        Relation::Municipality.def()
     }
 }
 

@@ -4,25 +4,30 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "division")]
+#[sea_orm(table_name = "vehicle_model")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     #[sea_orm(unique)]
     pub name: String,
-    #[sea_orm(column_type = "Text")]
-    pub state: String,
+    pub brand: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::register::Entity")]
-    Register,
+    #[sea_orm(
+        belongs_to = "super::brand::Entity",
+        from = "Column::Brand",
+        to = "super::brand::Column::Name",
+        on_update = "Cascade",
+        on_delete = "Cascade"
+    )]
+    Brand,
 }
 
-impl Related<super::register::Entity> for Entity {
+impl Related<super::brand::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Register.def()
+        Relation::Brand.def()
     }
 }
 

@@ -4,7 +4,7 @@ pub struct Migration;
 
 impl MigrationName for Migration {
     fn name(&self) -> &str {
-        "m20250419_000011_create_modelo_table"
+        "m20250419_000011_create_vehicle_model_table"
     }
 }
 
@@ -14,30 +14,30 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(Modelo::Table)
+                    .table(VehicleModel::Table)
                     .col(
-                        ColumnDef::new(Modelo::Id)
+                        ColumnDef::new(VehicleModel::Id)
                             .integer()
                             .primary_key()
                             .auto_increment()
                             .not_null(),
                     )
                     .col(
-                        ColumnDef::new(Modelo::Nombre)
+                        ColumnDef::new(VehicleModel::Name)
                             .string_len(255)
                             .unique_key()
                             .not_null(),
                     )
                     .col(
-                        ColumnDef::new(Modelo::Marca)
+                        ColumnDef::new(VehicleModel::Brand)
                             .string_len(255)
                             .not_null(),
                     )
                     .foreign_key(
                         ForeignKey::create()
-                            .name("fk_modelo_marca")
-                            .from(Modelo::Table, Modelo::Marca)
-                            .to(Marca::Table, Marca::Nombre)
+                            .name("fk_vehicle_model_brand")
+                            .from(VehicleModel::Table, VehicleModel::Brand)
+                            .to(Brand::Table, Brand::Name)
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
                     )
@@ -48,21 +48,21 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Modelo::Table).to_owned())
+            .drop_table(Table::drop().table(VehicleModel::Table).to_owned())
             .await
     }
 }
 
 #[derive(Iden)]
-pub enum Modelo {
+pub enum VehicleModel {
     Table,
     Id,
-    Nombre,
-    Marca,
+    Name,
+    Brand,
 }
 
 #[derive(Iden)]
-pub enum Marca {
+pub enum Brand {
     Table,
-    Nombre,
+    Name,
 }

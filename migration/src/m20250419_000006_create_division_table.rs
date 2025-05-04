@@ -23,12 +23,12 @@ impl MigrationTrait for Migration {
                             .not_null(),
                     )
                     .col(
-                        ColumnDef::new(Division::Nombre)
+                        ColumnDef::new(Division::Name)
                             .string_len(255)
                             .unique_key()
                             .not_null(),
                     )
-                    .col(ColumnDef::new(Division::Estado).text().not_null())
+                    .col(ColumnDef::new(Division::State).text().not_null())
                     .to_owned(),
             )
             .await
@@ -45,6 +45,6 @@ impl MigrationTrait for Migration {
 pub enum Division {
     Table,
     Id,
-    Nombre,
-    Estado,
+    Name,
+    State,
 }

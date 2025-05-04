@@ -4,7 +4,7 @@ pub struct Migration;
 
 impl MigrationName for Migration {
     fn name(&self) -> &str {
-        "m20250419_000006_create_organismo_table"
+        "m20250419_000006_create_organism_table"
     }
 }
 
@@ -14,21 +14,21 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(Organismo::Table)
+                    .table(Organism::Table)
                     .col(
-                        ColumnDef::new(Organismo::Id)
+                        ColumnDef::new(Organism::Id)
                             .integer()
                             .primary_key()
                             .auto_increment()
                             .not_null(),
                     )
                     .col(
-                        ColumnDef::new(Organismo::Nombre)
+                        ColumnDef::new(Organism::Name)
                             .string_len(255)
                             .unique_key()
                             .not_null(),
                     )
-                    .col(ColumnDef::new(Organismo::Telefono).text().not_null())
+                    .col(ColumnDef::new(Organism::Phone).text().not_null())
                     .to_owned(),
             )
             .await
@@ -36,15 +36,15 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Organismo::Table).to_owned())
+            .drop_table(Table::drop().table(Organism::Table).to_owned())
             .await
     }
 }
 
 #[derive(Iden)]
-pub enum Organismo {
+pub enum Organism {
     Table,
     Id,
-    Nombre,
-    Telefono,
+    Name,
+    Phone,
 }

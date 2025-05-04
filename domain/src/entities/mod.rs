@@ -2,15 +2,15 @@
 
 pub mod prelude;
 
-pub mod brigada;
+pub mod brand;
+pub mod brigade;
 pub mod division;
-pub mod estado;
-pub mod marca;
-pub mod modelo;
-pub mod municipio;
-pub mod organismo;
+pub mod municipality;
+pub mod organism;
 pub mod permission;
 pub mod register;
 pub mod role;
 pub mod role_permission;
+pub mod state;
 pub mod user;
+pub mod vehicle_model;

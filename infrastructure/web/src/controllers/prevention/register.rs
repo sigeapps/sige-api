@@ -39,7 +39,7 @@ pub async fn create_register(
 }
 
 pub async fn get_registers(State(app_state): State<AppState>) -> impl IntoResponse {
-    match app_state.register_repository.find_all().await {
+    match app_state.register_repository.find().await {
         Ok(registers) => (StatusCode::OK, Json(registers)).into_response(),
         Err(e) => {
             error!("Error fetching registers: {}", e.to_string());

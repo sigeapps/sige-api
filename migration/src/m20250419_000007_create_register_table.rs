@@ -1,7 +1,7 @@
 use sea_orm_migration::prelude::*;
 
 use crate::{
-    m20250419_000005_create_organismo_table::Organismo,
+    m20250419_000005_create_organism_table::Organism,
     m20250419_000006_create_division_table::Division,
 };
 
@@ -36,7 +36,7 @@ impl MigrationTrait for Migration {
                         ForeignKey::create()
                             .name("fk-register-organism")
                             .from(Register::Table, Register::Organism)
-                            .to(Organismo::Table, Organismo::Id),
+                            .to(Organism::Table, Organism::Id),
                     )
                     .col(ColumnDef::new(Register::Division).integer().null())
                     .foreign_key(

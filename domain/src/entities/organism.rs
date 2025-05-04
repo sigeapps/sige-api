@@ -4,14 +4,14 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "division")]
+#[sea_orm(table_name = "organism")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     #[sea_orm(unique)]
     pub name: String,
     #[sea_orm(column_type = "Text")]
-    pub state: String,
+    pub phone: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

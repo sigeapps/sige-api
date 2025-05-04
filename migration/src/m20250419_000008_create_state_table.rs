@@ -4,7 +4,7 @@ pub struct Migration;
 
 impl MigrationName for Migration {
     fn name(&self) -> &str {
-        "m20250419_000008_create_estado_table"
+        "m20250419_000008_create_state_table"
     }
 }
 
@@ -14,16 +14,16 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(Estado::Table)
+                    .table(State::Table)
                     .col(
-                        ColumnDef::new(Estado::Id)
+                        ColumnDef::new(State::Id)
                             .integer()
                             .primary_key()
                             .auto_increment()
                             .not_null(),
                     )
                     .col(
-                        ColumnDef::new(Estado::Nombre)
+                        ColumnDef::new(State::Name)
                             .string_len(255)
                             .unique_key()
                             .not_null(),
@@ -35,14 +35,14 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Estado::Table).to_owned())
+            .drop_table(Table::drop().table(State::Table).to_owned())
             .await
     }
 }
 
 #[derive(Iden)]
-pub enum Estado {
+pub enum State {
     Table,
     Id,
-    Nombre,
+    Name,
 }

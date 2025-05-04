@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use sea_orm::{FromQueryResult, PartialModelTrait};
 
 use crate::{entities::register, error::RepositoryError};
 
@@ -8,7 +9,11 @@ pub trait RegisterRepository {
 
     async fn find_by_id(&self, id: i32) -> Result<Option<register::Model>, RepositoryError>;
 
-    async fn find_all(&self) -> Result<Vec<register::Model>, RepositoryError>;
+    async fn find(&self) -> Result<Vec<register::Model>, RepositoryError>;
+
+    async fn find_partial<R>(&self) -> Result<Vec<R>, RepositoryError>
+    where
+        R: PartialModelTrait + FromQueryResult + Send + Sync;
 
     async fn update(&self, register: register::ActiveModel) -> Result<(), RepositoryError>;
 

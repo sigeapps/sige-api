@@ -32,13 +32,13 @@ pub enum Relation {
     )]
     Division,
     #[sea_orm(
-        belongs_to = "super::organismo::Entity",
+        belongs_to = "super::organism::Entity",
         from = "Column::Organism",
-        to = "super::organismo::Column::Id",
+        to = "super::organism::Column::Id",
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    Organismo,
+    Organism,
 }
 
 impl Related<super::division::Entity> for Entity {
@@ -47,9 +47,9 @@ impl Related<super::division::Entity> for Entity {
     }
 }
 
-impl Related<super::organismo::Entity> for Entity {
+impl Related<super::organism::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Organismo.def()
+        Relation::Organism.def()
     }
 }
 
