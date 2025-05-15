@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.98"
-axum = { version = "0.8.3", features = ["macros"] }
+axum = { version = "0.8.3", features = ["macros", "tower-log"] }
 application = { path = "../../application" }
 domain = { path = "../../domain" }
 axum-login = "0.17.0"

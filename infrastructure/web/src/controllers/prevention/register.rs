@@ -1,5 +1,8 @@
+use crate::state::AppState;
+use crate::Result;
 use application::dtos::prevention::register::{CreateRegister, RegisterExit};
 use axum::http::StatusCode;
+use axum::response::Response;
 use axum::{extract::State, response::IntoResponse, Json};
 use domain::entities::register;
 use domain::repositories::register_repository::RegisterRepository;
@@ -7,13 +10,11 @@ use domain::usecases::prevention::register::{RegisterExitInput, RegisterExitUseC
 use sea_orm::ActiveValue::Set;
 use tracing::error;
 
-use crate::state::AppState;
-
 pub async fn create_register(
     State(app_state): State<AppState>,
     Json(register): Json<CreateRegister>,
-) -> impl IntoResponse {
-    match app_state
+) -> Result<Response> {
+    app_state
         .register_repository
         .create(register::ActiveModel {
             last_name: Set(register.last_name),
@@ -27,15 +28,9 @@ pub async fn create_register(
             photo: Set(register.photo),
             ..Default::default()
         })
-        .await
-    {
-        Ok(_) => return (StatusCode::CREATED, "Register created successfully").into_response(),
-        Err(e) => {
-            error!("Error creating register: {}", e.to_string());
+        .await?;
 
-            return (StatusCode::INTERNAL_SERVER_ERROR, "Error creating register").into_response();
-        }
-    };
+    Ok((StatusCode::CREATED, "Register created successfully").into_response())
 }
 
 pub async fn get_registers(State(app_state): State<AppState>) -> impl IntoResponse {

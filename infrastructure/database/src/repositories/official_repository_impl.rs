@@ -4,6 +4,7 @@ use domain::error::RepositoryError;
 use domain::repositories::official_repository::OfficialRepository;
 use sea_orm::*;
 
+#[derive(Debug, Clone)]
 pub struct SeaOrmOfficialRepository {
     db: DatabaseConnection,
 }
@@ -20,8 +21,12 @@ impl SeaOrmOfficialRepository {
 
 #[async_trait]
 impl OfficialRepository for SeaOrmOfficialRepository {
-    async fn find(&self, search: Option<String>) -> Result<Vec<official::Model>, RepositoryError> {
-        let query = Official::find().filter(if let Some(search) = search {
+    async fn find(
+        &self,
+        search: Option<String>,
+        brigade_id: Option<i32>,
+    ) -> Result<Vec<official::Model>, RepositoryError> {
+        let mut query = Official::find().filter(if let Some(search) = search {
             Condition::all()
                 .add(official::Column::FirstName.contains(&search))
                 .add(official::Column::LastName.contains(&search))
@@ -30,6 +35,10 @@ impl OfficialRepository for SeaOrmOfficialRepository {
         } else {
             Condition::all()
         });
+
+        if let Some(brigade_id) = brigade_id {
+            query = query.filter(official::Column::BrigadeId.eq(brigade_id));
+        }
 
         let officials = query
             .all(&self.db)
@@ -45,29 +54,6 @@ impl OfficialRepository for SeaOrmOfficialRepository {
             .await
             .map_err(|e| RepositoryError::Database(e.to_string()))?;
         Ok(official)
-    }
-
-    async fn find_by_brigade_id(
-        &self,
-        brigade_id: i32,
-        search: Option<String>,
-    ) -> Result<Vec<official::Model>, RepositoryError> {
-        let mut query = Official::find()
-            .filter(Condition::all().add(official::Column::BrigadeId.eq(brigade_id)));
-
-        if let Some(search) = search {
-            query = query.filter(
-                Condition::all()
-                    .add(official::Column::FirstName.contains(&search))
-                    .add(official::Column::LastName.contains(&search)),
-            );
-        }
-
-        let officials = query
-            .all(&self.db)
-            .await
-            .map_err(|e| RepositoryError::Database(e.to_string()))?;
-        Ok(officials)
     }
 
     async fn create(&self, official: official::ActiveModel) -> Result<(), RepositoryError> {

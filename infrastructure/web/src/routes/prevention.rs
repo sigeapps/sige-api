@@ -4,18 +4,21 @@ use axum::{
 };
 
 use crate::{
-    controllers::prevention::register::{
-        create_register, get_register_by_id, get_registers, update_register_exit,
+    controllers::prevention::{
+        official::{create_official, get_officials},
+        register::{create_register, get_register_by_id, get_registers, update_register_exit},
     },
     state::AppState,
 };
 use std::sync::Arc;
 
-pub fn prevention(app_state: &Arc<AppState>) -> Router {
+pub fn prevention_routes(app_state: &Arc<AppState>) -> Router {
     Router::new()
         .route("/prevention/register", get(get_registers))
         .route("/prevention/register", post(create_register))
         .route("/prevention/register/{id}", get(get_register_by_id))
         .route("/prevention/register/{id}", patch(update_register_exit))
+        .route("/prevention/official", get(get_officials))
+        .route("/prevention/official", post(create_official))
         .with_state(app_state.as_ref().clone())
 }
