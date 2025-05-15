@@ -1,4 +1,5 @@
 use database::repositories::{
+    lookup_repository_impl::SeaOrmLookupRepository,
     register_repository_impl::SeaOrmRegisterRepository, user_repository_impl::SeaOrmUserRepository,
 };
 use tracing::debug;
@@ -7,6 +8,7 @@ use tracing::debug;
 pub struct AppState {
     pub user_repository: SeaOrmUserRepository,
     pub register_repository: SeaOrmRegisterRepository,
+    pub lookup_repository: SeaOrmLookupRepository,
 }
 
 impl AppState {
@@ -16,6 +18,7 @@ impl AppState {
         Ok(Self {
             user_repository: SeaOrmUserRepository::new(database_url).await?,
             register_repository: SeaOrmRegisterRepository::new(database_url).await?,
+            lookup_repository: SeaOrmLookupRepository::new(database_url).await?,
         })
     }
 }

@@ -64,7 +64,7 @@ pub async fn register(
     if let Err(e) = app_state.user_repository.create(user).await {
         error!("Failed to create user: {}", e);
 
-        return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response();
+        return (StatusCode::INTERNAL_SERVER_ERROR).into_response();
     }
 
     debug!("User created successfully!");

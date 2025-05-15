@@ -7,7 +7,7 @@ Content-Type: application/json
 }
 
 ### LOGIN AN USER
-POST http://127.0.0.1:3000/login
+POST http://127.0.0.1:1234/login
 Content-Type: application/json
 
 {
@@ -34,6 +34,20 @@ Content-Type: application/json
 
 ### GET REGISTERS 
 GET http://127.0.0.1:3000/prevention/register
+
+### GET BRIGADES 
+GET http://127.0.0.1:1234/lookup/brigade
+
+### CREATE AN BRIGADE
+POST http://127.0.0.1:1234/lookup/brigade
+Content-Type: application/json
+
+{
+  "name": "CICPC"
+}
+
+### GET BRIGADES 
+GET http://127.0.0.1:1234/lookup/brigades
 
 ### UPDATE AN REGISTER
 PATCH http://127.0.0.1:1234/prevention/register/3

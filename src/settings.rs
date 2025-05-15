@@ -22,7 +22,7 @@ pub struct Settings {
 impl Settings {
     pub fn new() -> Result<Self, ConfigError> {
         let settings = Config::builder()
-            .add_source(config::File::with_name("config/settings.json"))
+            .add_source(config::File::with_name("settings.json"))
             .set_default("address.host", "127.0.0.1")?
             .set_default("address.port", 3000)?
             .build()?;
