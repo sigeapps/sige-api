@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use chrono::NaiveDate;
 use sea_orm::{FromQueryResult, PartialModelTrait};
 
 use crate::{entities::register, error::RepositoryError};
@@ -9,7 +10,14 @@ pub trait RegisterRepository {
 
     async fn find_by_id(&self, id: i32) -> Result<Option<register::Model>, RepositoryError>;
 
-    async fn find(&self) -> Result<Vec<register::Model>, RepositoryError>;
+    async fn find(
+        &self,
+        search: Option<String>,
+        from_date: Option<NaiveDate>,
+        to_date: Option<NaiveDate>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> Result<Vec<register::Model>, RepositoryError>;
 
     async fn find_partial<R>(&self) -> Result<Vec<R>, RepositoryError>
     where

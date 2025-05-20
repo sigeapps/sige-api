@@ -31,7 +31,17 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Division::State).text().not_null())
                     .to_owned(),
             )
-            .await
+            .await?;
+
+        let insert = Query::insert()
+            .into_table(Division::Table)
+            .columns([Division::Name, Division::State])
+            .values_panic(["División de Homicidios".into(), "Distrito Capital".into()])
+            .to_owned();
+
+        manager.exec_stmt(insert).await?;
+
+        Ok(())
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {

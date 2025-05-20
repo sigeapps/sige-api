@@ -28,16 +28,12 @@ impl MigrationTrait for Migration {
                             .unique_key()
                             .not_null(),
                     )
-                    .col(
-                        ColumnDef::new(Municipality::State)
-                            .string_len(255)
-                            .not_null(),
-                    )
+                    .col(ColumnDef::new(Municipality::State).integer().not_null())
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_municipality_state")
                             .from(Municipality::Table, Municipality::State)
-                            .to(State::Table, State::Name)
+                            .to(State::Table, State::Id)
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
                     )
@@ -64,5 +60,5 @@ pub enum Municipality {
 #[derive(Iden)]
 pub enum State {
     Table,
-    Name,
+    Id,
 }

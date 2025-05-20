@@ -7,6 +7,7 @@ use axum::response::Response;
 use axum::{extract::State, response::IntoResponse, Json};
 use domain::repositories::official_repository::OfficialRepository;
 use serde::Deserialize;
+
 #[derive(Debug, Deserialize)]
 pub struct GetOfficialsQuery {
     search: Option<String>,

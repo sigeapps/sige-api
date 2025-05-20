@@ -1,0 +1,27 @@
+@baseURL=http://127.0.0.1:1234/prevention
+
+POST {{baseURL}}/commission
+Content-Type: application/json
+
+{
+  "commission": {
+    "brigade_id": 123,
+    "authorized_official_id": 456,
+    "status": "ACTIVE",
+    "observations": "Routine inspection"
+  },
+  "reason": {
+    "commission_id": 1,
+    "name": "Annual Review",
+    "description": "Standard annual safety inspection",
+    "zone": "North Zone",
+    "municipality_id": 789
+  },
+  "officials": [
+    { "official_id": 111 },
+    { "official_id": 222 }
+  ],
+  "transports": [
+    { "transport_id": 333 }
+  ]
+}

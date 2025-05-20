@@ -11,7 +11,6 @@ pub struct CreateOfficialDTO {
     pub charge_id: i32,
     pub hierarchy_id: i32,
     pub brigade_id: i32,
-    pub code: i32,
 }
 
 impl Into<official::ActiveModel> for CreateOfficialDTO {
@@ -23,7 +22,6 @@ impl Into<official::ActiveModel> for CreateOfficialDTO {
             charge_id: Set(self.charge_id),
             hierarchy_id: Set(self.hierarchy_id),
             brigade_id: Set(self.brigade_id),
-            code: Set(self.code),
             ci: Set(self.ci),
             ..Default::default()
         }

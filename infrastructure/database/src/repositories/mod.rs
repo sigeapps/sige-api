@@ -1,4 +1,6 @@
+pub mod commission_repository_impl;
 pub mod lookup_repository_impl;
 pub mod official_repository_impl;
 pub mod register_repository_impl;
+pub mod transport_repository_impl;
 pub mod user_repository_impl;

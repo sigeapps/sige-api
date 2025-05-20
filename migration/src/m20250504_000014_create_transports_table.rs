@@ -1,5 +1,4 @@
 use sea_orm_migration::prelude::*;
-
 pub struct Migration;
 
 impl MigrationName for Migration {
@@ -131,17 +130,47 @@ impl MigrationTrait for Migration {
             .await?;
         println!("✅ Transports table created");
 
-        // Assumes 'brigades' and 'officials' exist
-        println!("✅ Commissions table created");
+        println!("🔨 Seeding transport statuses");
 
-        // Create commission_transports table (many-to-many link)
-        // This must come after commissions and transports tables
-        println!("🏗️ Creating commission_transports table...");
+        let statuses = ["Activo", "Mantenimiento", "Fuera de servicio", "Reservado"];
 
-        println!("✅ commission_transports table created");
+        for status in statuses {
+            let insert = Query::insert()
+                .into_table(TransportStatuses::Table)
+                .columns([TransportStatuses::Name])
+                .values_panic([status.into()])
+                .on_conflict(
+                    OnConflict::column(TransportStatuses::Name)
+                        .do_nothing()
+                        .to_owned(),
+                )
+                .to_owned();
 
-        // Note: Other commission-related tables like commission_officials,
-        // commission_reasons, commission_actual_exits are NOT included in this migration.
+            manager.exec_stmt(insert).await?;
+        }
+
+        println!("✅ Transport statuses seeded");
+
+        println!("🔨 Seeding transport types");
+
+        let types = ["Moto", "Carro", "Particular"];
+
+        for transport_type in types {
+            let insert = Query::insert()
+                .into_table(TransportType::Table)
+                .columns([TransportType::Name])
+                .values_panic([transport_type.into()])
+                .on_conflict(
+                    OnConflict::column(TransportType::Name)
+                        .do_nothing()
+                        .to_owned(),
+                )
+                .to_owned();
+
+            manager.exec_stmt(insert).await?;
+        }
+
+        println!("✅ Transport types seeded");
 
         Ok(())
     }
@@ -154,16 +183,6 @@ impl MigrationTrait for Migration {
             .drop_table(Table::drop().table(Transport::Table).if_exists().to_owned())
             .await?;
 
-        println!("💥 Dropping models table...");
-        manager
-            .drop_table(
-                Table::drop()
-                    .table(VehicleModel::Table)
-                    .if_exists()
-                    .to_owned(),
-            )
-            .await?;
-
         // Drop transport lookup tables
         manager
             .drop_table(
@@ -173,10 +192,6 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-        manager
-            .drop_table(Table::drop().table(Brand::Table).if_exists().to_owned())
-            .await?;
-        println!("✅ Transport lookup tables dropped");
 
         Ok(())
     }

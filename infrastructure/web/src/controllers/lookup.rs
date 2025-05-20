@@ -7,7 +7,10 @@ use axum::{
     Json,
 };
 use domain::{
-    entities::{brigade, charge, division, hierarchy, organism},
+    entities::{
+        brand, brigade, charge, division, hierarchy, municipality, organism, state,
+        transport_statuses, transport_type, vehicle_model,
+    },
     repositories::lookup_repository::LookupRepository,
 };
 use tracing::{debug, error};
@@ -146,6 +149,182 @@ pub async fn create_hierarchy(
     app_state
         .lookup_repository
         .create::<hierarchy::Entity, hierarchy::Model, hierarchy::ActiveModel>(active_model)
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_states(State(app_state): State<AppState>) -> Result<Response> {
+    let states = app_state
+        .lookup_repository
+        .find::<state::Entity, state::Model, state::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&states));
+    Ok((StatusCode::OK, Json(states)).into_response())
+}
+
+pub async fn create_state(
+    State(app_state): State<AppState>,
+    Json(state): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    let active_model = state::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(state.name),
+    };
+
+    app_state
+        .lookup_repository
+        .create::<state::Entity, state::Model, state::ActiveModel>(active_model)
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_municipalities(State(app_state): State<AppState>) -> Result<Response> {
+    let municipalities = app_state
+        .lookup_repository
+        .find::<municipality::Entity, municipality::Model, municipality::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&municipalities));
+    Ok((StatusCode::OK, Json(municipalities)).into_response())
+}
+
+pub async fn create_municipality(
+    State(app_state): State<AppState>,
+    Json(municipality): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    let active_model = municipality::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(municipality.name),
+        state: sea_orm::Set(municipality.state.unwrap_or_default()),
+    };
+
+    app_state
+        .lookup_repository
+        .create::<municipality::Entity, municipality::Model, municipality::ActiveModel>(
+            active_model,
+        )
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_transport_types(State(app_state): State<AppState>) -> Result<Response> {
+    let transport_types = app_state
+        .lookup_repository
+        .find::<transport_type::Entity, transport_type::Model, transport_type::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&transport_types));
+    Ok((StatusCode::OK, Json(transport_types)).into_response())
+}
+
+pub async fn create_transport_type(
+    State(app_state): State<AppState>,
+    Json(transport_type): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    let active_model = transport_type::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(transport_type.name),
+    };
+
+    app_state
+        .lookup_repository
+        .create::<transport_type::Entity, transport_type::Model, transport_type::ActiveModel>(
+            active_model,
+        )
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_transport_statuses(State(app_state): State<AppState>) -> Result<Response> {
+    let transport_statuses = app_state
+        .lookup_repository
+        .find::<transport_statuses::Entity, transport_statuses::Model, transport_statuses::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&transport_statuses));
+    Ok((StatusCode::OK, Json(transport_statuses)).into_response())
+}
+
+pub async fn create_transport_status(
+    State(app_state): State<AppState>,
+    Json(transport_status): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    let active_model = transport_statuses::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(transport_status.name),
+    };
+
+    app_state
+        .lookup_repository
+        .create::<transport_statuses::Entity, transport_statuses::Model, transport_statuses::ActiveModel>(
+            active_model,
+        )
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_brands(State(app_state): State<AppState>) -> Result<Response> {
+    let brands = app_state
+        .lookup_repository
+        .find::<brand::Entity, brand::Model, brand::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&brands));
+    Ok((StatusCode::OK, Json(brands)).into_response())
+}
+
+pub async fn create_brand(
+    State(app_state): State<AppState>,
+    Json(brand): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    let active_model = brand::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(brand.name),
+    };
+
+    app_state
+        .lookup_repository
+        .create::<brand::Entity, brand::Model, brand::ActiveModel>(active_model)
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_vehicle_models(State(app_state): State<AppState>) -> Result<Response> {
+    let vehicle_models = app_state
+        .lookup_repository
+        .find::<vehicle_model::Entity, vehicle_model::Model, vehicle_model::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&vehicle_models));
+    Ok((StatusCode::OK, Json(vehicle_models)).into_response())
+}
+
+pub async fn create_vehicle_model(
+    State(app_state): State<AppState>,
+    Json(vehicle_model): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    if vehicle_model.brand.is_none() {
+        return Ok((StatusCode::UNPROCESSABLE_ENTITY, "no brand id was provided").into_response());
+    };
+
+    let active_model = vehicle_model::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(vehicle_model.name),
+        brand: sea_orm::Set(vehicle_model.brand.unwrap_or_default()),
+    };
+
+    app_state
+        .lookup_repository
+        .create::<vehicle_model::Entity, vehicle_model::Model, vehicle_model::ActiveModel>(
+            active_model,
+        )
         .await?;
 
     Ok(StatusCode::CREATED.into_response())

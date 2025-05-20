@@ -16,7 +16,7 @@ pub struct Model {
     pub charge_id: i32,
     pub hierarchy_id: i32,
     pub brigade_id: i32,
-    pub code: i32,
+    pub code: Option<i32>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

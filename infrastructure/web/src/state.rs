@@ -1,7 +1,10 @@
 use database::repositories::{
+    commission_repository_impl::SeaOrmCommissionRepository,
     lookup_repository_impl::SeaOrmLookupRepository,
     official_repository_impl::SeaOrmOfficialRepository,
-    register_repository_impl::SeaOrmRegisterRepository, user_repository_impl::SeaOrmUserRepository,
+    register_repository_impl::SeaOrmRegisterRepository,
+    transport_repository_impl::SeaOrmTransportRepository,
+    user_repository_impl::SeaOrmUserRepository,
 };
 use tracing::debug;
 
@@ -10,7 +13,9 @@ pub struct AppState {
     pub user_repository: SeaOrmUserRepository,
     pub register_repository: SeaOrmRegisterRepository,
     pub lookup_repository: SeaOrmLookupRepository,
+    pub transport_repository: SeaOrmTransportRepository,
     pub official_repository: SeaOrmOfficialRepository,
+    pub commission_repository: SeaOrmCommissionRepository,
 }
 
 impl AppState {
@@ -22,6 +27,8 @@ impl AppState {
             register_repository: SeaOrmRegisterRepository::new(database_url).await?,
             official_repository: SeaOrmOfficialRepository::new(database_url).await?,
             lookup_repository: SeaOrmLookupRepository::new(database_url).await?,
+            transport_repository: SeaOrmTransportRepository::new(database_url).await?,
+            commission_repository: SeaOrmCommissionRepository::new(database_url).await?,
         })
     }
 }

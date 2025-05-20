@@ -69,7 +69,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Official::ChargeId).integer().not_null())
                     .col(ColumnDef::new(Official::HierarchyId).integer().not_null())
                     .col(ColumnDef::new(Official::BrigadeId).integer().not_null())
-                    .col(ColumnDef::new(Official::Code).integer().not_null())
+                    .col(ColumnDef::new(Official::Code).integer().null())
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_official_charge")
@@ -90,12 +90,48 @@ impl MigrationTrait for Migration {
                     )
                     .to_owned(),
             )
+            .await?;
+
+        // Seed common hierarchies
+        manager
+            .exec_stmt(
+                Query::insert()
+                    .into_table(Hierarchy::Table)
+                    .columns([Hierarchy::Id, Hierarchy::Name])
+                    .values_panic([1.into(), "Nacional".into()])
+                    .values_panic([2.into(), "Provincial".into()])
+                    .values_panic([3.into(), "Municipal".into()])
+                    .to_owned(),
+            )
+            .await?;
+
+        // Seed common charges
+        manager
+            .exec_stmt(
+                Query::insert()
+                    .into_table(Charge::Table)
+                    .columns([Charge::Id, Charge::Name])
+                    .values_panic([1.into(), "Presidente".into()])
+                    .values_panic([2.into(), "Vice Presidente".into()])
+                    .values_panic([3.into(), "Secretario".into()])
+                    .values_panic([4.into(), "Tesorero".into()])
+                    .values_panic([5.into(), "Vocal".into()])
+                    .to_owned(),
+            )
             .await
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
             .drop_table(Table::drop().table(Official::Table).to_owned())
+            .await?;
+
+        manager
+            .drop_table(Table::drop().table(Charge::Table).to_owned())
+            .await?;
+
+        manager
+            .drop_table(Table::drop().table(Hierarchy::Table).to_owned())
             .await
     }
 }

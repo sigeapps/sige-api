@@ -13,7 +13,7 @@ pub enum AuthError {
 #[derive(Debug, thiserror::Error)]
 pub enum RepositoryError {
     #[error("Not found register")]
-    NotFound,
+    NotFound(String),
     #[error("Standard IO error: {0}")]
     Io(#[from] std::io::Error),
     #[error("Database error: {0}")]

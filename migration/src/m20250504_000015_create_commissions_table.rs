@@ -272,6 +272,24 @@ impl MigrationTrait for Migration {
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        // Drop dependent tables first
+        manager
+            .drop_table(Table::drop().table(CommissionActualExit::Table).to_owned())
+            .await?;
+
+        manager
+            .drop_table(Table::drop().table(CommissionReason::Table).to_owned())
+            .await?;
+
+        manager
+            .drop_table(Table::drop().table(CommissionTransport::Table).to_owned())
+            .await?;
+
+        manager
+            .drop_table(Table::drop().table(CommissionOfficial::Table).to_owned())
+            .await?;
+
+        // Finally drop the main commission table
         manager
             .drop_table(Table::drop().table(Commission::Table).to_owned())
             .await

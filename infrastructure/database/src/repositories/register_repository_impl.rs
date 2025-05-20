@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use chrono::NaiveDate;
 use domain::entities::{prelude::*, *};
 use domain::error::RepositoryError;
 use domain::repositories::register_repository::RegisterRepository;
@@ -41,11 +42,46 @@ impl RegisterRepository for SeaOrmRegisterRepository {
         Ok(register)
     }
 
-    async fn find(&self) -> Result<Vec<register::Model>, RepositoryError> {
-        Register::find()
+    async fn find(
+        &self,
+        search: Option<String>,
+        from_date: Option<NaiveDate>,
+        to_date: Option<NaiveDate>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> Result<Vec<register::Model>, RepositoryError> {
+        let mut query = Register::find();
+
+        if let Some(from_date) = from_date {
+            query = query.filter(register::Column::EntryDate.gte(from_date));
+        }
+
+        if let Some(to_date) = to_date {
+            query = query.filter(register::Column::EntryDate.lte(to_date));
+        }
+
+        if let Some(search) = search {
+            query = query.filter(
+                Condition::all()
+                    .add(register::Column::LastName.contains(&search))
+                    .add(register::Column::FirstName.contains(&search)),
+            );
+        }
+
+        if let Some(limit) = limit {
+            query = query.limit(limit as u64);
+        }
+
+        if let Some(offset) = offset {
+            query = query.offset(offset as u64);
+        }
+
+        let registers = query
             .all(&self.db)
             .await
-            .map_err(|e| RepositoryError::Database(e.to_string()))
+            .map_err(|e| RepositoryError::Database(e.to_string()))?;
+
+        Ok(registers)
     }
 
     async fn find_partial<R>(&self) -> Result<Vec<R>, RepositoryError>

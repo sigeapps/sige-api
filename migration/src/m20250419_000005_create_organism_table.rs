@@ -31,6 +31,16 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Organism::Phone).text().not_null())
                     .to_owned(),
             )
+            .await?;
+
+        manager
+            .exec_stmt(
+                Query::insert()
+                    .into_table(Organism::Table)
+                    .columns([Organism::Name, Organism::Phone])
+                    .values_panic(["DIE".into(), "911".into()])
+                    .to_owned(),
+            )
             .await
     }
 

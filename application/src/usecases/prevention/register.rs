@@ -1,10 +1,9 @@
-use sea_orm::ActiveValue::Set;
-use serde::{Deserialize, Serialize};
-
-use crate::{
+use domain::{
     entities::register, error::RepositoryError,
     repositories::register_repository::RegisterRepository,
 };
+use sea_orm::ActiveValue::Set;
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
 pub struct RegisterExitInput {
@@ -29,8 +28,9 @@ impl<R: RegisterRepository> RegisterExitUseCase<R> {
         let old_register = self
             .register_repository
             .find_by_id(register_id)
-            .await?
-            .ok_or(RepositoryError::NotFound)?;
+            .await
+            .map_err(|e| RepositoryError::Database(e.to_string()))?
+            .ok_or_else(|| RepositoryError::NotFound("Register not founded".to_string()))?;
 
         let mut active_register: register::ActiveModel = old_register.into();
 

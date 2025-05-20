@@ -30,7 +30,15 @@ impl MigrationTrait for Migration {
                     )
                     .to_owned(),
             )
-            .await
+            .await?;
+
+        let insert = Query::insert()
+            .into_table(Brigade::Table)
+            .columns([Brigade::Name])
+            .values_panic(["CICPC".into()])
+            .to_owned();
+
+        manager.exec_stmt(insert).await
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {

@@ -1,3 +1,63 @@
-@baseURL=https://127.0.0.1:1234
+@baseURL=http://127.0.0.1:1234/lookup
 
-### Get an register
+### Create brigade
+POST {{baseURL}}/brigade
+Content-Type: application/json
+
+{
+  "name": "CICPC"
+}
+
+### Create state
+POST {{baseURL}}/state
+Content-Type: application/json
+
+{
+  "name": "Miranda"
+}
+
+### Create municipalty
+POST {{baseURL}}/municipality
+Content-Type: application/json
+
+{
+  "name": "Ezequiel Zamora",
+  "state": 1
+}
+
+### Get charges
+GET {{baseURL}}/charge
+
+### Create an charge 
+POST {{baseURL}}/charge
+Content-Type: application/json
+
+{
+  "name": "Primer oficial"
+}
+
+### Create an hierarchy 
+POST {{baseURL}}/hierarchy
+Content-Type: application/json
+
+{
+  "name": "Jefe"
+}
+
+### Create an organism
+POST {{baseURL}}/organism
+Content-Type: application/json
+
+{
+  "name": "Jefe",
+  "phone": "04120196456"
+}
+
+### Create an division 
+POST {{baseURL}}/organism
+Content-Type: application/json
+
+{
+  "name": "Jefe",
+  "state": "Miranda"
+}

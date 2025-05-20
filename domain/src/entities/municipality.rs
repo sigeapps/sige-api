@@ -10,7 +10,7 @@ pub struct Model {
     pub id: i32,
     #[sea_orm(unique)]
     pub name: String,
-    pub state: String,
+    pub state: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -20,7 +20,7 @@ pub enum Relation {
     #[sea_orm(
         belongs_to = "super::state::Entity",
         from = "Column::State",
-        to = "super::state::Column::Name",
+        to = "super::state::Column::Id",
         on_update = "Cascade",
         on_delete = "Cascade"
     )]

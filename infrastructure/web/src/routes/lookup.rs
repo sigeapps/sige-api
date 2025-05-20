@@ -5,8 +5,11 @@ use axum::{
 
 use crate::{
     controllers::lookup::{
-        create_brigade, create_charge, create_division, create_hierarchy, create_organism,
-        get_brigades, get_charges, get_divisions, get_hierarchies, get_organisms,
+        create_brand, create_brigade, create_charge, create_division, create_hierarchy,
+        create_municipality, create_organism, create_state, create_transport_status,
+        create_transport_type, create_vehicle_model, get_brands, get_brigades, get_charges,
+        get_divisions, get_hierarchies, get_municipalities, get_organisms, get_states,
+        get_transport_statuses, get_transport_types, get_vehicle_models,
     },
     state::AppState,
 };
@@ -24,5 +27,17 @@ pub fn lookup_routes(app_state: &Arc<AppState>) -> Router {
         .route("/lookup/charge", post(create_charge))
         .route("/lookup/hierarchy", get(get_hierarchies))
         .route("/lookup/hierarchy", post(create_hierarchy))
+        .route("/lookup/state", get(get_states))
+        .route("/lookup/state", post(create_state))
+        .route("/lookup/municipality", get(get_municipalities))
+        .route("/lookup/municipality", post(create_municipality))
+        .route("/lookup/transport-type", get(get_transport_types))
+        .route("/lookup/transport-type", post(create_transport_type))
+        .route("/lookup/transport-status", get(get_transport_statuses))
+        .route("/lookup/transport-status", post(create_transport_status))
+        .route("/lookup/brand", get(get_brands))
+        .route("/lookup/brand", post(create_brand))
+        .route("/lookup/vehicle-model", get(get_vehicle_models))
+        .route("/lookup/vehicle-model", post(create_vehicle_model))
         .with_state(app_state.as_ref().clone())
 }

@@ -5,8 +5,10 @@ use axum::{
 
 use crate::{
     controllers::prevention::{
+        commission::create_commission,
         official::{create_official, get_officials},
         register::{create_register, get_register_by_id, get_registers, update_register_exit},
+        transport::{create_transport, get_tranports},
     },
     state::AppState,
 };
@@ -20,5 +22,8 @@ pub fn prevention_routes(app_state: &Arc<AppState>) -> Router {
         .route("/prevention/register/{id}", patch(update_register_exit))
         .route("/prevention/official", get(get_officials))
         .route("/prevention/official", post(create_official))
+        .route("/prevention/transport", get(get_tranports))
+        .route("/prevention/transport", post(create_transport))
+        .route("/prevention/commission", post(create_commission))
         .with_state(app_state.as_ref().clone())
 }

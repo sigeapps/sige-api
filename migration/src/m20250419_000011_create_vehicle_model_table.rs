@@ -51,6 +51,7 @@ impl MigrationTrait for Migration {
 
 #[derive(Iden)]
 pub enum VehicleModel {
+    #[iden = "vehicle_model"]
     Table,
     Id,
     Name,
