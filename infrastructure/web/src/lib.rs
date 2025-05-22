@@ -6,13 +6,12 @@ pub mod state;
 
 use std::sync::Arc;
 
-use auth::AuthBackend;
+use auth::Backend;
 use axum::{routing::get, Router};
 use axum_login::{
     tower_sessions::{MemoryStore, SessionManagerLayer},
     AuthManagerLayerBuilder,
 };
-use database::repositories::user_repository_impl::SeaOrmUserRepository;
 use error::WebError;
 use state::AppState;
 use tower_http::cors::CorsLayer;
@@ -26,8 +25,8 @@ pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<
     let session_store = MemoryStore::default();
     let session_layer = SessionManagerLayer::new(session_store);
 
-    let backend = AuthBackend::<SeaOrmUserRepository> {
-        user_repository: Arc::new(app_state.user_service.clone()),
+    let backend = Backend {
+        users: app_state.user_service.clone(),
     };
 
     let auth_layer = AuthManagerLayerBuilder::new(backend, session_layer).build();
