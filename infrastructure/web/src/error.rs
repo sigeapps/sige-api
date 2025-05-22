@@ -1,5 +1,5 @@
 use axum::{extract::rejection, http::StatusCode, response::IntoResponse};
-use domain::error::RepositoryError;
+use sea_orm::DbErr;
 use tracing::error;
 
 #[derive(thiserror::Error, Debug)]
@@ -11,8 +11,8 @@ pub enum WebError {
     #[error("request path not found")]
     NotFound,
     #[error("error on database")]
-    Database(#[from] RepositoryError),
-    #[error("Unprocessable entity: {0}")]
+    Database(#[from] DbErr),
+    #[error("unprocessable entity")]
     Validation(#[from] rejection::JsonSyntaxError),
 }
 

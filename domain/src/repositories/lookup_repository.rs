@@ -11,6 +11,12 @@ pub trait LookupRepository {
         M: ModelTrait + Send + Sync + FromQueryResult,
         A: ActiveModelTrait + Send + Sync;
 
+    async fn find_by_id<E, M, A>(&self, id: i32) -> Result<M, RepositoryError>
+    where
+        E: EntityTrait<Model = M, ActiveModel = A> + Send + Sync,
+        M: ModelTrait + Send + Sync + FromQueryResult,
+        A: ActiveModelTrait + Send + Sync;
+
     async fn create<E, M, A>(&self, active_model: A) -> Result<(), RepositoryError>
     where
         E: EntityTrait<Model = M, ActiveModel = A> + Send + Sync,

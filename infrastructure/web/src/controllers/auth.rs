@@ -53,15 +53,7 @@ pub async fn register(
 ) -> impl IntoResponse {
     debug!("Registering user: {}", form.username);
 
-    let hashed_password = generate_hash(&form.password);
-
-    let user = user::ActiveModel {
-        name: Set(form.username),
-        password_hash: Set(hashed_password),
-        ..Default::default()
-    };
-
-    if let Err(e) = app_state.user_repository.create(user).await {
+    if let Err(e) = app_state.user_service.create(user).await {
         error!("Failed to create user: {}", e);
 
         return (StatusCode::INTERNAL_SERVER_ERROR).into_response();

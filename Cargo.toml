@@ -18,6 +18,5 @@ members = [
   "infrastructure/web",
   "domain",
   "application",
-  "infrastructure/database",
-  "migration",
+  "migration"
 ]

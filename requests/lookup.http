@@ -1,12 +1,15 @@
 @baseURL=http://127.0.0.1:1234/lookup
 
-### Create brigade
+### CREATE BRIGADE 
 POST {{baseURL}}/brigade
 Content-Type: application/json
 
 {
   "name": "CICPC"
 }
+
+### GET BRIGADES 
+GET http://127.0.0.1:1234/lookup/brigades
 
 ### Create state
 POST {{baseURL}}/state
@@ -60,4 +63,25 @@ Content-Type: application/json
 {
   "name": "Jefe",
   "state": "Miranda"
+}
+
+### Create a brand
+POST {{baseURL}}/brand
+Content-Type: application/json
+
+{
+  "name": "Toyota"
+}
+
+### GET BRANDS
+
+GET {{baseURL}}/brand
+
+### Create a model
+POST {{baseURL}}/model
+Content-Type: application/json
+
+{
+  "name": "Corolla",
+  "brand": 1
 }

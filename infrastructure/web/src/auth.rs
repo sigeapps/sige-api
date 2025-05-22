@@ -1,24 +1,23 @@
 use application::dtos::auth::LoginRequest;
+use application::dtos::user::GetUserDTO;
+use application::services::user::UserService;
 use async_trait::async_trait;
 use axum_login::{AuthUser, AuthnBackend, UserId};
-use domain::{
-    entities::user, error::AuthError as DomainAuthError,
-    repositories::user_repository::UserRepository,
-};
 use password_auth::verify_password;
 use serde::{Deserialize, Serialize};
 use std::ops::Deref;
-use std::sync::Arc;
 use tracing::debug;
+
+use crate::error::WebError;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct User {
     #[serde(flatten)]
-    model: user::Model,
+    model: GetUserDTO,
 }
 
 impl Deref for User {
-    type Target = user::Model;
+    type Target = GetUserDTO;
 
     fn deref(&self) -> &Self::Target {
         &self.model
@@ -38,33 +37,21 @@ impl AuthUser for User {
 }
 
 #[derive(Debug, Clone)]
-pub struct AuthBackend<R: UserRepository + Clone> {
-    pub user_repository: Arc<R>,
-}
-
-impl<R: UserRepository + Clone> AuthBackend<R> {
-    pub fn new(user_repository: Arc<R>) -> Self {
-        Self { user_repository }
-    }
+pub struct Backend {
+    pub users: UserService,
 }
 
 #[async_trait]
-impl<R> AuthnBackend for AuthBackend<R>
-where
-    R: UserRepository + Send + Sync + Clone + 'static,
-{
+impl AuthnBackend for Backend {
     type User = User;
     type Credentials = LoginRequest;
-    type Error = DomainAuthError;
+    type Error = WebError;
 
     async fn authenticate(
         &self,
         creds: Self::Credentials,
     ) -> Result<Option<Self::User>, Self::Error> {
-        let user = self
-            .user_repository
-            .find_by_username(creds.username)
-            .await?;
+        let user = self.users.find_by_username(creds.username).await?;
 
         match user {
             Some(u) => {
@@ -85,10 +72,10 @@ where
     }
 
     async fn get_user(&self, user_id: &UserId<Self>) -> Result<Option<Self::User>, Self::Error> {
-        let user = self.user_repository.find_by_id(*user_id).await?;
+        let user = self.users.find_by_id(*user_id).await?;
 
         Ok(user.map(|u| User { model: u }))
     }
 }
 
-pub type AuthSession<R> = axum_login::AuthSession<AuthBackend<R>>;
+pub type AuthSession = axum_login::AuthSession<Backend>;

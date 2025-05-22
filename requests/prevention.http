@@ -5,23 +5,49 @@ Content-Type: application/json
 
 {
   "commission": {
-    "brigade_id": 123,
-    "authorized_official_id": 456,
+    "brigade_id": 1,
+    "authorized_official_id": 1,
     "status": "ACTIVE",
     "observations": "Routine inspection"
   },
   "reason": {
-    "commission_id": 1,
     "name": "Annual Review",
     "description": "Standard annual safety inspection",
     "zone": "North Zone",
-    "municipality_id": 789
+    "municipality_id": 1 
   },
   "officials": [
-    { "official_id": 111 },
-    { "official_id": 222 }
+    { "official_id": 1 }
   ],
   "transports": [
     { "transport_id": 333 }
   ]
+}
+
+### CREATE OFFICIAL
+POST {{baseURL}}/official
+Content-Type: application/json
+
+{
+  "ci": "12345678",
+  "last_name": "Doe",
+  "first_name": "John",
+  "phone": "555-1234",
+  "charge_id": 1,
+  "hierarchy_id": 1,
+  "brigade_id": 1
+}
+
+### CREATE TRANSPORT 
+POST {{baseURL}}/transport
+Content-Type: application/json
+
+{
+  "type_id": 1,
+  "details": "This is a sample transport detail",
+  "brand_id": 1,
+  "model_id": 1,
+  "plate": "ABC-1234",
+  "unit": "Unit-01",
+  "status_id": 1
 }

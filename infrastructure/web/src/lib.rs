@@ -27,7 +27,7 @@ pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<
     let session_layer = SessionManagerLayer::new(session_store);
 
     let backend = AuthBackend::<SeaOrmUserRepository> {
-        user_repository: Arc::new(app_state.user_repository.clone()),
+        user_repository: Arc::new(app_state.user_service.clone()),
     };
 
     let auth_layer = AuthManagerLayerBuilder::new(backend, session_layer).build();

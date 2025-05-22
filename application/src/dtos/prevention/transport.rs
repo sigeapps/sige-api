@@ -1,8 +1,8 @@
-use domain::entities::transport;
-use sea_orm::ActiveValue::Set;
+use domain::entities::transport::ActiveModel;
+use sea_orm::{DeriveIntoActiveModel, FromQueryResult};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, DeriveIntoActiveModel)]
 pub struct CreateTransportDTO {
     pub type_id: i32,
     pub details: String,
@@ -13,17 +13,14 @@ pub struct CreateTransportDTO {
     pub status_id: Option<i32>,
 }
 
-impl Into<transport::ActiveModel> for CreateTransportDTO {
-    fn into(self) -> transport::ActiveModel {
-        transport::ActiveModel {
-            plate: Set(self.plate),
-            unit: Set(self.unit),
-            details: Set(self.details),
-            type_id: Set(self.type_id),
-            brand_id: Set(self.brand_id),
-            model_id: Set(self.model_id),
-            status_id: Set(self.status_id),
-            ..Default::default()
-        }
-    }
+#[derive(Debug, Clone, Deserialize, Serialize, FromQueryResult)]
+pub struct GetTransportDTO {
+    pub id: i32,
+    pub r#type: String,
+    pub details: String,
+    pub brand: String,
+    pub model: String,
+    pub plate: String,
+    pub unit: String,
+    pub status: String,
 }
