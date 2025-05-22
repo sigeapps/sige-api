@@ -26,6 +26,7 @@ impl From<user::Model> for GetUserDTO {
 
 #[derive(DeriveIntoActiveModel, Deserialize, Serialize)]
 pub struct CreateUserDTO {
+    #[serde(rename(serialize = "username"))]
     pub name: String,
     #[serde(rename(serialize = "password"))]
     pub password_hash: String,

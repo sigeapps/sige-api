@@ -6,20 +6,17 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
-use domain::{
-    entities::{
-        brand, brigade, charge, division, hierarchy, municipality, organism, state,
-        transport_statuses, transport_type, vehicle_model,
-    },
-    repositories::lookup_repository::LookupRepository,
+use domain::entities::{
+    brand, brigade, charge, division, hierarchy, municipality, organism, state, transport_statuses,
+    transport_type, vehicle_model,
 };
-use tracing::{debug, error};
+use tracing::debug;
 
 use crate::state::AppState;
 
 pub async fn get_brigades(State(app_state): State<AppState>) -> Result<Response> {
     let brigades = app_state
-        .lookup_repository
+        .lookup_service
         .find::<brigade::Entity, brigade::Model, brigade::ActiveModel>()
         .await?;
 
@@ -37,7 +34,7 @@ pub async fn create_brigade(
     };
 
     app_state
-        .lookup_repository
+        .lookup_service
         .create::<brigade::Entity, brigade::Model, brigade::ActiveModel>(active_model)
         .await?;
 
@@ -46,7 +43,7 @@ pub async fn create_brigade(
 
 pub async fn get_organisms(State(app_state): State<AppState>) -> Result<Response> {
     let organisms = app_state
-        .lookup_repository
+        .lookup_service
         .find::<organism::Entity, organism::Model, organism::ActiveModel>()
         .await?;
 
@@ -65,7 +62,7 @@ pub async fn create_organism(
     };
 
     app_state
-        .lookup_repository
+        .lookup_service
         .create::<organism::Entity, organism::Model, organism::ActiveModel>(active_model)
         .await?;
 
@@ -74,7 +71,7 @@ pub async fn create_organism(
 
 pub async fn get_divisions(State(app_state): State<AppState>) -> Result<Response> {
     let divisions = app_state
-        .lookup_repository
+        .lookup_service
         .find::<division::Entity, division::Model, division::ActiveModel>()
         .await?;
 
@@ -93,7 +90,7 @@ pub async fn create_division(
     };
 
     app_state
-        .lookup_repository
+        .lookup_service
         .create::<division::Entity, division::Model, division::ActiveModel>(active_model)
         .await?;
 
@@ -102,7 +99,7 @@ pub async fn create_division(
 
 pub async fn get_charges(State(app_state): State<AppState>) -> Result<Response> {
     let charges = app_state
-        .lookup_repository
+        .lookup_service
         .find::<charge::Entity, charge::Model, charge::ActiveModel>()
         .await?;
 
@@ -120,7 +117,7 @@ pub async fn create_charge(
     };
 
     app_state
-        .lookup_repository
+        .lookup_service
         .create::<charge::Entity, charge::Model, charge::ActiveModel>(active_model)
         .await?;
 
@@ -129,7 +126,7 @@ pub async fn create_charge(
 
 pub async fn get_hierarchies(State(app_state): State<AppState>) -> Result<Response> {
     let hierarchies = app_state
-        .lookup_repository
+        .lookup_service
         .find::<hierarchy::Entity, hierarchy::Model, hierarchy::ActiveModel>()
         .await?;
 
@@ -147,7 +144,7 @@ pub async fn create_hierarchy(
     };
 
     app_state
-        .lookup_repository
+        .lookup_service
         .create::<hierarchy::Entity, hierarchy::Model, hierarchy::ActiveModel>(active_model)
         .await?;
 
@@ -156,7 +153,7 @@ pub async fn create_hierarchy(
 
 pub async fn get_states(State(app_state): State<AppState>) -> Result<Response> {
     let states = app_state
-        .lookup_repository
+        .lookup_service
         .find::<state::Entity, state::Model, state::ActiveModel>()
         .await?;
 
@@ -174,7 +171,7 @@ pub async fn create_state(
     };
 
     app_state
-        .lookup_repository
+        .lookup_service
         .create::<state::Entity, state::Model, state::ActiveModel>(active_model)
         .await?;
 
@@ -183,7 +180,7 @@ pub async fn create_state(
 
 pub async fn get_municipalities(State(app_state): State<AppState>) -> Result<Response> {
     let municipalities = app_state
-        .lookup_repository
+        .lookup_service
         .find::<municipality::Entity, municipality::Model, municipality::ActiveModel>()
         .await?;
 
@@ -202,7 +199,7 @@ pub async fn create_municipality(
     };
 
     app_state
-        .lookup_repository
+        .lookup_service
         .create::<municipality::Entity, municipality::Model, municipality::ActiveModel>(
             active_model,
         )
@@ -213,7 +210,7 @@ pub async fn create_municipality(
 
 pub async fn get_transport_types(State(app_state): State<AppState>) -> Result<Response> {
     let transport_types = app_state
-        .lookup_repository
+        .lookup_service
         .find::<transport_type::Entity, transport_type::Model, transport_type::ActiveModel>()
         .await?;
 
@@ -231,7 +228,7 @@ pub async fn create_transport_type(
     };
 
     app_state
-        .lookup_repository
+        .lookup_service
         .create::<transport_type::Entity, transport_type::Model, transport_type::ActiveModel>(
             active_model,
         )
@@ -242,7 +239,7 @@ pub async fn create_transport_type(
 
 pub async fn get_transport_statuses(State(app_state): State<AppState>) -> Result<Response> {
     let transport_statuses = app_state
-        .lookup_repository
+        .lookup_service
         .find::<transport_statuses::Entity, transport_statuses::Model, transport_statuses::ActiveModel>()
         .await?;
 
@@ -260,7 +257,7 @@ pub async fn create_transport_status(
     };
 
     app_state
-        .lookup_repository
+        .lookup_service
         .create::<transport_statuses::Entity, transport_statuses::Model, transport_statuses::ActiveModel>(
             active_model,
         )
@@ -271,7 +268,7 @@ pub async fn create_transport_status(
 
 pub async fn get_brands(State(app_state): State<AppState>) -> Result<Response> {
     let brands = app_state
-        .lookup_repository
+        .lookup_service
         .find::<brand::Entity, brand::Model, brand::ActiveModel>()
         .await?;
 
@@ -289,7 +286,7 @@ pub async fn create_brand(
     };
 
     app_state
-        .lookup_repository
+        .lookup_service
         .create::<brand::Entity, brand::Model, brand::ActiveModel>(active_model)
         .await?;
 
@@ -298,7 +295,7 @@ pub async fn create_brand(
 
 pub async fn get_vehicle_models(State(app_state): State<AppState>) -> Result<Response> {
     let vehicle_models = app_state
-        .lookup_repository
+        .lookup_service
         .find::<vehicle_model::Entity, vehicle_model::Model, vehicle_model::ActiveModel>()
         .await?;
 
@@ -321,7 +318,7 @@ pub async fn create_vehicle_model(
     };
 
     app_state
-        .lookup_repository
+        .lookup_service
         .create::<vehicle_model::Entity, vehicle_model::Model, vehicle_model::ActiveModel>(
             active_model,
         )

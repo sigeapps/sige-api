@@ -5,7 +5,6 @@ use axum::extract::Query;
 use axum::http::StatusCode;
 use axum::response::Response;
 use axum::{extract::State, response::IntoResponse, Json};
-use domain::repositories::official_repository::OfficialRepository;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -19,7 +18,7 @@ pub async fn get_officials(
     Query(query): Query<GetOfficialsQuery>,
 ) -> Result<Response> {
     let officials = app_state
-        .official_repository
+        .official_service
         .find(query.search, query.brigade_id)
         .await?;
 
@@ -30,7 +29,7 @@ pub async fn get_official_by_id(
     State(app_state): State<AppState>,
     axum::extract::Path(id): axum::extract::Path<i32>,
 ) -> Result<Response> {
-    let official = app_state.official_repository.find_by_id(id).await?;
+    let official = app_state.official_service.find_by_id(id).await?;
 
     Ok((StatusCode::OK, Json(official)).into_response())
 }
@@ -39,10 +38,7 @@ pub async fn create_official(
     State(app_state): State<AppState>,
     Json(official): Json<CreateOfficialDTO>,
 ) -> Result<Response> {
-    app_state
-        .official_repository
-        .create(official.into())
-        .await?;
+    app_state.official_service.create(official.into()).await?;
 
     Ok((StatusCode::OK, "Official created succesfully").into_response())
 }

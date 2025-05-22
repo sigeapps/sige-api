@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use super::user::CreateUserDTO;
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct LoginRequest {
     pub username: String,
@@ -16,4 +18,13 @@ pub struct LoginResponse {
 pub struct RegisterRequest {
     pub username: String,
     pub password: String,
+}
+
+impl From<RegisterRequest> for CreateUserDTO {
+    fn from(dto: RegisterRequest) -> CreateUserDTO {
+        CreateUserDTO {
+            name: dto.username,
+            password_hash: dto.password,
+        }
+    }
 }
