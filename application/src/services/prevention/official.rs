@@ -48,6 +48,27 @@ impl OfficialService {
         query.into_model::<GetOfficialDTO>().all(&self.db).await
     }
 
+    pub async fn find_by_id(self, id: i32) -> Result<Option<GetOfficialDTO>, DbErr> {
+        let official = official::Entity::find_by_id(id)
+            .select_only()
+            .column_as(official::Column::Id, "id")
+            .column_as(official::Column::Ci, "ci")
+            .column_as(official::Column::Phone, "phone")
+            .column_as(official::Column::LastName, "last_name")
+            .column_as(official::Column::FirstName, "first_name")
+            .column_as(brigade::Column::Name, "brigade")
+            .column_as(hierarchy::Column::Name, "hierarchy")
+            .column_as(charge::Column::Name, "charge")
+            .join(JoinType::InnerJoin, brigade::Relation::Official.def())
+            .join(JoinType::InnerJoin, hierarchy::Relation::Official.def())
+            .join(JoinType::InnerJoin, charge::Relation::Official.def())
+            .into_model::<GetOfficialDTO>()
+            .one(&self.db)
+            .await?;
+
+        Ok(official)
+    }
+
     pub async fn create(self, official: CreateOfficialDTO) -> Result<(), DbErr> {
         official::Entity::insert(official.into_active_model())
             .exec(&self.db)

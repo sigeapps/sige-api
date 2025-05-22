@@ -1,14 +1,12 @@
 use crate::state::AppState;
 use crate::Result;
-use application::dtos::prevention::register::CreateRegisterDTO;
-use application::services::prevention::register::{RegisterExitInput, RegisterExitUseCase};
+use application::dtos::prevention::register::{CreateRegisterDTO, UpdateRegisterExitDTO};
 use axum::extract::Query;
 use axum::http::StatusCode;
 use axum::response::Response;
-use axum::{extract::State, response::IntoResponse, Json};
-use chrono::{NaiveDate, NaiveDateTime};
-use domain::repositories::register_repository::RegisterRepository;
-use sea_orm::prelude::DateTimeWithTimeZone;
+use axum::Json;
+use axum::{extract::State, response::IntoResponse};
+use chrono::NaiveDate;
 use serde::Deserialize;
 use tracing::error;
 
@@ -26,15 +24,15 @@ pub struct GetRegistersQuery {
     search: Option<String>,
     from_date: Option<NaiveDate>,
     to_date: Option<NaiveDate>,
-    limit: Option<i32>,
-    offset: Option<i32>,
+    limit: Option<u64>,
+    offset: Option<u64>,
 }
 
 pub async fn get_registers(
     State(app_state): State<AppState>,
     Query(query): Query<GetRegistersQuery>,
 ) -> Result<Response> {
-    match app_state
+    let registers = app_state
         .register_service
         .find(
             query.search,
@@ -43,18 +41,9 @@ pub async fn get_registers(
             query.limit,
             query.offset,
         )
-        .await
-    {
-        Ok(registers) => Ok((StatusCode::OK, Json(registers)).into_response()),
-        Err(e) => {
-            error!("Error fetching registers: {}", e.to_string());
-            Ok((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Error fetching registers",
-            )
-                .into_response())
-        }
-    }
+        .await?;
+
+    Ok((StatusCode::OK, Json(registers)).into_response())
 }
 
 pub async fn get_register_by_id(
@@ -79,11 +68,9 @@ pub async fn get_register_by_id(
 pub async fn update_register_exit(
     State(app_state): State<AppState>,
     axum::extract::Path(id): axum::extract::Path<i32>,
-    Json(register): Json<RegisterExitInput>,
+    Json(register): Json<UpdateRegisterExitDTO>,
 ) -> Result<Response> {
-    let register_exit_use_case = RegisterExitUseCase::new(app_state.register_service);
+    app_state.register_service.update_exit(register, id).await?;
 
-    register_exit_use_case.execute(register, id).await?;
-
-    Ok((StatusCode::OK, "Register updated successfully").into_response())
+    Ok((StatusCode::OK, "register updated successfully").into_response())
 }

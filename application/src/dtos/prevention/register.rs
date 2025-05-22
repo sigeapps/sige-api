@@ -1,5 +1,5 @@
-use domain::entities::{division, organism, register};
 use domain::entities::register::ActiveModel;
+use domain::entities::{division, organism, register};
 use sea_orm::{ActiveValue::Set, DeriveIntoActiveModel};
 use serde::{Deserialize, Serialize};
 
@@ -23,7 +23,7 @@ pub struct CreateRegisterDTO {
     pub observations: Option<String>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct GetRegisterDTO {
     pub id: i32,
     pub photo: Option<String>,
@@ -72,11 +72,11 @@ impl
     }
 }
 
-pub struct UpdateRegisterDTO {
+pub struct UpdateRegisterExitDTO {
     pub observations: String,
 }
 
-impl UpdateRegisterDTO {
+impl UpdateRegisterExitDTO {
     pub fn into_active_model(self, register_id: i32) -> register::ActiveModel {
         register::ActiveModel {
             id: Set(register_id),
