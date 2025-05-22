@@ -7,7 +7,7 @@ use sea_orm::*;
 
 use crate::{
     connection::connect,
-    dtos::prevention::register::{CreateRegisterDTO, GetRegisterDTO, UpdateRegisterDTO},
+    dtos::prevention::register::{CreateRegisterDTO, GetRegisterDTO, UpdateRegisterExitDTO},
 };
 
 #[derive(Debug, Clone)]
@@ -77,12 +77,14 @@ impl RegisterService {
 
     pub async fn update_exit(
         &self,
-        register: UpdateRegisterDTO,
+        register: UpdateRegisterExitDTO,
         register_id: i32,
     ) -> Result<(), DbErr> {
-        register::Entity::update(register.into_active_model(register_id))
-            .exec(&self.db)
-            .await?;
+        let mut register = register.into_active_model();
+
+        register.id = Set(register_id);
+
+        register::Entity::update(register).exec(&self.db).await?;
 
         Ok(())
     }

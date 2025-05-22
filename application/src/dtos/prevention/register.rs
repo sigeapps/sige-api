@@ -1,6 +1,6 @@
 use domain::entities::register::ActiveModel;
 use domain::entities::{division, organism, register};
-use sea_orm::{ActiveValue::Set, DeriveIntoActiveModel};
+use sea_orm::DeriveIntoActiveModel;
 use serde::{Deserialize, Serialize};
 
 use super::lookup::LookupItemDto;
@@ -72,16 +72,7 @@ impl
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, DeriveIntoActiveModel)]
 pub struct UpdateRegisterExitDTO {
     pub observations: String,
-}
-
-impl UpdateRegisterExitDTO {
-    pub fn into_active_model(self, register_id: i32) -> register::ActiveModel {
-        register::ActiveModel {
-            id: Set(register_id),
-            observations: Set(Some(self.observations)),
-            ..Default::default()
-        }
-    }
 }

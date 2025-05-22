@@ -1,17 +1,9 @@
 use application::services::{
     prevention::{
-        lookup::LookupService, official::OfficialService, register::RegisterService,
-        transport::TransportService,
+        commission::CommissionService, lookup::LookupService, official::OfficialService,
+        register::RegisterService, transport::TransportService,
     },
     user::UserService,
-};
-use database::repositories::{
-    commission_repository_impl::SeaOrmCommissionRepository,
-    lookup_repository_impl::SeaOrmLookupRepository,
-    official_repository_impl::SeaOrmOfficialRepository,
-    register_repository_impl::SeaOrmRegisterRepository,
-    transport_repository_impl::SeaOrmTransportRepository,
-    user_repository_impl::SeaOrmUserRepository,
 };
 use tracing::debug;
 
@@ -22,7 +14,7 @@ pub struct AppState {
     pub lookup_service: LookupService,
     pub transport_service: TransportService,
     pub official_service: OfficialService,
-    pub commission_repository: SeaOrmCommissionRepository,
+    pub commission_service: CommissionService,
 }
 
 impl AppState {
@@ -35,7 +27,7 @@ impl AppState {
             official_service: OfficialService::new(database_url).await?,
             lookup_service: LookupService::new(database_url).await?,
             transport_service: TransportService::new(database_url).await?,
-            commission_repository: SeaOrmCommissionRepository::new(database_url).await?,
+            commission_service: CommissionService::new(database_url).await?,
         })
     }
 }
