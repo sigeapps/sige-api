@@ -10,9 +10,10 @@ pub struct Model {
     pub id: i32,
     pub brigade_id: i32,
     pub authorized_official_id: Option<i32>,
+    pub boss_id: Option<i32>,
     pub entry_at: DateTimeWithTimeZone,
     pub exit_at: Option<DateTimeWithTimeZone>,
-    pub status: String,
+    pub status_at: Option<DateTimeWithTimeZone>,
     #[sea_orm(column_type = "Text", nullable)]
     pub observations: Option<String>,
     pub created_at: DateTimeWithTimeZone,
@@ -38,12 +39,22 @@ pub enum Relation {
     CommissionTransport,
     #[sea_orm(
         belongs_to = "super::official::Entity",
+        from = "Column::BossId",
+        to = "super::official::Column::Id",
+        on_update = "NoAction",
+        on_delete = "SetNull"
+    )]
+    Official2,
+    #[sea_orm(
+        belongs_to = "super::official::Entity",
         from = "Column::AuthorizedOfficialId",
         to = "super::official::Column::Id",
         on_update = "NoAction",
         on_delete = "SetNull"
     )]
-    Official,
+    Official1,
+    #[sea_orm(has_many = "super::temporal_seclusion::Entity")]
+    TemporalSeclusion,
 }
 
 impl Related<super::brigade::Entity> for Entity {
@@ -76,9 +87,9 @@ impl Related<super::commission_transport::Entity> for Entity {
     }
 }
 
-impl Related<super::official::Entity> for Entity {
+impl Related<super::temporal_seclusion::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Official.def()
+        Relation::TemporalSeclusion.def()
     }
 }
 

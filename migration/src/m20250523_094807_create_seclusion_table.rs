@@ -8,96 +8,96 @@ pub struct Migration;
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-
-// Create tables
-manager
-    .create_table(
-        Table::create()
-            .table(FamilyRelationship::Table)
-            .if_not_exists()
-            .col(
-                ColumnDef::new(FamilyRelationship::Id)
-                    .integer().unique_key()
-                    .not_null()
-                    .auto_increment()
-                    .primary_key(),
+        // Create tables
+        manager
+            .create_table(
+                Table::create()
+                    .table(FamilyRelationship::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(FamilyRelationship::Id)
+                            .integer()
+                            .unique_key()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(
+                        ColumnDef::new(FamilyRelationship::Name)
+                            .string_len(255)
+                            .not_null()
+                            .unique_key(),
+                    )
+                    .to_owned(),
             )
-            .col(
-                ColumnDef::new(FamilyRelationship::Name)
-                    .string_len(255)
-                    .not_null()
-                    .unique_key(),
+            .await?;
+
+        println!("✅ Family Relationship table created");
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(SeclusionStatuses::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(SeclusionStatuses::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .unique_key()
+                            .primary_key(),
+                    )
+                    .col(
+                        ColumnDef::new(SeclusionStatuses::Name)
+                            .string_len(255)
+                            .not_null()
+                            .unique_key(),
+                    )
+                    .to_owned(),
             )
-            .to_owned(),
-    )
-    .await?;
+            .await?;
 
-println!("✅ Family Relationship table created");
+        println!("✅ Seclusion Statuses table created");
 
-manager
-    .create_table(
-        Table::create()
-            .table(SeclusionStatuses::Table)
-            .if_not_exists()
-            .col(
-                ColumnDef::new(SeclusionStatuses::Id)
-                    .integer()
-                    .not_null()
-                    .auto_increment()
-.unique_key()
-                    .primary_key(),
-            )
-            .col(
-                ColumnDef::new(SeclusionStatuses::Name)
-                    .string_len(255)
-                    .not_null()
-                    .unique_key(),
-            )
-            .to_owned(),
-    )
-    .await?;
+        // Seed family relationships
+        let relationships = ["Padre", "Madre", "Hermano/a", "Tío/a", "Abuelo/a", "Otro"];
 
-println!("✅ Seclusion Statuses table created");
+        for relationship in relationships {
+            let insert = Query::insert()
+                .into_table(FamilyRelationship::Table)
+                .columns([FamilyRelationship::Name])
+                .values_panic([relationship.into()])
+                .on_conflict(
+                    OnConflict::column(FamilyRelationship::Name)
+                        .do_nothing()
+                        .to_owned(),
+                )
+                .to_owned();
 
-// Seed family relationships
-let relationships = ["Padre", "Madre", "Hermano/a", "Tío/a", "Abuelo/a", "Otro"];
+            manager.exec_stmt(insert).await?;
+        }
 
-for relationship in relationships {
-    let insert = Query::insert()
-        .into_table(FamilyRelationship::Table)
-        .columns([FamilyRelationship::Name])
-        .values_panic([relationship.into()])
-        .on_conflict(
-            OnConflict::column(FamilyRelationship::Name)
-                .do_nothing()
-                .to_owned(),
-        )
-        .to_owned();
+        println!("✅ Family Relationships seeded");
 
-    manager.exec_stmt(insert).await?;
-}
+        // Seed seclusion statuses
+        let statuses = ["Activo", "Liberado", "Trasladado"];
 
-println!("✅ Family Relationships seeded");
+        for status in statuses {
+            let insert = Query::insert()
+                .into_table(SeclusionStatuses::Table)
+                .columns([SeclusionStatuses::Name])
+                .values_panic([status.into()])
+                .on_conflict(
+                    OnConflict::column(SeclusionStatuses::Name)
+                        .do_nothing()
+                        .to_owned(),
+                )
+                .to_owned();
 
-// Seed seclusion statuses
-let statuses = ["Activo", "Liberado", "Trasladado"];
+            manager.exec_stmt(insert).await?;
+        }
 
-for status in statuses {
-    let insert = Query::insert()
-        .into_table(SeclusionStatuses::Table)
-        .columns([SeclusionStatuses::Name])
-        .values_panic([status.into()])
-        .on_conflict(
-            OnConflict::column(SeclusionStatuses::Name)
-                .do_nothing()
-                .to_owned(),
-        )
-        .to_owned();
-
-    manager.exec_stmt(insert).await?;
-}
-
-println!("✅ Seclusion Statuses seeded");
+        println!("✅ Seclusion Statuses seeded");
 
         manager
             .create_table(
@@ -118,39 +118,53 @@ println!("✅ Seclusion Statuses seeded");
                     .col(string(Seclusion::Belongings))
                     .col(string(Seclusion::Observations))
                     .col(date(Seclusion::ExitAt))
-                    .col(timestamp_with_time_zone(Seclusion::CreatedAt).default(Keyword::CurrentTimestamp).not_null())
+                    .col(
+                        timestamp_with_time_zone(Seclusion::CreatedAt)
+                            .default(Keyword::CurrentTimestamp)
+                            .not_null(),
+                    )
                     .to_owned(),
             )
             .await?;
 
-            manager.create_table(Table::create()
-            .table(TemporalSeclusion::Table)
-            .col(pk_auto(TemporalSeclusion::Id))
-            .col(integer(TemporalSeclusion::CommissionId).not_null())
-            .foreign_key(
-                ForeignKey::create()
-                    .name("fk_temporal-seclusion_commission")
-                    .from(TemporalSeclusion::Table, TemporalSeclusion::CommissionId)
-                    .to(Commission::Table, Commission::Id)
-                    .on_delete(ForeignKeyAction::Cascade)
-                    .on_update(ForeignKeyAction::Cascade),
+        manager
+            .create_table(
+                Table::create()
+                    .table(TemporalSeclusion::Table)
+                    .col(pk_auto(TemporalSeclusion::Id))
+                    .col(integer(TemporalSeclusion::CommissionId).not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_temporal-seclusion_commission")
+                            .from(TemporalSeclusion::Table, TemporalSeclusion::CommissionId)
+                            .to(Commission::Table, Commission::Id)
+                            .on_delete(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade),
+                    )
+                    .col(string(TemporalSeclusion::Ci).char_len(9).not_null())
+                    .col(string(TemporalSeclusion::LastName).char_len(255).not_null())
+                    .col(
+                        string(TemporalSeclusion::FirstName)
+                            .char_len(255)
+                            .not_null(),
+                    )
+                    .col(integer(TemporalSeclusion::StatusId))
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_temporal-seclusion_seclusion_status")
+                            .from(TemporalSeclusion::Table, TemporalSeclusion::StatusId)
+                            .to(SeclusionStatuses::Table, SeclusionStatuses::Id)
+                            .on_delete(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade),
+                    )
+                    .col(
+                        timestamp_with_time_zone(TemporalSeclusion::CreatedAt)
+                            .default(Keyword::CurrentTimestamp)
+                            .not_null(),
+                    )
+                    .to_owned(),
             )
-            .col(string(TemporalSeclusion::Ci).char_len(9).not_null())
-            .col(string(TemporalSeclusion::LastName).char_len(255).not_null())
-            .col(string(TemporalSeclusion::FirstName).char_len(255).not_null())
-            .col(integer(TemporalSeclusion::StatusId).not_null())
-            .foreign_key(
-                ForeignKey::create()
-                    .name("fk_temporal-seclusion_seclusion_status")
-                    .from(TemporalSeclusion::Table, TemporalSeclusion::StatusId)
-                    .to(SeclusionStatuses::Table, SeclusionStatuses::Id)
-                    .on_delete(ForeignKeyAction::Cascade)
-                    .on_update(ForeignKeyAction::Cascade),
-            )
-            .col(timestamp_with_time_zone(TemporalSeclusion::CreatedAt).default(Keyword::CurrentTimestamp).not_null())
-            .to_owned()
-        )
-        .await?;
+            .await?;
 
         manager
             .create_table(
@@ -163,20 +177,24 @@ println!("✅ Seclusion Statuses seeded");
                     .col(string(SeclusionVisit::LastName).char_len(255).not_null())
                     .col(string(SeclusionVisit::FirstName).char_len(255).not_null())
                     .col(integer(SeclusionVisit::RelationshipId).not_null())
-            .foreign_key(
-                ForeignKey::create()
-                    .name("fk_seclusion_visit_relationship")
-                    .from(SeclusionVisit::Table, SeclusionVisit::RelationshipId)
-                    .to(FamilyRelationship::Table, FamilyRelationship::Id)
-                    .on_delete(ForeignKeyAction::Cascade)
-                    .on_update(ForeignKeyAction::Cascade),
-            )
-            .col(string(SeclusionVisit::Phone).char_len(255).not_null())
-            .col(date(SeclusionVisit::Date).not_null())
-            .col(date(SeclusionVisit::Address).not_null())
-            .col(date(SeclusionVisit::Reason))
-            .col(timestamp_with_time_zone(SeclusionVisit::CreatedAt).default(Keyword::CurrentTimestamp).not_null())
-            .foreign_key(
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_seclusion_visit_relationship")
+                            .from(SeclusionVisit::Table, SeclusionVisit::RelationshipId)
+                            .to(FamilyRelationship::Table, FamilyRelationship::Id)
+                            .on_delete(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade),
+                    )
+                    .col(string(SeclusionVisit::Phone).char_len(255).not_null())
+                    .col(date(SeclusionVisit::Date).not_null())
+                    .col(date(SeclusionVisit::Address).not_null())
+                    .col(date(SeclusionVisit::Reason))
+                    .col(
+                        timestamp_with_time_zone(SeclusionVisit::CreatedAt)
+                            .default(Keyword::CurrentTimestamp)
+                            .not_null(),
+                    )
+                    .foreign_key(
                         ForeignKey::create()
                             .name("fk_seclusion-visit_seclusion")
                             .from(SeclusionVisit::Table, SeclusionVisit::SeclusionId)
@@ -187,29 +205,47 @@ println!("✅ Seclusion Statuses seeded");
                     .to_owned(),
             )
             .await
-
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-
         manager
-            .drop_table(Table::drop().table(Seclusion::Table).to_owned())
+            .drop_table(Table::drop().table(Seclusion::Table).cascade().to_owned())
             .await?;
 
         manager
-            .drop_table(Table::drop().table(SeclusionVisit::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(SeclusionVisit::Table)
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
 
         manager
-            .drop_table(Table::drop().table(TemporalSeclusion::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(TemporalSeclusion::Table)
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
 
         manager
-            .drop_table(Table::drop().table(SeclusionStatuses::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .cascade()
+                    .table(SeclusionStatuses::Table)
+                    .to_owned(),
+            )
             .await?;
 
         manager
-            .drop_table(Table::drop().table(FamilyRelationship::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .cascade()
+                    .table(FamilyRelationship::Table)
+                    .to_owned(),
+            )
             .await
     }
 }
@@ -266,7 +302,7 @@ enum SeclusionVisit {
 enum FamilyRelationship {
     Table,
     Id,
-    Name
+    Name,
 }
 
 #[derive(DeriveIden)]
@@ -274,5 +310,5 @@ enum FamilyRelationship {
 enum SeclusionStatuses {
     Table,
     Id,
-    Name
+    Name,
 }

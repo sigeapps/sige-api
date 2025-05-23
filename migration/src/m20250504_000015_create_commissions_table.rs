@@ -31,6 +31,11 @@ impl MigrationTrait for Migration {
                             .null(),
                     )
                     .col(
+                        ColumnDef::new(Commission::BossId)
+                            .integer()
+                            .null(),
+                    )
+                    .col(
                         ColumnDef::new(Commission::EntryAt)
                             .timestamp_with_time_zone()
                             .default(Expr::current_timestamp())
@@ -42,10 +47,9 @@ impl MigrationTrait for Migration {
                             .null(),
                     )
                     .col(
-                        ColumnDef::new(Commission::Status)
-                            .string_len(50)
-                            .default("Active")
-                            .not_null(),
+                        ColumnDef::new(Commission::StatusAt)
+                            .timestamp_with_time_zone()
+                            .null(),
                     )
                     .col(ColumnDef::new(Commission::Observations).text().null())
                     .col(
@@ -68,7 +72,14 @@ impl MigrationTrait for Migration {
                             .to(Official::Table, Official::Id)
                             .on_delete(ForeignKeyAction::SetNull),
                     )
-                    .to_owned(),
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_commissions_boss")
+                            .from(Commission::Table, Commission::BossId)
+                            .to(Official::Table, Official::Id)
+                            .on_delete(ForeignKeyAction::SetNull),
+                    )
+                    .to_owned()
             )
             .await?;
 
@@ -154,6 +165,52 @@ impl MigrationTrait for Migration {
                         ForeignKey::create()
                             .name("fk-commission_transports-transport_id")
                             .from(CommissionTransport::Table, CommissionTransport::TransportId)
+                            .to(Transport::Table, Transport::Id)
+                            .on_delete(ForeignKeyAction::Restrict),
+                    )
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(CommissionSeizedTransport::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(CommissionSeizedTransport::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(
+                        ColumnDef::new(CommissionSeizedTransport::CommissionId)
+                            .integer()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(CommissionSeizedTransport::TransportId)
+                            .integer()
+                            .not_null(),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk-commission_transports-commission_id")
+                            .from(
+                                CommissionSeizedTransport::Table,
+                                CommissionSeizedTransport::CommissionId,
+                            )
+                            .to(Commission::Table, Commission::Id)
+                            .on_delete(ForeignKeyAction::Cascade),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk-commission_transports-transport_id")
+                            .from(
+                                CommissionSeizedTransport::Table,
+                                CommissionSeizedTransport::TransportId,
+                            )
                             .to(Transport::Table, Transport::Id)
                             .on_delete(ForeignKeyAction::Restrict),
                     )
@@ -274,24 +331,44 @@ impl MigrationTrait for Migration {
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         // Drop dependent tables first
         manager
-            .drop_table(Table::drop().table(CommissionActualExit::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(CommissionActualExit::Table)
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
 
         manager
-            .drop_table(Table::drop().table(CommissionReason::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(CommissionReason::Table)
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
 
         manager
-            .drop_table(Table::drop().table(CommissionTransport::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(CommissionTransport::Table)
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
 
         manager
-            .drop_table(Table::drop().table(CommissionOfficial::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(CommissionOfficial::Table)
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
 
         // Finally drop the main commission table
         manager
-            .drop_table(Table::drop().table(Commission::Table).to_owned())
+            .drop_table(Table::drop().table(Commission::Table).cascade().to_owned())
             .await
     }
 }
@@ -302,9 +379,10 @@ pub enum Commission {
     Id,
     BrigadeId,
     AuthorizedOfficialId,
+    BossId,
     EntryAt,
     ExitAt,
-    Status,
+    StatusAt,
     Observations,
     CreatedAt,
 }
@@ -341,6 +419,14 @@ enum CommissionOfficial {
 
 #[derive(Iden)]
 enum CommissionTransport {
+    Table,
+    Id,
+    CommissionId,
+    TransportId,
+}
+
+#[derive(Iden)]
+enum CommissionSeizedTransport {
     Table,
     Id,
     CommissionId,

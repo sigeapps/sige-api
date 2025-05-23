@@ -37,8 +37,6 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Charge,
-    #[sea_orm(has_many = "super::commission::Entity")]
-    Commission,
     #[sea_orm(has_many = "super::commission_official::Entity")]
     CommissionOfficial,
     #[sea_orm(
@@ -60,12 +58,6 @@ impl Related<super::brigade::Entity> for Entity {
 impl Related<super::charge::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Charge.def()
-    }
-}
-
-impl Related<super::commission::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Commission.def()
     }
 }
 

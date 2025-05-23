@@ -180,7 +180,13 @@ impl MigrationTrait for Migration {
 
         println!("💥 Dropping transports table...");
         manager
-            .drop_table(Table::drop().table(Transport::Table).if_exists().to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(Transport::Table)
+                    .if_exists()
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
 
         // Drop transport lookup tables
@@ -189,6 +195,7 @@ impl MigrationTrait for Migration {
                 Table::drop()
                     .table(TransportType::Table)
                     .if_exists()
+                    .cascade()
                     .to_owned(),
             )
             .await?;
