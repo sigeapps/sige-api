@@ -20,33 +20,17 @@ impl TransportService {
 
     pub async fn find(&self, search: Option<String>) -> Result<Vec<GetTransportDTO>, DbErr> {
         let mut query = transport::Entity::find()
-            .select_only()
-            .column_as(transport::Column::Id, "id")
-            .column_as(transport::Column::Details, "details")
-            .column_as(transport::Column::Plate, "plate")
-            .column_as(transport::Column::Unit, "unit")
-            .column_as(transport_type::Column::Name, "type")
-            .column_as(brand::Column::Name, "brand")
-            .column_as(vehicle_model::Column::Name, "model")
-            .join(
-                JoinType::InnerJoin,
-                transport_statuses::Relation::Transport.def(),
-            )
-            .join(
-                JoinType::InnerJoin,
-                transport_type::Relation::Transport.def(),
-            )
-            .join(JoinType::InnerJoin, brand::Relation::Transport.def())
-            .join(
-                JoinType::InnerJoin,
-                vehicle_model::Relation::Transport.def(),
-            );
+            .left_join(transport_type::Entity)
+            .left_join(brand::Entity)
+            .left_join(vehicle_model::Entity)
+            .left_join(transport_statuses::Entity)
+            .order_by_desc(transport::Column::Id);
 
         if let Some(search) = search {
             query = query.filter(transport::Column::Details.contains(search));
         }
 
-        query.into_model::<GetTransportDTO>().all(&self.db).await
+        query.into_partial_model::<GetTransportDTO>().all(&self.db).await
     }
 
     pub async fn create(self, transport: CreateTransportDTO) -> Result<(), DbErr> {

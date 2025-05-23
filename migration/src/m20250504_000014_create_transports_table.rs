@@ -10,13 +10,6 @@ impl MigrationName for Migration {
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        // DEPENDENCIES: This migration creates transport
-        // have already created the following tables, as they are referenced
-        // by foreign keys in the tables created here:
-        // - brigades (referenced by commissions)
-        // - officials (referenced by commissions)
-        // You might also have 'persons', 'states', 'municipalities', etc.
-        // created in other migrations.
 
         println!("📦 Creating transport lookup tables (Brands, Types, Units)...");
 

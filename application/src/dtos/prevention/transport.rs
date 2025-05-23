@@ -1,6 +1,8 @@
+use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
 use domain::entities::transport::ActiveModel;
-use sea_orm::{DeriveIntoActiveModel, FromQueryResult};
 use serde::{Deserialize, Serialize};
+
+use super::lookup::{GetBrandDTO, GetTransportStatusDTO, GetTransportTypeDTO, GetVehicleModelDTO};
 
 #[derive(Debug, Clone, Deserialize, Serialize, DeriveIntoActiveModel)]
 pub struct CreateTransportDTO {
@@ -13,14 +15,19 @@ pub struct CreateTransportDTO {
     pub status_id: Option<i32>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, FromQueryResult)]
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::transport::Entity", from_query_result)]
 pub struct GetTransportDTO {
     pub id: i32,
-    pub r#type: String,
+    #[sea_orm(nested)]
+    pub r#type: GetTransportTypeDTO,
     pub details: String,
-    pub brand: String,
-    pub model: String,
+    #[sea_orm(nested)]
+    pub brand: GetBrandDTO,
+    #[sea_orm(nested)]
+    pub model: GetVehicleModelDTO,
     pub plate: String,
     pub unit: String,
-    pub status: String,
+    #[sea_orm(nested)]
+    pub status: GetTransportStatusDTO,
 }

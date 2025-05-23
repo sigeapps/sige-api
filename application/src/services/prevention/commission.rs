@@ -1,17 +1,29 @@
-use domain::entities::{brigade, commission, commission_official, commission_reason, commission_seized_transport, hierarchy, official};
-use sea_orm::{prelude::Expr, sea_query::Alias, *};
+use domain::entities::{brigade, commission, commission_official, commission_reason, commission_seized_transport, hierarchy, official, temporal_seclusion, transport};
+use sea_orm::{prelude::Expr, *};
 
 use crate::{
     connection::connect,
-    dtos::prevention::commission::{
-        CreateCommissionAggregateDTO, GetCommissionSummaryDTO, UpdateCommissionExitDTO, UpdateCommissionStatusAggregateDTO
-    },
+    dtos::prevention::{commission::{
+        seclusion_dto::GetTemporalSeclusionDTO, CreateCommissionAggregateDTO, GetCommissionStatusAggregateDTO, GetCommissionSummaryDTO, UpdateCommissionExitDTO, UpdateCommissionStatusAggregateDTO
+    }, transport::GetTransportDTO},
 };
 
 #[derive(Debug, Clone)]
 pub struct CommissionService {
     db: DatabaseConnection,
 }
+
+#[derive(DeriveIden, Clone, Copy)]
+pub struct AuthOfficial;
+
+#[derive(DeriveIden, Clone, Copy)]
+pub struct BossOfficial;
+
+#[derive(DeriveIden, Clone, Copy)]
+pub struct BossOfficialHierarchy;
+
+#[derive(DeriveIden, Clone, Copy)]
+pub struct AuthOfficialHierarchy;
 
 // TODO: use transactions and async tasks
 impl CommissionService {
@@ -22,71 +34,108 @@ impl CommissionService {
     }
 
     pub async fn find(self, search: Option<String>) -> Result<Vec<GetCommissionSummaryDTO>, DbErr> {
-        let mut query = commission::Entity::find().select_only()
-        .select_column_as(commission::Column::Id, "id")
-        .select_column_as(commission::Column::EntryAt, "entry_at")
-        .select_column_as(commission::Column::ExitAt, "exit_at")
-        .select_column_as(commission::Column::StatusAt, "status_at")
-        .select_column_as(brigade::Column::Name, "brigade")
-        .select_column_as(commission_reason::Column::Zone, "zone")
-        .select_column_as(
-            Expr::cust_with_exprs(
-                "CONCAT(?, ' ', ?)",
-                [
-                    Expr::col((Alias::new("boss"), official::Column::FirstName)).into_simple_expr(),
-                    Expr::col((Alias::new("boss"), official::Column::LastName)).into_simple_expr(),
-                ]
-            ),
-            "boss"
-        )
-        .select_column_as(
-            Expr::cust_with_exprs(
-                "CONCAT(?, ' ', ?)",
-                [
-                    Expr::col((Alias::new("auth"), official::Column::FirstName)).into_simple_expr(),
-                    Expr::col((Alias::new("auth"), official::Column::LastName)).into_simple_expr(),
-                ]
-            ),
-            "auth_official"
-        )
-        .select_column_as(hierarchy::Column::Name, "boss_hierarchy")
-        .select_column_as(commission_official::Column::Id.count(), "officials_count")
-        .select_column_as(hierarchy::Column::Name, "auth_hierarchy")
-        .select_column_as(commission::Column::Observations, "observations")
-            .join(
-                JoinType::InnerJoin,
-                commission_reason::Relation::Commission.def(),
+        let mut query = commission::Entity::find()
+            .select_only()
+            .select_column_as(commission::Column::Id, "id")
+            .select_column_as(commission::Column::EntryAt, "entry_at")
+            .select_column_as(commission::Column::ExitAt, "exit_at")
+            .select_column_as(commission::Column::StatusAt, "status_at")
+            .select_column_as(commission::Column::Observations, "observations")
+            .select_column_as(brigade::Column::Name, "brigade")
+            .select_column_as(commission_reason::Column::Zone, "zone")
+            .select_column_as(commission_reason::Column::Name, "reason")
+            .select_column_as(
+                Expr::cust_with_exprs(
+                    "CONCAT($1, ' ', $2)",
+                    [
+                        Expr::col((BossOfficial, official::Column::FirstName)).into_simple_expr(),
+                        Expr::col((BossOfficial, official::Column::LastName)).into_simple_expr(),
+                    ]
+                ),
+                "boss"
             )
-            .join(
-                JoinType::InnerJoin,
-                brigade::Relation::Official.def(),
+            .select_column_as(Expr::col((BossOfficialHierarchy, hierarchy::Column::Name)), "boss_hierarchy")
+            .select_column_as(
+                Expr::cust_with_exprs(
+                    "CONCAT($1, ' ', $2)",
+                    [
+                        Expr::col((AuthOfficial, official::Column::FirstName)).into_simple_expr(),
+                        Expr::col((AuthOfficial, official::Column::LastName)).into_simple_expr(),
+                    ]
+                ),
+                "auth_official"
             )
-            .join(JoinType::InnerJoin, hierarchy::Relation::Official.def())
+            .select_column_as(Expr::col((AuthOfficialHierarchy, hierarchy::Column::Name)), "auth_official_hierarchy")
+            .select_column_as(commission_official::Column::Id.count(), "officials_count");
+
+        query = query
+            .join(JoinType::InnerJoin, commission::Relation::CommissionReason.def())
+            .join(JoinType::InnerJoin, commission::Relation::Brigade.def())
+            .join(JoinType::LeftJoin, commission::Relation::CommissionOfficial.def())
+            .join_as(JoinType::LeftJoin, commission::Relation::Official1.def(), BossOfficial)
             .join_as(
-                JoinType::InnerJoin,
-                commission::Relation::Official1.def(),
-                Alias::new("boss"),
+                JoinType::LeftJoin,
+                official::Relation::Hierarchy.def().from_alias(BossOfficial),
+                BossOfficialHierarchy,
             )
+            .join_as(JoinType::LeftJoin, commission::Relation::Official2.def(), AuthOfficial)
             .join_as(
-                JoinType::InnerJoin,
-                commission::Relation::Official2.def(),
-                Alias::new("auth"),
+                JoinType::LeftJoin,
+                official::Relation::Hierarchy.def().from_alias(AuthOfficial),
+                AuthOfficialHierarchy,
             );
 
-    if let Some(search) = search {
-        query = query.filter(commission::Column::Observations.contains(search));
-    };
+        // Add search filter if provided
+        if let Some(search) = search {
+            query = query.filter(commission::Column::Observations.contains(search));
+        }
+
+        // Group by all non-aggregated columns
+        query = query
+            .group_by(commission::Column::Id)
+            .group_by(commission::Column::EntryAt)
+            .group_by(commission::Column::ExitAt)
+            .group_by(commission::Column::StatusAt)
+            .group_by(commission::Column::Observations)
+            .group_by(brigade::Column::Name)
+            .group_by(commission_reason::Column::Zone)
+            .group_by(commission_reason::Column::Name)
+            .group_by(Expr::col((BossOfficial, official::Column::FirstName)))
+            .group_by(Expr::col((BossOfficial, official::Column::LastName)))
+            .group_by(Expr::col((BossOfficialHierarchy, hierarchy::Column::Name)))
+            .group_by(Expr::col((AuthOfficial, official::Column::FirstName)))
+            .group_by(Expr::col((AuthOfficial, official::Column::LastName)))
+            .group_by(Expr::col((AuthOfficialHierarchy, hierarchy::Column::Name)));
 
         query.into_model::<GetCommissionSummaryDTO>().all(&self.db).await
+    }
+
+    pub async fn find_status_by_id(self, id: i32) -> Result<GetCommissionStatusAggregateDTO, DbErr> {
+        let seclusions  = temporal_seclusion::Entity::find()
+            .filter(temporal_seclusion::Column::CommissionId.eq(id))
+            .into_partial_model::<GetTemporalSeclusionDTO>()
+            .all(&self.db)
+            .await?;
+
+        let transports = commission_seized_transport::Entity::find()
+            .filter(commission_seized_transport::Column::CommissionId.eq(id))
+            .join(JoinType::LeftJoin, transport::Relation::CommissionTransport.def())
+            .into_partial_model::<GetTransportDTO>()
+            .all(&self.db)
+            .await?;
+
+        Ok(GetCommissionStatusAggregateDTO { seclusions, transports })
     }
 
     pub async fn create(self, mut commission: CreateCommissionAggregateDTO) -> Result<i32, DbErr> {
         commission.commission.boss_id = commission.officials.first().unwrap().official_id;
 
+        let txn = self.db.begin().await?;
+
         let commission_id = commission
             .commission
             .into_active_model()
-            .insert(&self.db)
+            .insert(&txn)
             .await?
             .id;
 
@@ -95,60 +144,67 @@ impl CommissionService {
         commission
             .reason
             .into_active_model()
-            .insert(&self.db)
+            .insert(&txn)
             .await?;
 
-        let _tasks = commission.officials.into_iter().map(|mut official| {
-            let db = self.db.clone();
+        async {
+            for official in &mut commission.officials {
+                official.commission_id = commission_id;
 
-            {
-                async move {
-            official.commission_id = commission_id;
+                official.into_active_model().insert(&txn).await?;
+            }Ok::<(), DbErr>(())
+        }.await?;
 
-            official.into_active_model().insert(&db).await
-            }
-        }
-        });
-
-        let _tasks = commission
-            .transports
-            .into_iter()
-            .map(|mut transport| async {
+        async {
+            for mut transport in commission.transports {
                 transport.commission_id = commission_id;
 
-                transport.into_active_model().insert(&self.db).await
-            });
+                transport.into_active_model().insert(&txn).await?;
+            }
+            Ok::<(), DbErr>(())
+        }.await?;
+
+        txn.commit().await?;
 
         Ok(commission_id)
     }
 
     pub async fn update_exit(self, id: i32, mut dto: UpdateCommissionExitDTO) -> Result<(), DbErr> {
+        let txn = self.db.begin().await?;
+
         dto.commission.id = id;
+        dto.commission.into_active_model().update(&txn).await?;
 
-        dto.commission.into_active_model().update(&self.db).await?;
+        async {
+            for transport in dto.transports {
+                let transport_id = transport
+                    .into_active_model()
+                    .insert(&txn)
+                    .await?
+                    .id;
 
-        let _tasks = dto.transports.into_iter().map(|transport| async {
-            let transport_id = transport
-                .into_active_model()
-                .insert(&self.db)
-                .await
-                .unwrap()
-                .id;
-
-            commission_seized_transport::ActiveModel {
-                commission_id: Set(id),
-                transport_id: Set(transport_id),
-                ..Default::default()
+                commission_seized_transport::ActiveModel {
+                    commission_id: Set(id),
+                    transport_id: Set(transport_id),
+                    ..Default::default()
+                }
+                .insert(&txn)
+                .await?;
             }
-            .insert(&self.db)
-            .await
-        });
+            Ok::<(), DbErr>(())
+        }
+        .await?;
 
-        let _tasks = dto.seclusions.into_iter().map(|mut seclusion| async {
-            seclusion.commission_id = id;
+        async {
+            for mut seclusion in dto.seclusions {
+                seclusion.commission_id = id;
+                seclusion.into_active_model().insert(&txn).await?;
+            }
+            Ok::<(), DbErr>(())
+        }
+        .await?;
 
-            seclusion.into_active_model().insert(&self.db).await
-        });
+        txn.commit().await?;
 
         Ok(())
     }
@@ -158,20 +214,29 @@ impl CommissionService {
         id: i32,
         mut dto: UpdateCommissionStatusAggregateDTO,
     ) -> Result<(), DbErr> {
+        let txn = self.db.begin().await?;
+
         dto.commission.id = id;
+        dto.commission.into_active_model().update(&txn).await?;
 
-        dto.commission.into_active_model().update(&self.db).await?;
+        async {
+            for transport in dto.transports {
+                transport.into_active_model().update(&txn).await?;
+            }
+            Ok::<(), DbErr>(())
+        }
+        .await?;
 
-        let _tasks = dto
-            .transports
-            .into_iter()
-            .map(|transport| async { transport.into_active_model().update(&self.db).await });
+        async {
+            for mut seclusion in dto.seclusions {
+                seclusion.commission_id = id;
+                seclusion.into_active_model().update(&txn).await?;
+            }
+            Ok::<(), DbErr>(())
+        }
+        .await?;
 
-        let _tasks = dto.seclusions.into_iter().map(|mut seclusion| async {
-            seclusion.commission_id = id;
-
-            seclusion.into_active_model().update(&self.db).await
-        });
+        txn.commit().await?;
 
         Ok(())
     }

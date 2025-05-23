@@ -2,28 +2,30 @@ use dto::{CreateCommissionDTO, UpdateCommissionDTO, UpdateCommissionStatusDTO};
 use official_dto::CreateCommissionOfficialDTO;
 use reason_dto::CreateCommissionReasonDTO;
 use sea_orm::{prelude::ChronoDateTimeWithTimeZone, FromQueryResult};
-use seclusion_dto::{CreateTemporalSeclusionDTO, UpdateTemporalSeclusionDTO};
+use seclusion_dto::{
+    CreateTemporalSeclusionDTO, GetTemporalSeclusionDTO, UpdateTemporalSeclusionDTO,
+};
 use seized_transport_dto::UpdateSeizedTransportDTO;
 use serde::{Deserialize, Serialize};
 use transport_dto::CreateCommissionTransportDTO;
 
-use super::transport::CreateTransportDTO;
+use super::transport::{CreateTransportDTO, GetTransportDTO};
 
 #[derive(Debug, Clone, Deserialize, Serialize, FromQueryResult)]
 pub struct GetCommissionSummaryDTO {
-    id: i32,
-    entry_at: Option<ChronoDateTimeWithTimeZone>,
-    exit_at: Option<ChronoDateTimeWithTimeZone>,
-    status_at: Option<ChronoDateTimeWithTimeZone>,
-    brigade: String,
-    zone: String,
-    reason: String,
-    boss: String,
-    boss_hierarchy: String,
-    officials_count: i32,
-    auth_official: String,
-    auth_official_hierarchy: String,
-    observations: Option<String>,
+    pub id: i32,
+    pub entry_at: Option<ChronoDateTimeWithTimeZone>,
+    pub exit_at: Option<ChronoDateTimeWithTimeZone>,
+    pub status_at: Option<ChronoDateTimeWithTimeZone>,
+    pub brigade: String,
+    pub zone: String,
+    pub reason: String,
+    pub boss: String,
+    pub boss_hierarchy: String,
+    pub officials_count: i64,
+    pub auth_official: String,
+    pub auth_official_hierarchy: String,
+    pub observations: Option<String>,
 }
 
 /// This dto creates only relationships of vecs
@@ -42,6 +44,12 @@ pub struct UpdateCommissionExitDTO {
     pub commission: UpdateCommissionDTO,
     pub seclusions: Vec<CreateTemporalSeclusionDTO>,
     pub transports: Vec<CreateTransportDTO>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetCommissionStatusAggregateDTO {
+    pub seclusions: Vec<GetTemporalSeclusionDTO>,
+    pub transports: Vec<GetTransportDTO>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -139,8 +147,10 @@ pub mod official_dto {
 
 pub mod seclusion_dto {
     use domain::entities::temporal_seclusion::ActiveModel;
-    use sea_orm::DeriveIntoActiveModel;
+    use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
+
+    use crate::dtos::prevention::lookup::GetSeclusionStatusDTO;
 
     #[derive(Debug, Serialize, DeriveIntoActiveModel, Deserialize)]
     pub struct CreateTemporalSeclusionDTO {
@@ -150,6 +160,21 @@ pub mod seclusion_dto {
         pub last_name: String,
         pub first_name: String,
         pub status_id: i32,
+    }
+
+    #[derive(Debug, Serialize, Deserialize, DerivePartialModel)]
+    #[sea_orm(
+        entity = "domain::entities::temporal_seclusion::Entity",
+        from_query_result
+    )]
+    pub struct GetTemporalSeclusionDTO {
+        #[serde(skip_deserializing)]
+        pub commission_id: i32,
+        pub ci: String,
+        pub last_name: String,
+        pub first_name: String,
+        #[sea_orm(nested)]
+        pub status: GetSeclusionStatusDTO,
     }
 
     #[derive(Debug, Serialize, DeriveIntoActiveModel, Deserialize)]

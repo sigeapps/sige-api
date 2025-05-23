@@ -196,7 +196,7 @@ impl MigrationTrait for Migration {
                     )
                     .foreign_key(
                         ForeignKey::create()
-                            .name("fk-commission_transports-commission_id")
+                            .name("fk-commission_seized_transports-commission_id")
                             .from(
                                 CommissionSeizedTransport::Table,
                                 CommissionSeizedTransport::CommissionId,
@@ -206,7 +206,7 @@ impl MigrationTrait for Migration {
                     )
                     .foreign_key(
                         ForeignKey::create()
-                            .name("fk-commission_transports-transport_id")
+                            .name("fk-commission_seized_transports-transport_id")
                             .from(
                                 CommissionSeizedTransport::Table,
                                 CommissionSeizedTransport::TransportId,
@@ -225,6 +225,13 @@ impl MigrationTrait for Migration {
             .col(CommissionTransport::TransportId)
             .to_owned();
 
+        let commission_seized_transport_index = Index::create()
+            .name("uq-commission_seized_transports-commission_seized_transport")
+            .table(CommissionSeizedTransport::Table)
+            .col(CommissionSeizedTransport::CommissionId)
+            .col(CommissionSeizedTransport::TransportId)
+            .to_owned();
+
         let commission_official_index = Index::create()
             .name("uq-commission_officials-commission_official")
             .table(CommissionOfficial::Table)
@@ -234,6 +241,7 @@ impl MigrationTrait for Migration {
 
         manager.create_index(commission_tranport_index).await?;
         manager.create_index(commission_official_index).await?;
+        manager.create_index(commission_seized_transport_index).await?;
 
         manager
             .create_table(
@@ -369,7 +377,11 @@ impl MigrationTrait for Migration {
         // Finally drop the main commission table
         manager
             .drop_table(Table::drop().table(Commission::Table).cascade().to_owned())
-            .await
+            .await?;
+
+        manager.drop_index(Index::drop().if_exists().name("uq-commission_transports-commission_transport").to_owned()).await?;
+        manager.drop_index(Index::drop().if_exists().name("uq-commission_seized_transports-commission_seized_transport").to_owned()).await?;
+        manager.drop_index(Index::drop().if_exists().name("uq-commission_officials-commission_official").to_owned()).await
     }
 }
 

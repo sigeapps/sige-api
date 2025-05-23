@@ -77,8 +77,12 @@ Content-Type: application/json
 
 GET {{baseURL}}/brand
 
+### GET MODELS
+
+GET {{baseURL}}/vehicle-model
+
 ### Create a model
-POST {{baseURL}}/model
+POST {{baseURL}}/vehicle-model
 Content-Type: application/json
 
 {
