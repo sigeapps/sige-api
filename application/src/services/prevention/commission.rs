@@ -1,4 +1,4 @@
-use domain::entities::{brigade, commission, commission_official, commission_reason, commission_seized_transport, hierarchy, official, temporal_seclusion, transport};
+use domain::entities::{brigade, commission, commission_official, commission_reason, commission_seized_transport, commission_transport, hierarchy, official, temporal_seclusion, transport};
 use sea_orm::{prelude::Expr, *};
 
 use crate::{
@@ -113,13 +113,19 @@ impl CommissionService {
     pub async fn find_status_by_id(self, id: i32) -> Result<GetCommissionStatusAggregateDTO, DbErr> {
         let seclusions  = temporal_seclusion::Entity::find()
             .filter(temporal_seclusion::Column::CommissionId.eq(id))
+            .join(JoinType::LeftJoin, temporal_seclusion::Relation::SeclusionStatuses.def())
             .into_partial_model::<GetTemporalSeclusionDTO>()
             .all(&self.db)
             .await?;
 
-        let transports = commission_seized_transport::Entity::find()
-            .filter(commission_seized_transport::Column::CommissionId.eq(id))
-            .join(JoinType::LeftJoin, transport::Relation::CommissionTransport.def())
+            // TODO: USE COMMISSION SEIZED ON THIS TABLE
+        let transports = commission_transport::Entity::find()
+            .filter(commission_transport::Column::CommissionId.eq(id))
+            .join(JoinType::LeftJoin, commission_transport::Relation::Transport.def())
+            .join(JoinType::LeftJoin, transport::Relation::TransportType.def())
+            .join(JoinType::LeftJoin, transport::Relation::Brand.def())
+            .join(JoinType::LeftJoin, transport::Relation::VehicleModel.def())
+            .join(JoinType::LeftJoin, transport::Relation::TransportStatuses.def())
             .into_partial_model::<GetTransportDTO>()
             .all(&self.db)
             .await?;
@@ -209,35 +215,39 @@ impl CommissionService {
         Ok(())
     }
 
-    pub async fn update_status(
-        self,
-        id: i32,
-        mut dto: UpdateCommissionStatusAggregateDTO,
-    ) -> Result<(), DbErr> {
-        let txn = self.db.begin().await?;
+    // TODO: USE COMMISSION SEIZED ON THIS TABLE AND UPDATE THE STATUS OF THE TRANSPORT AND SECLUSION
+pub async fn update_status(
+    self,
+    id: i32,
+    mut dto: UpdateCommissionStatusAggregateDTO,
+) -> Result<(), DbErr> {
+    let txn = self.db.begin().await?;
 
-        dto.commission.id = id;
-        dto.commission.into_active_model().update(&txn).await?;
+    dto.commission.id = id;
+    dto.commission.into_active_model().update(&txn).await?;
 
-        async {
-            for transport in dto.transports {
-                transport.into_active_model().update(&txn).await?;
-            }
-            Ok::<(), DbErr>(())
+    async {
+        for transport in dto.transports {
+            println!("{}", transport.id);
+
+            transport.into_active_model().update(&txn).await?;
         }
-        .await?;
-
-        async {
-            for mut seclusion in dto.seclusions {
-                seclusion.commission_id = id;
-                seclusion.into_active_model().update(&txn).await?;
-            }
-            Ok::<(), DbErr>(())
-        }
-        .await?;
-
-        txn.commit().await?;
-
-        Ok(())
+        Ok::<(), DbErr>(())
     }
+    .await?;
+
+    async {
+        for mut seclusion in dto.seclusions {
+            seclusion.commission_id = id;
+
+            seclusion.into_active_model().update(&txn).await?;
+        }
+        Ok::<(), DbErr>(())
+    }
+    .await?;
+
+    txn.commit().await?;
+
+    Ok(())
+}
 }

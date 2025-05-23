@@ -18,15 +18,63 @@ Content-Type: application/json
     "name": "Annual Review",
     "description": "Standard annual safety inspection",
     "zone": "North Zone",
-    "municipality_id": 1 
+    "municipality_id": 1
   },
   "officials": [
     { "official_id": 1 }
   ],
   "transports": [
-    { "transport_id": 1 }
+    { "transport_id": 3 }
   ]
 }
+
+### UPDATE COMMISSION EXIT
+POST {{baseURL}}/commission/5/exit
+Content-Type: application/json
+
+{
+  "observations": "Routine inspection completed",
+  "exit_at": "2023-10-01T12:00:00Z",
+  "seclusions": [
+   { "ci": "V3308169", "last_name": "Doe", "first_name": "John", "status_id": 1 }
+  ],
+  "transports": [
+{
+  "type_id": 1,
+  "details": "This is a sample transport detail",
+  "brand_id": 1,
+  "model_id": 4,
+  "plate": "ABC-123433",
+  "unit": "Unit-01",
+  "status_id": 1
+}
+  ]
+}
+
+### GET COMMISSIONS
+GET {{baseURL}}/commission/5/status
+Content-Type: application/json
+
+### UPDATE COMMISSION STATUS
+PATCH {{baseURL}}/commission/5/status
+Content-Type: application/json
+
+{
+  "status_at": "2023-10-01T13:00:00Z",
+  "seclusions": [
+    {
+      "id": 1,
+      "status_id": 2
+    }
+  ],
+  "transports": [
+    {
+      "id": 3,
+      "status_id": 1
+    }
+  ]
+}
+
 
 ### CREATE OFFICIAL
 POST {{baseURL}}/official
@@ -42,10 +90,10 @@ Content-Type: application/json
   "brigade_id": 1
 }
 
-### GET TRANSPORT 
+### GET TRANSPORT
 GET {{baseURL}}/transport
 
-### CREATE TRANSPORT 
+### CREATE TRANSPORT
 POST {{baseURL}}/transport
 Content-Type: application/json
 
@@ -53,8 +101,8 @@ Content-Type: application/json
   "type_id": 1,
   "details": "This is a sample transport detail",
   "brand_id": 1,
-  "model_id": 1,
-  "plate": "ABC-1234",
+  "model_id": 4,
+  "plate": "ABC-12343",
   "unit": "Unit-01",
   "status_id": 1
 }

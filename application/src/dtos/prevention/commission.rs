@@ -125,8 +125,9 @@ pub mod seized_transport_dto {
     use serde::{Deserialize, Serialize};
 
     #[derive(Debug, DeriveIntoActiveModel, Deserialize, Serialize)]
+
+            // TODO: USE COMMISSION SEIZED ON THIS TABLE
     pub struct UpdateSeizedTransportDTO {
-        #[serde(skip_deserializing)]
         pub id: i32,
         pub status_id: i32,
     }
@@ -168,6 +169,7 @@ pub mod seclusion_dto {
         from_query_result
     )]
     pub struct GetTemporalSeclusionDTO {
+        pub id: i32,
         #[serde(skip_deserializing)]
         pub commission_id: i32,
         pub ci: String,
@@ -179,6 +181,7 @@ pub mod seclusion_dto {
 
     #[derive(Debug, Serialize, DeriveIntoActiveModel, Deserialize)]
     pub struct UpdateTemporalSeclusionDTO {
+        pub id: i32,
         #[serde(skip_deserializing)]
         pub commission_id: i32,
         pub status_id: i32,

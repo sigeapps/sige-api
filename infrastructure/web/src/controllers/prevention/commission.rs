@@ -1,5 +1,6 @@
 use application::dtos::prevention::commission::{
-    CreateCommissionAggregateDTO, GetCommissionSummaryDTO, UpdateCommissionExitDTO,
+    CreateCommissionAggregateDTO, GetCommissionStatusAggregateDTO, GetCommissionSummaryDTO,
+    UpdateCommissionExitDTO, UpdateCommissionStatusAggregateDTO,
 };
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
@@ -12,8 +13,8 @@ use crate::types::CommonQuery;
 use crate::Result;
 
 #[derive(Serialize, Deserialize)]
-pub struct CommissionBody {
-    commission_id: i32,
+pub struct CommissionBody<T> {
+    commission: T,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -27,7 +28,13 @@ pub async fn create_commission(
 ) -> Result<Response> {
     let commission_id = app_state.commission_service.create(commission).await?;
 
-    Ok((StatusCode::CREATED, Json(CommissionBody { commission_id })).into_response())
+    Ok((
+        StatusCode::CREATED,
+        Json(CommissionBody::<i32> {
+            commission: commission_id,
+        }),
+    )
+        .into_response())
 }
 
 pub async fn get_commissions(
@@ -57,4 +64,23 @@ pub async fn update_commission_exit(
     app_state.commission_service.update_exit(id, req).await?;
 
     Ok(Json("commission exit updated").into_response())
+}
+
+pub async fn update_commission_status(
+    State(app_state): State<AppState>,
+    Path(id): Path<i32>,
+    Json(req): Json<UpdateCommissionStatusAggregateDTO>,
+) -> Result<Response> {
+    app_state.commission_service.update_status(id, req).await?;
+
+    Ok(Json("commission status updated").into_response())
+}
+
+pub async fn get_commission_status_by_id(
+    State(app_state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<Response> {
+    let commission = app_state.commission_service.find_status_by_id(id).await?;
+
+    Ok(Json(CommissionBody::<GetCommissionStatusAggregateDTO> { commission }).into_response())
 }
