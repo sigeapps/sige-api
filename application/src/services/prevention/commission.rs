@@ -1,11 +1,11 @@
-use domain::entities::{brigade, commission, commission_official, commission_reason, commission_seized_transport, commission_transport, hierarchy, official, temporal_seclusion, transport};
-use sea_orm::{prelude::Expr, *};
+use domain::entities::{brigade, charge, commission, commission_official, commission_reason, commission_seized_transport, commission_transport, hierarchy, municipality, official, temporal_seclusion, transport};
+use sea_orm::{prelude::Expr, sea_query::Alias, *};
 
 use crate::{
     connection::connect,
     dtos::prevention::{commission::{
-        seclusion_dto::GetTemporalSeclusionDTO, CreateCommissionAggregateDTO, GetCommissionStatusAggregateDTO, GetCommissionSummaryDTO, UpdateCommissionExitDTO, UpdateCommissionStatusAggregateDTO
-    }, transport::GetTransportDTO},
+        dto::GetCommissionDTO, reason_dto::GetCommissionReasonDTO, seclusion_dto::GetTemporalSeclusionDTO, CreateCommissionAggregateDTO, GetCommissionAggregateDTO, GetCommissionStatusAggregateDTO, GetCommissionSummaryDTO, UpdateCommissionExitDTO, UpdateCommissionStatusAggregateDTO
+    }, lookup::GetBrigadeDTO, official::GetOfficialDTO, transport::GetTransportDTO},
 };
 
 #[derive(Debug, Clone)]
@@ -31,6 +31,91 @@ impl CommissionService {
         let db = connect(db_url).await?;
 
         Ok(CommissionService { db })
+    }
+
+    pub async fn find_by_id(self, id: i32) -> Result<GetCommissionAggregateDTO, DbErr> {
+        // First, get the commission entity to get the foreign keys
+        let commission_entity = commission::Entity::find_by_id(id)
+            .one(&self.db)
+            .await?
+            .ok_or(DbErr::RecordNotFound("Commission not found".to_string()))?;
+
+        // Get brigade
+        let brigade = brigade::Entity::find_by_id(commission_entity.brigade_id)
+            .into_partial_model::<GetBrigadeDTO>()
+            .one(&self.db)
+            .await?
+            .ok_or(DbErr::RecordNotFound("Brigade not found".to_string()))?;
+
+        // Get authorized official if exists
+        let authorized_official = if let Some(auth_id) = commission_entity.authorized_official_id {
+            official::Entity::find_by_id(auth_id)
+                .left_join(hierarchy::Entity)
+                .left_join(charge::Entity)
+                .left_join(brigade::Entity)
+                .into_partial_model::<GetOfficialDTO>()
+                .one(&self.db)
+                .await?
+        } else {
+            None
+        };
+
+        // Get boss if exists
+        let boss = if let Some(boss_id) = commission_entity.boss_id {
+            official::Entity::find_by_id(boss_id)
+                .left_join(hierarchy::Entity)
+                .left_join(charge::Entity)
+                .left_join(brigade::Entity)
+                .into_partial_model::<GetOfficialDTO>()
+                .one(&self.db)
+                .await?
+        } else {
+            None
+        };
+
+        // Construct the commission DTO
+        let commission = GetCommissionDTO {
+            id: commission_entity.id,
+            brigade,
+            authorized_official,
+            boss,
+            entry_at: commission_entity.entry_at,
+            exit_at: commission_entity.exit_at,
+            status_at: commission_entity.status_at,
+            observations: commission_entity.observations,
+            created_at: commission_entity.created_at,
+        };
+
+        // Get reason with municipality in one query
+        let reason = commission_reason::Entity::find()
+            .filter(commission_reason::Column::CommissionId.eq(id))
+            .left_join(municipality::Entity)
+            .into_partial_model::<GetCommissionReasonDTO>()
+            .one(&self.db)
+            .await?
+            .ok_or(DbErr::RecordNotFound("Reason not found".to_string()))?;
+
+        // Get all seclusions with their statuses in one query
+        let seclusions = temporal_seclusion::Entity::find()
+            .filter(temporal_seclusion::Column::CommissionId.eq(id))
+            .join(JoinType::LeftJoin, temporal_seclusion::Relation::SeclusionStatuses.def())
+            .into_partial_model::<GetTemporalSeclusionDTO>()
+            .all(&self.db)
+            .await?;
+
+        // Get all transports with their related data in one query
+        let transports = commission_transport::Entity::find()
+            .filter(commission_transport::Column::CommissionId.eq(id))
+            .join(JoinType::LeftJoin, commission_transport::Relation::Transport.def())
+            .join(JoinType::LeftJoin, transport::Relation::TransportType.def())
+            .join(JoinType::LeftJoin, transport::Relation::Brand.def())
+            .join(JoinType::LeftJoin, transport::Relation::VehicleModel.def())
+            .join(JoinType::LeftJoin, transport::Relation::TransportStatuses.def())
+            .into_partial_model::<GetTransportDTO>()
+            .all(&self.db)
+            .await?;
+
+        Ok(GetCommissionAggregateDTO { commission, reason, seclusions, transports })
     }
 
     pub async fn find(self, search: Option<String>) -> Result<Vec<GetCommissionSummaryDTO>, DbErr> {

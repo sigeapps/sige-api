@@ -24,18 +24,9 @@ impl OfficialService {
         brigade_id: Option<i32>,
     ) -> Result<Vec<GetOfficialDTO>, DbErr> {
         let mut query = official::Entity::find()
-            .select_only()
-            .column_as(official::Column::Id, "id")
-            .column_as(official::Column::Ci, "ci")
-            .column_as(official::Column::Phone, "phone")
-            .column_as(official::Column::LastName, "last_name")
-            .column_as(official::Column::FirstName, "first_name")
-            .column_as(brigade::Column::Name, "brigade")
-            .column_as(hierarchy::Column::Name, "hierarchy")
-            .column_as(charge::Column::Name, "charge")
-            .join(JoinType::InnerJoin, brigade::Relation::Official.def())
-            .join(JoinType::InnerJoin, hierarchy::Relation::Official.def())
-            .join(JoinType::InnerJoin, charge::Relation::Official.def());
+            .left_join(brigade::Entity)
+            .left_join(hierarchy::Entity)
+            .left_join(charge::Entity);
 
         if let Some(search) = search {
             query = query.filter(official::Column::Ci.contains(search));
@@ -45,7 +36,7 @@ impl OfficialService {
             query = query.filter(official::Column::BrigadeId.eq(brigade_id));
         }
 
-        query.into_model::<GetOfficialDTO>().all(&self.db).await
+        query.into_partial_model::<GetOfficialDTO>().all(&self.db).await
     }
 
     pub async fn find_by_id(self, id: i32) -> Result<Option<GetOfficialDTO>, DbErr> {

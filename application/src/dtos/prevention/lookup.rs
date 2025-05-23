@@ -49,3 +49,31 @@ pub struct GetSeclusionStatusDTO {
     pub id: i32,
     pub name: String
 }
+
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::brigade::Entity", from_query_result)]
+pub struct GetBrigadeDTO {
+    pub id: i32,
+    pub name: String
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::charge::Entity", from_query_result)]
+pub struct GetChargeDTO {
+    pub id: i32,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::hierarchy::Entity", from_query_result)]
+pub struct GetHierarchyDTO {
+    pub id: i32,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::municipality::Entity", from_query_result)]
+pub struct GetMunicipalityDTO {
+    pub id: i32,
+    pub name: String,
+}

@@ -1,7 +1,8 @@
-use dto::{CreateCommissionDTO, UpdateCommissionDTO, UpdateCommissionStatusDTO};
+use domain::entities::{commission, commission_reason};
+use dto::{CreateCommissionDTO, GetCommissionDTO, UpdateCommissionDTO, UpdateCommissionStatusDTO};
 use official_dto::CreateCommissionOfficialDTO;
-use reason_dto::CreateCommissionReasonDTO;
-use sea_orm::{prelude::ChronoDateTimeWithTimeZone, FromQueryResult};
+use reason_dto::{CreateCommissionReasonDTO, GetCommissionReasonDTO};
+use sea_orm::{prelude::ChronoDateTimeWithTimeZone, DerivePartialModel, FromQueryResult};
 use seclusion_dto::{
     CreateTemporalSeclusionDTO, GetTemporalSeclusionDTO, UpdateTemporalSeclusionDTO,
 };
@@ -11,7 +12,7 @@ use transport_dto::CreateCommissionTransportDTO;
 
 use super::transport::{CreateTransportDTO, GetTransportDTO};
 
-#[derive(Debug, Clone, Deserialize, Serialize, FromQueryResult)]
+#[derive(Debug, Serialize, Deserialize, FromQueryResult)]
 pub struct GetCommissionSummaryDTO {
     pub id: i32,
     pub entry_at: Option<ChronoDateTimeWithTimeZone>,
@@ -26,6 +27,16 @@ pub struct GetCommissionSummaryDTO {
     pub auth_official: String,
     pub auth_official_hierarchy: String,
     pub observations: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetCommissionAggregateDTO {
+    #[serde(flatten)]
+    pub commission: GetCommissionDTO,
+    #[serde(flatten)]
+    pub reason: GetCommissionReasonDTO,
+    pub seclusions: Vec<GetTemporalSeclusionDTO>,
+    pub transports: Vec<GetTransportDTO>,
 }
 
 /// This dto creates only relationships of vecs
@@ -62,8 +73,30 @@ pub struct UpdateCommissionStatusAggregateDTO {
 
 pub mod dto {
     use domain::entities::commission::ActiveModel;
-    use sea_orm::{prelude::ChronoDateTimeWithTimeZone, DeriveIntoActiveModel};
+    use sea_orm::{prelude::{ChronoDateTimeWithTimeZone, DateTimeWithTimeZone}, DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
+
+    use crate::dtos::prevention::{lookup::GetBrigadeDTO, official::GetOfficialDTO};
+
+    #[derive(Debug, Serialize, Deserialize, DerivePartialModel)]
+    #[sea_orm(
+        entity = "domain::entities::commission::Entity",
+        from_query_result
+    )]
+    pub struct GetCommissionDTO {
+    pub id: i32,
+    #[sea_orm(nested)]
+    pub brigade: GetBrigadeDTO,
+    #[sea_orm(nested)]
+    pub authorized_official: Option<GetOfficialDTO>,
+    #[sea_orm(nested)]
+    pub boss: Option<GetOfficialDTO>,
+    pub entry_at: DateTimeWithTimeZone,
+    pub exit_at: Option<DateTimeWithTimeZone>,
+    pub status_at: Option<DateTimeWithTimeZone>,
+    pub observations: Option<String>,
+    pub created_at: DateTimeWithTimeZone,
+    }
 
     #[derive(Debug, Serialize, DeriveIntoActiveModel, Deserialize, Clone)]
     pub struct CreateCommissionDTO {
@@ -92,8 +125,20 @@ pub mod dto {
 
 pub mod reason_dto {
     use domain::entities::commission_reason::ActiveModel;
-    use sea_orm::DeriveIntoActiveModel;
+    use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
+
+    use crate::dtos::prevention::lookup::GetMunicipalityDTO;
+
+    #[derive(Debug, Serialize, Deserialize, DerivePartialModel)]
+    #[sea_orm(entity = "domain::entities::commission_reason::Entity", from_query_result)]
+    pub struct GetCommissionReasonDTO {
+        pub name: String,
+        pub description: String,
+        pub zone: Option<String>,
+        #[sea_orm(nested)]
+        pub municipality: GetMunicipalityDTO,
+    }
 
     #[derive(Debug, Serialize, DeriveIntoActiveModel, Deserialize)]
     pub struct CreateCommissionReasonDTO {

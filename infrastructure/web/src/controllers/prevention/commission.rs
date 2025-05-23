@@ -1,6 +1,5 @@
 use application::dtos::prevention::commission::{
-    CreateCommissionAggregateDTO, GetCommissionStatusAggregateDTO, GetCommissionSummaryDTO,
-    UpdateCommissionExitDTO, UpdateCommissionStatusAggregateDTO,
+    CreateCommissionAggregateDTO, GetCommissionAggregateDTO, GetCommissionStatusAggregateDTO, GetCommissionSummaryDTO, UpdateCommissionExitDTO, UpdateCommissionStatusAggregateDTO
 };
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
@@ -83,4 +82,13 @@ pub async fn get_commission_status_by_id(
     let commission = app_state.commission_service.find_status_by_id(id).await?;
 
     Ok(Json(CommissionBody::<GetCommissionStatusAggregateDTO> { commission }).into_response())
+}
+
+pub async fn get_commission_by_id(
+    State(app_state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<Response> {
+    let commission = app_state.commission_service.find_by_id(id).await?;
+
+    Ok(Json(CommissionBody::<GetCommissionAggregateDTO> { commission }).into_response())
 }
