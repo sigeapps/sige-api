@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use dto::CreateCommissionDTO;
 use official_dto::CreateCommissionOfficialDTO;
 use reason_dto::CreateCommissionReasonDTO;
@@ -10,6 +11,20 @@ pub struct CreateCommissionAggregateDTO {
     pub reason: CreateCommissionReasonDTO,
     pub officials: Vec<CreateCommissionOfficialDTO>,
     pub transports: Vec<CreateCommissionTransportDTO>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UpdateCommissionExitDTO {
+    commission_exit_at: NaiveDate,
+    commission_observations: String,
+    commission_persons: String,
+    commission_transports: Vec<CreateCommissionTransportDTO>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UpdateCommissionStatusDTO {
+    commission_persons: String,
+    commission_transports: String,
 }
 
 pub mod dto {

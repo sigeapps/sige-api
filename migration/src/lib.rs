@@ -15,6 +15,7 @@ mod m20250419_000012_create_brigade_table;
 mod m20250419_000013_create_official_table;
 mod m20250504_000014_create_transports_table;
 mod m20250504_000015_create_commissions_table;
+mod m20250523_094807_create_seclusion_table;
 
 pub struct Migrator;
 
@@ -37,6 +38,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20250419_000013_create_official_table::Migration),
             Box::new(m20250504_000014_create_transports_table::Migration),
             Box::new(m20250504_000015_create_commissions_table::Migration),
+            Box::new(m20250523_094807_create_seclusion_table::Migration),
         ]
     }
 }

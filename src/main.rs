@@ -5,8 +5,6 @@ use sige_api::settings::Settings;
 use tracing::Level;
 
 fn main() -> anyhow::Result<()> {
-    // Inicializa los logs de la aplicacion
-
     let args = Args::parse();
 
     let settings = Settings::new()?;
