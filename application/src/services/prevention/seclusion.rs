@@ -21,7 +21,8 @@ impl SeclusionService {
         Self { db }
     }
 
-    pub async fn find_by_id(self, id: i32) -> Result<GetSeclusionWithVisitDTO, DbErr> {
+    // TODO: THIS FUNCTION REALLY NEEDS TO RETURN AN REAL OPTION
+    pub async fn find_by_id(self, id: i32) -> Result<Option<GetSeclusionWithVisitDTO>, DbErr> {
         let query = seclusion::Entity::find_by_id(id);
 
         let seclusion = query
@@ -37,7 +38,7 @@ impl SeclusionService {
 
         let seclusion = GetSeclusionDTO::from(seclusion);
 
-        Ok(GetSeclusionWithVisitDTO { seclusion, visits })
+        Ok(Some(GetSeclusionWithVisitDTO { seclusion, visits }))
     }
 
     pub async fn find(
