@@ -1,3 +1,4 @@
+use application::dtos::prevention::seclusion::GetSeclusionDTO;
 use application::dtos::prevention::seclusion::{
     visit::AddSeclusionVisitDTO, CreateSeclusionDTO, GetSeclusionWithVisitDTO,
     UpdateSeclusionExitDTO,
@@ -20,7 +21,7 @@ pub struct SeclusionBody<T> {
 
 #[derive(Serialize, Deserialize)]
 pub struct MultipleSeclusionsBody {
-    seclusions: Vec<GetSeclusionWithVisitDTO>,
+    seclusions: Vec<GetSeclusionDTO>,
 }
 
 pub async fn create_seclusion(
