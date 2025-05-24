@@ -1,9 +1,14 @@
-use application::services::{
-    prevention::{
-        commission::CommissionService, lookup::LookupService, official::OfficialService,
-        register::RegisterService, transport::TransportService,
+use std::sync::Arc;
+
+use application::{
+    connection::connect,
+    services::{
+        prevention::{
+            commission::CommissionService, lookup::LookupService, official::OfficialService,
+            register::RegisterService, transport::TransportService,
+        },
+        user::UserService,
     },
-    user::UserService,
 };
 use tracing::debug;
 
@@ -21,13 +26,16 @@ impl AppState {
     pub async fn new(database_url: &str) -> anyhow::Result<Self> {
         debug!("Creating AppState with database_url: {}", database_url);
 
+        // Create a single database connection and wrap it in Arc
+        let db = Arc::new(connect(database_url).await?);
+
         Ok(Self {
-            user_service: UserService::new(database_url).await?,
-            register_service: RegisterService::new(database_url).await?,
-            official_service: OfficialService::new(database_url).await?,
-            lookup_service: LookupService::new(database_url).await?,
-            transport_service: TransportService::new(database_url).await?,
-            commission_service: CommissionService::new(database_url).await?,
+            user_service: UserService::new(db.clone()),
+            register_service: RegisterService::new(db.clone()),
+            official_service: OfficialService::new(db.clone()),
+            lookup_service: LookupService::new(db.clone()),
+            transport_service: TransportService::new(db.clone()),
+            commission_service: CommissionService::new(db),
         })
     }
 }

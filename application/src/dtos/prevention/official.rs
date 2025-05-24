@@ -1,5 +1,5 @@
 use domain::entities::official::ActiveModel;
-use sea_orm::{DeriveIntoActiveModel, DerivePartialModel, FromQueryResult};
+use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
 use serde::{Deserialize, Serialize};
 
 use super::lookup::{GetBrigadeDTO, GetChargeDTO, GetHierarchyDTO};

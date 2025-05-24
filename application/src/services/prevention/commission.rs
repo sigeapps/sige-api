@@ -1,16 +1,15 @@
-use domain::entities::{brigade, charge, commission, commission_official, commission_reason, commission_seized_transport, commission_transport, hierarchy, municipality, official, temporal_seclusion, transport};
-use sea_orm::{prelude::Expr, sea_query::Alias, *};
+use std::sync::Arc;
 
-use crate::{
-    connection::connect,
-    dtos::prevention::{commission::{
-        dto::GetCommissionDTO, reason_dto::GetCommissionReasonDTO, seclusion_dto::GetTemporalSeclusionDTO, CreateCommissionAggregateDTO, GetCommissionAggregateDTO, GetCommissionStatusAggregateDTO, GetCommissionSummaryDTO, UpdateCommissionExitDTO, UpdateCommissionStatusAggregateDTO
-    }, lookup::GetBrigadeDTO, official::GetOfficialDTO, transport::GetTransportDTO},
-};
+use domain::entities::{brigade, charge, commission, commission_official, commission_reason, commission_seized_transport, commission_transport, hierarchy, municipality, official, temporal_seclusion, transport};
+use sea_orm::{prelude::Expr, *};
+
+use crate::dtos::prevention::{commission::{
+    dto::GetCommissionDTO, reason_dto::GetCommissionReasonDTO, seclusion_dto::GetTemporalSeclusionDTO, CreateCommissionAggregateDTO, GetCommissionAggregateDTO, GetCommissionStatusAggregateDTO, GetCommissionSummaryDTO, UpdateCommissionExitDTO, UpdateCommissionStatusAggregateDTO
+}, lookup::GetBrigadeDTO, official::GetOfficialDTO, transport::GetTransportDTO};
 
 #[derive(Debug, Clone)]
 pub struct CommissionService {
-    db: DatabaseConnection,
+    db: Arc<DatabaseConnection>,
 }
 
 #[derive(DeriveIden, Clone, Copy)]
@@ -27,23 +26,23 @@ pub struct AuthOfficialHierarchy;
 
 // TODO: use transactions and async tasks
 impl CommissionService {
-    pub async fn new(db_url: &str) -> Result<Self, DbErr> {
-        let db = connect(db_url).await?;
-
-        Ok(CommissionService { db })
+    pub fn new(db: Arc<DatabaseConnection>) -> Self {
+        CommissionService { db }
     }
+
+    // TODO: MAKE MORE QUERY PERFORMANT THIS FN
 
     pub async fn find_by_id(self, id: i32) -> Result<GetCommissionAggregateDTO, DbErr> {
         // First, get the commission entity to get the foreign keys
         let commission_entity = commission::Entity::find_by_id(id)
-            .one(&self.db)
+            .one(&*self.db)
             .await?
             .ok_or(DbErr::RecordNotFound("Commission not found".to_string()))?;
 
         // Get brigade
         let brigade = brigade::Entity::find_by_id(commission_entity.brigade_id)
             .into_partial_model::<GetBrigadeDTO>()
-            .one(&self.db)
+            .one(&*self.db)
             .await?
             .ok_or(DbErr::RecordNotFound("Brigade not found".to_string()))?;
 
@@ -54,7 +53,7 @@ impl CommissionService {
                 .left_join(charge::Entity)
                 .left_join(brigade::Entity)
                 .into_partial_model::<GetOfficialDTO>()
-                .one(&self.db)
+                .one(&*self.db)
                 .await?
         } else {
             None
@@ -67,7 +66,7 @@ impl CommissionService {
                 .left_join(charge::Entity)
                 .left_join(brigade::Entity)
                 .into_partial_model::<GetOfficialDTO>()
-                .one(&self.db)
+                .one(&*self.db)
                 .await?
         } else {
             None
@@ -91,7 +90,7 @@ impl CommissionService {
             .filter(commission_reason::Column::CommissionId.eq(id))
             .left_join(municipality::Entity)
             .into_partial_model::<GetCommissionReasonDTO>()
-            .one(&self.db)
+            .one(&*self.db)
             .await?
             .ok_or(DbErr::RecordNotFound("Reason not found".to_string()))?;
 
@@ -100,7 +99,7 @@ impl CommissionService {
             .filter(temporal_seclusion::Column::CommissionId.eq(id))
             .join(JoinType::LeftJoin, temporal_seclusion::Relation::SeclusionStatuses.def())
             .into_partial_model::<GetTemporalSeclusionDTO>()
-            .all(&self.db)
+            .all(&*self.db)
             .await?;
 
         // Get all transports with their related data in one query
@@ -112,7 +111,7 @@ impl CommissionService {
             .join(JoinType::LeftJoin, transport::Relation::VehicleModel.def())
             .join(JoinType::LeftJoin, transport::Relation::TransportStatuses.def())
             .into_partial_model::<GetTransportDTO>()
-            .all(&self.db)
+            .all(&*self.db)
             .await?;
 
         Ok(GetCommissionAggregateDTO { commission, reason, seclusions, transports })
@@ -192,7 +191,7 @@ impl CommissionService {
             .group_by(Expr::col((AuthOfficial, official::Column::LastName)))
             .group_by(Expr::col((AuthOfficialHierarchy, hierarchy::Column::Name)));
 
-        query.into_model::<GetCommissionSummaryDTO>().all(&self.db).await
+        query.into_model::<GetCommissionSummaryDTO>().all(&*self.db).await
     }
 
     pub async fn find_status_by_id(self, id: i32) -> Result<GetCommissionStatusAggregateDTO, DbErr> {
@@ -200,7 +199,7 @@ impl CommissionService {
             .filter(temporal_seclusion::Column::CommissionId.eq(id))
             .join(JoinType::LeftJoin, temporal_seclusion::Relation::SeclusionStatuses.def())
             .into_partial_model::<GetTemporalSeclusionDTO>()
-            .all(&self.db)
+            .all(&*self.db)
             .await?;
 
             // TODO: USE COMMISSION SEIZED ON THIS TABLE
@@ -212,7 +211,7 @@ impl CommissionService {
             .join(JoinType::LeftJoin, transport::Relation::VehicleModel.def())
             .join(JoinType::LeftJoin, transport::Relation::TransportStatuses.def())
             .into_partial_model::<GetTransportDTO>()
-            .all(&self.db)
+            .all(&*self.db)
             .await?;
 
         Ok(GetCommissionStatusAggregateDTO { seclusions, transports })
@@ -334,5 +333,5 @@ pub async fn update_status(
     txn.commit().await?;
 
     Ok(())
-}
+    }
 }

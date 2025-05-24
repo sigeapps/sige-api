@@ -1,21 +1,18 @@
+use std::sync::Arc;
+
 use domain::entities::{brigade, charge, hierarchy, official};
 use sea_orm::*;
 
-use crate::{
-    connection::connect,
-    dtos::prevention::official::{CreateOfficialDTO, GetOfficialDTO},
-};
+use crate::dtos::prevention::official::{CreateOfficialDTO, GetOfficialDTO};
 
 #[derive(Debug, Clone)]
 pub struct OfficialService {
-    db: DatabaseConnection,
+    db: Arc<DatabaseConnection>,
 }
 
 impl OfficialService {
-    pub async fn new(db_url: &str) -> Result<Self, DbErr> {
-        let db = connect(db_url).await?;
-
-        Ok(OfficialService { db })
+    pub fn new(db: Arc<DatabaseConnection>) -> Self {
+        OfficialService { db }
     }
 
     pub async fn find(
@@ -36,7 +33,7 @@ impl OfficialService {
             query = query.filter(official::Column::BrigadeId.eq(brigade_id));
         }
 
-        query.into_partial_model::<GetOfficialDTO>().all(&self.db).await
+        query.into_partial_model::<GetOfficialDTO>().all(&*self.db).await
     }
 
     pub async fn find_by_id(self, id: i32) -> Result<Option<GetOfficialDTO>, DbErr> {
@@ -54,7 +51,7 @@ impl OfficialService {
             .join(JoinType::InnerJoin, hierarchy::Relation::Official.def())
             .join(JoinType::InnerJoin, charge::Relation::Official.def())
             .into_model::<GetOfficialDTO>()
-            .one(&self.db)
+            .one(&*self.db)
             .await?;
 
         Ok(official)
@@ -62,7 +59,7 @@ impl OfficialService {
 
     pub async fn create(self, official: CreateOfficialDTO) -> Result<(), DbErr> {
         official::Entity::insert(official.into_active_model())
-            .exec(&self.db)
+            .exec(&*self.db)
             .await?;
 
         Ok(())

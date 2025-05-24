@@ -1,19 +1,17 @@
+use std::sync::Arc;
+
 use sea_orm::{
     ActiveModelTrait, DatabaseConnection, DbErr, EntityTrait, FromQueryResult, ModelTrait,
 };
 
-use crate::connection::connect;
-
 #[derive(Debug, Clone)]
 pub struct LookupService {
-    db: DatabaseConnection,
+    db: Arc<DatabaseConnection>,
 }
 
 impl LookupService {
-    pub async fn new(db_url: &str) -> Result<Self, DbErr> {
-        let db = connect(db_url).await?;
-
-        Ok(LookupService { db })
+    pub fn new(db: Arc<DatabaseConnection>) -> Self {
+        LookupService { db }
     }
 
     pub async fn find<E, M, A>(&self) -> Result<Vec<M>, DbErr>
@@ -22,7 +20,7 @@ impl LookupService {
         M: ModelTrait + Send + Sync + FromQueryResult,
         A: ActiveModelTrait + Send + Sync,
     {
-        E::find().all(&self.db).await
+        E::find().all(&*self.db).await
     }
 
     pub async fn create<E, M, A>(&self, active_model: A) -> Result<(), DbErr>
@@ -31,7 +29,7 @@ impl LookupService {
         M: ModelTrait + Send + Sync + FromQueryResult,
         A: ActiveModelTrait<Entity = E> + Send + Sync,
     {
-        E::insert(active_model).exec(&self.db).await?;
+        E::insert(active_model).exec(&*self.db).await?;
 
         Ok(())
     }

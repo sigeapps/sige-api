@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use chrono::NaiveDate;
 use domain::entities::{
     division, organism,
@@ -5,28 +7,23 @@ use domain::entities::{
 };
 use sea_orm::*;
 
-use crate::{
-    connection::connect,
-    dtos::prevention::register::{CreateRegisterDTO, GetRegisterDTO, UpdateRegisterExitDTO},
-};
+use crate::dtos::prevention::register::{CreateRegisterDTO, GetRegisterDTO, UpdateRegisterExitDTO};
 
 #[derive(Debug, Clone)]
 pub struct RegisterService {
-    db: DatabaseConnection,
+    db: Arc<DatabaseConnection>,
 }
 
 impl RegisterService {
-    pub async fn new(db_url: &str) -> Result<Self, DbErr> {
-        let db = connect(db_url).await?;
-
-        Ok(RegisterService { db })
+    pub fn new(db: Arc<DatabaseConnection>) -> Self {
+        RegisterService { db }
     }
 
     pub async fn find_by_id(&self, register_id: i32) -> Result<Option<GetRegisterDTO>, DbErr> {
         let register = register::Entity::find_by_id(register_id)
             .find_also_related(organism::Entity)
             .find_also_related(division::Entity)
-            .one(&self.db)
+            .one(&*self.db)
             .await?;
 
         let register = register.map(GetRegisterDTO::from);
@@ -61,7 +58,7 @@ impl RegisterService {
             .offset(offset.unwrap_or(0))
             .find_also_related(organism::Entity)
             .find_also_related(division::Entity)
-            .all(&self.db)
+            .all(&*self.db)
             .await?;
 
         Ok(registers.into_iter().map(GetRegisterDTO::from).collect())
@@ -70,7 +67,7 @@ impl RegisterService {
     pub async fn create(&self, register: CreateRegisterDTO) -> Result<(), DbErr> {
         let register = register.into_active_model();
 
-        register::Entity::insert(register).exec(&self.db).await?;
+        register::Entity::insert(register).exec(&*self.db).await?;
 
         Ok(())
     }
@@ -84,7 +81,7 @@ impl RegisterService {
 
         register.id = Set(register_id);
 
-        register::Entity::update(register).exec(&self.db).await?;
+        register::Entity::update(register).exec(&*self.db).await?;
 
         Ok(())
     }
