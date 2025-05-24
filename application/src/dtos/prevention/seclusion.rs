@@ -1,5 +1,5 @@
 use chrono::NaiveDate;
-use domain::entities::seclusion::ActiveModel;
+use domain::entities::seclusion::{self, ActiveModel};
 use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
 use serde::{Deserialize, Serialize};
 use visit::GetSeclusionVisitDTO;
@@ -34,6 +34,27 @@ pub struct GetSeclusionDTO {
     pub belongings: Option<String>,
     pub observations: Option<String>,
     pub exit_at: Option<NaiveDate>,
+}
+
+impl From<seclusion::Model> for GetSeclusionDTO {
+    fn from(model: seclusion::Model) -> Self {
+        GetSeclusionDTO {
+            id: model.id,
+            photo: model.photo,
+            ci: model.ci,
+            birthdate: model.birthdate,
+            age: model.age,
+            last_name: model.last_name,
+            first_name: model.first_name,
+            reason: model.reason,
+            exit_reason: model.exit_reason,
+            physical_state: model.physical_state,
+            outfit: model.outfit,
+            belongings: model.belongings,
+            observations: model.observations,
+            exit_at: model.exit_at,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

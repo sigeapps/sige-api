@@ -21,74 +21,46 @@ impl SeclusionService {
         Self { db }
     }
 
+    pub async fn find_by_id(self, id: i32) -> Result<GetSeclusionWithVisitDTO, DbErr> {
+        let query = seclusion::Entity::find_by_id(id);
+
+        let seclusion = query
+            .one(&*self.db)
+            .await?
+            .ok_or_else(|| DbErr::RecordNotFound(format!("Seclusion with id {} not found", id)))?;
+
+        let visits = seclusion
+            .find_related(seclusion_visit::Entity)
+            .into_partial_model::<GetSeclusionVisitDTO>()
+            .all(&*self.db)
+            .await?;
+
+        let seclusion = GetSeclusionDTO::from(seclusion);
+
+        Ok(GetSeclusionWithVisitDTO { seclusion, visits })
+    }
+
     pub async fn find(
         self,
         filter: CommonQueryFilterDTO,
-    ) -> Result<Vec<GetSeclusionWithVisitDTO>, DbErr> {
+    ) -> Result<Option<GetSeclusionDTO>, DbErr> {
         let mut query = seclusion::Entity::find()
             .limit(filter.limit)
             .offset(filter.offset);
 
         if let Some(search) = filter.search {
             query = query.filter(
-                Condition::any()
-                    .add(seclusion::Column::Ci.contains(&search))
+                Condition::all()
+                    .add(seclusion::Column::Reason.contains(&search))
+                    .add(seclusion::Column::Belongings.contains(&search))
                     .add(seclusion::Column::ExitReason.contains(&search))
-                    .add(seclusion::Column::LastName.contains(&search))
+                    .add(seclusion::Column::Ci.contains(&search))
                     .add(seclusion::Column::FirstName.contains(&search))
-                    .add(seclusion::Column::Observations.contains(&search)),
+                    .add(seclusion::Column::LastName.contains(&search)),
             )
         }
 
-        let seclusions = query.all(&*self.db).await?;
-
-        // Load all related visits using the loader pattern
-        let visits = seclusions
-            .load_many(seclusion_visit::Entity, &*self.db)
-            .await?;
-
-        // Combine results
-        Ok(seclusions
-            .into_iter()
-            .zip(visits)
-            .map(|(seclusion, visits)| GetSeclusionWithVisitDTO {
-                seclusion: GetSeclusionDTO {
-                    id: seclusion.id,
-                    photo: seclusion.photo,
-                    ci: seclusion.ci,
-                    birthdate: seclusion.birthdate,
-                    age: seclusion.age,
-                    last_name: seclusion.last_name,
-                    first_name: seclusion.first_name,
-                    reason: seclusion.reason,
-                    exit_reason: seclusion.exit_reason,
-                    physical_state: seclusion.physical_state,
-                    outfit: seclusion.outfit,
-                    belongings: seclusion.belongings,
-                    observations: seclusion.observations,
-                    exit_at: seclusion.exit_at,
-                },
-                visits: visits
-                    .into_iter()
-                    .map(|v| GetSeclusionVisitDTO {
-                        id: v.id,
-                        seclusion_id: v.seclusion_id,
-                        ci: v.ci,
-                        last_name: v.last_name,
-                        first_name: v.first_name,
-                        relationship_id: v.relationship_id,
-                        phone: v.phone,
-                        date: v.date,
-                        address: v.address,
-                        reason: v.reason,
-                    })
-                    .collect(),
-            })
-            .collect())
-    }
-
-    pub async fn find_by_id(self, id: i32) -> Result<Option<GetSeclusionDTO>, DbErr> {
-        seclusion::Entity::find_by_id(id)
+        query
             .into_partial_model::<GetSeclusionDTO>()
             .one(&*self.db)
             .await
