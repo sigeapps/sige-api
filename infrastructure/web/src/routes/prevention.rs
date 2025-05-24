@@ -10,6 +10,9 @@ use crate::{
         },
         official::{create_official, get_officials},
         register::{create_register, get_register_by_id, get_registers, update_register_exit},
+        seclusion::{
+            add_seclusion_visit, create_seclusion, get_seclusion_by_id, get_seclusions, update_seclusion_exit
+        },
         transport::{create_transport, get_tranports},
     },
     state::AppState,
@@ -26,6 +29,11 @@ pub fn prevention_routes(app_state: &Arc<AppState>) -> Router {
         .route("/prevention/official", post(create_official))
         .route("/prevention/transport", get(get_tranports))
         .route("/prevention/transport", post(create_transport))
+        .route("/prevention/seclusion", get(get_seclusions))
+        .route("/prevention/seclusion", post(create_seclusion))
+        .route("/prevention/seclusion/{id}", get(get_seclusion_by_id))
+        .route("/prevention/seclusion/{id}", patch(update_seclusion_exit))
+        .route("/prevention/seclusion/{id}/visit", post(add_seclusion_visit))
         .route("/prevention/commission", post(create_commission))
         .route("/prevention/commission", get(get_commissions))
         .route(

@@ -12,7 +12,7 @@ pub struct Model {
     pub ci: String,
     pub last_name: String,
     pub first_name: String,
-    pub status_id: i32,
+    pub status_id: Option<i32>,
     pub created_at: DateTimeWithTimeZone,
 }
 

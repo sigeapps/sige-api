@@ -16,7 +16,7 @@ pub struct Model {
     pub phone: String,
     pub date: Date,
     pub address: Date,
-    pub reason: Date,
+    pub reason: Option<Date>,
     pub created_at: DateTimeWithTimeZone,
 }
 

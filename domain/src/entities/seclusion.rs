@@ -8,19 +8,19 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    pub photo: String,
+    pub photo: Option<String>,
     pub ci: String,
     pub birthdate: Date,
     pub age: i32,
     pub last_name: String,
     pub first_name: String,
     pub reason: String,
-    pub exit_reason: String,
+    pub exit_reason: Option<String>,
     pub physical_state: String,
-    pub outfit: String,
-    pub belongings: String,
-    pub observations: String,
-    pub exit_at: Date,
+    pub outfit: Option<String>,
+    pub belongings: Option<String>,
+    pub observations: Option<String>,
+    pub exit_at: Option<Date>,
     pub created_at: DateTimeWithTimeZone,
 }
 

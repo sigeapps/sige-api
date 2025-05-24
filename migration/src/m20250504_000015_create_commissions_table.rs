@@ -30,11 +30,7 @@ impl MigrationTrait for Migration {
                             .integer()
                             .null(),
                     )
-                    .col(
-                        ColumnDef::new(Commission::BossId)
-                            .integer()
-                            .null(),
-                    )
+                    .col(ColumnDef::new(Commission::BossId).integer().null())
                     .col(
                         ColumnDef::new(Commission::EntryAt)
                             .timestamp_with_time_zone()
@@ -79,7 +75,7 @@ impl MigrationTrait for Migration {
                             .to(Official::Table, Official::Id)
                             .on_delete(ForeignKeyAction::SetNull),
                     )
-                    .to_owned()
+                    .to_owned(),
             )
             .await?;
 
@@ -241,7 +237,9 @@ impl MigrationTrait for Migration {
 
         manager.create_index(commission_tranport_index).await?;
         manager.create_index(commission_official_index).await?;
-        manager.create_index(commission_seized_transport_index).await?;
+        manager
+            .create_index(commission_seized_transport_index)
+            .await?;
 
         manager
             .create_table(
@@ -379,9 +377,30 @@ impl MigrationTrait for Migration {
             .drop_table(Table::drop().table(Commission::Table).cascade().to_owned())
             .await?;
 
-        manager.drop_index(Index::drop().if_exists().name("uq-commission_transports-commission_transport").to_owned()).await?;
-        manager.drop_index(Index::drop().if_exists().name("uq-commission_seized_transports-commission_seized_transport").to_owned()).await?;
-        manager.drop_index(Index::drop().if_exists().name("uq-commission_officials-commission_official").to_owned()).await
+        manager
+            .drop_index(
+                Index::drop()
+                    .if_exists()
+                    .name("uq-commission_transports-commission_transport")
+                    .to_owned(),
+            )
+            .await?;
+        manager
+            .drop_index(
+                Index::drop()
+                    .if_exists()
+                    .name("uq-commission_seized_transports-commission_seized_transport")
+                    .to_owned(),
+            )
+            .await?;
+        manager
+            .drop_index(
+                Index::drop()
+                    .if_exists()
+                    .name("uq-commission_officials-commission_official")
+                    .to_owned(),
+            )
+            .await
     }
 }
 

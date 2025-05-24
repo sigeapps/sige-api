@@ -106,3 +106,55 @@ Content-Type: application/json
   "unit": "Unit-01",
   "status_id": 1
 }
+
+### GET SECLUSIONS
+GET {{baseURL}}/seclusion
+
+### GET SECLUSIONS WITH SEARCH
+GET {{baseURL}}/seclusion?search=Smith
+
+### CREATE SECLUSION
+POST {{baseURL}}/seclusion
+Content-Type: application/json
+
+{
+  "photo": "base64_encoded_photo_data_here",
+  "ci": "V12345678",
+  "birthdate": "1990-05-15",
+  "age": 33,
+  "last_name": "Smith",
+  "first_name": "John",
+  "reason": "Suspicious activity reported",
+  "exit_reason": "",
+  "physical_state": "Good health, no visible injuries",
+  "outfit": "Blue jeans, white t-shirt, black sneakers",
+  "belongings": "Wallet, phone, keys",
+  "observations": "Cooperative during initial processing"
+}
+
+### GET SECLUSION BY ID
+GET {{baseURL}}/seclusion/1
+
+### UPDATE SECLUSION EXIT
+PATCH {{baseURL}}/seclusion/1
+Content-Type: application/json
+
+{
+  "exit_at": "2024-01-15",
+  "observations": "Released after investigation completed. No charges filed."
+}
+
+### ADD VISIT TO SECLUSION
+POST {{baseURL}}/seclusion/1/visit
+Content-Type: application/json
+
+{
+  "ci": "V87654321",
+  "last_name": "Smith",
+  "first_name": "Jane",
+  "relationship_id": 2,
+  "phone": "555-0123",
+  "date": "2024-01-10",
+  "address": "2024-01-10",
+  "reason": "2024-01-10"
+}

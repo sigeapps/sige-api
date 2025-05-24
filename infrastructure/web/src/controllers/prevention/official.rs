@@ -38,7 +38,7 @@ pub async fn create_official(
     State(app_state): State<AppState>,
     Json(official): Json<CreateOfficialDTO>,
 ) -> Result<Response> {
-    app_state.official_service.create(official.into()).await?;
+    app_state.official_service.create(official).await?;
 
     Ok((StatusCode::OK, "Official created succesfully").into_response())
 }
