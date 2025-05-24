@@ -41,10 +41,7 @@ impl SeclusionService {
         Ok(Some(GetSeclusionWithVisitDTO { seclusion, visits }))
     }
 
-    pub async fn find(
-        self,
-        filter: CommonQueryFilterDTO,
-    ) -> Result<Option<GetSeclusionDTO>, DbErr> {
+    pub async fn find(self, filter: CommonQueryFilterDTO) -> Result<Vec<GetSeclusionDTO>, DbErr> {
         let mut query = seclusion::Entity::find()
             .limit(filter.limit)
             .offset(filter.offset);
@@ -63,7 +60,7 @@ impl SeclusionService {
 
         query
             .into_partial_model::<GetSeclusionDTO>()
-            .one(&*self.db)
+            .all(&*self.db)
             .await
     }
 
