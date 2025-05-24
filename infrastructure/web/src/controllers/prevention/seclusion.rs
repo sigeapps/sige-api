@@ -1,7 +1,6 @@
 use application::dtos::prevention::seclusion::GetSeclusionDTO;
 use application::dtos::prevention::seclusion::{
-    visit::AddSeclusionVisitDTO, CreateSeclusionDTO, GetSeclusionWithVisitDTO,
-    UpdateSeclusionExitDTO,
+    visit::AddSeclusionVisitDTO, CreateSeclusionDTO, UpdateSeclusionExitDTO,
 };
 use application::dtos::CommonQueryFilterDTO;
 use axum::extract::{Path, Query, State};
