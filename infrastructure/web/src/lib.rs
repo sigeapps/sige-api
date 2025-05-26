@@ -51,5 +51,5 @@ pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<
 }
 
 async fn root() -> &'static str {
-    "Welcome to SIGE API!"
+    "Bienvenido a la API de SIGE! Esperando Conexion..."
 }

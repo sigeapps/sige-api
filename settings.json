@@ -1,6 +1,6 @@
 {
   "database": {
-    "url": "postgresql://sige:sige123@localhost:5432/sige_dev"
+    "url": "postgresql://postgres:postgres@localhost:5432/prevencion-api"
   },
   "address": {
     "host": "127.0.0.1",
