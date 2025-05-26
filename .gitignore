@@ -4,6 +4,7 @@
 /infrastructure/database/target
 /domain/target
 /application/target
+settings.json
 .aider*
 .env
 .env
