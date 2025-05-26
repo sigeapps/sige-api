@@ -28,31 +28,34 @@ sige-api/
 
 ## 🛠️ Tecnologías
 
-| Tecnología | Propósito |
-|------------|-----------|
-| **Rust** | Lenguaje de programación principal |
-| **Axum** | Framework web asíncrono |
-| **SeaORM** | ORM para base de datos |
-| **PostgreSQL** | Base de datos relacional |
-| **Tokio** | Runtime asíncrono |
-| **Serde** | Serialización/deserialización JSON |
-| **Clap** | Interfaz de línea de comandos |
-| **Tracing** | Sistema de logging estructurado |
+| Tecnología     | Propósito                          |
+| -------------- | ---------------------------------- |
+| **Rust**       | Lenguaje de programación principal |
+| **Axum**       | Framework web asíncrono            |
+| **SeaORM**     | ORM para base de datos             |
+| **PostgreSQL** | Base de datos relacional           |
+| **Tokio**      | Runtime asíncrono                  |
+| **Serde**      | Serialización/deserialización JSON |
+| **Clap**       | Interfaz de línea de comandos      |
+| **Tracing**    | Sistema de logging estructurado    |
 
 ## 📋 Funcionalidades
 
 ### 🔐 Autenticación y Autorización
+
 - Registro de empresas
 - Login con sesiones
 - Sistema de roles y permisos
 
 ### 📝 Gestión de Registros
+
 - **Registros de entrada/salida**: Control de acceso de personal
 - **Seguimiento temporal**: Fechas de entrada y salida
 - **Información personal**: CI, nombres, organismo, división
 - **Observaciones**: Notas adicionales sobre visitas
 
 ### 🚨 Comisiones de Servicio
+
 - **Gestión de comisiones**: Creación y seguimiento de operaciones
 - **Personal asignado**: Oficiales y responsables
 - **Transporte**: Vehículos asignados y estado
@@ -60,18 +63,21 @@ sige-api/
 - **Razones y motivos**: Documentación de causas
 
 ### 🔒 Aislamientos Temporales
+
 - **Gestión de aislamientos**: Control de personas en aislamiento
 - **Visitas**: Registro de visitas durante el aislamiento
 - **Estados**: Seguimiento del estado del aislamiento
 - **Fechas**: Control temporal de inicio y fin
 
 ### 🚗 Gestión de Transporte
+
 - **Vehículos**: Registro de vehículos disponibles
 - **Estados**: Disponible, en uso, mantenimiento
 - **Tipos**: Clasificación de vehículos
 - **Marcas y modelos**: Información detallada
 
 ### 📊 Datos de Consulta (Lookup)
+
 - **Organismos**: Entidades organizacionales
 - **Divisiones**: Subdivisiones administrativas
 - **Brigadas**: Unidades operativas
@@ -142,64 +148,64 @@ cargo run start
 
 ### Autenticación
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
+| Método | Endpoint    | Descripción             |
+| ------ | ----------- | ----------------------- |
 | `POST` | `/register` | Registrar nuevo usuario |
-| `POST` | `/login` | Iniciar sesión |
+| `POST` | `/login`    | Iniciar sesión          |
 
 ### Registros de Personal
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/prevention/register` | Listar todos los registros |
-| `POST` | `/prevention/register` | Crear nuevo registro |
-| `GET` | `/prevention/register/{id}` | Obtener registro por ID |
+| Método  | Endpoint                    | Descripción                   |
+| ------- | --------------------------- | ----------------------------- |
+| `GET`   | `/prevention/register`      | Listar todos los registros    |
+| `POST`  | `/prevention/register`      | Crear nuevo registro          |
+| `GET`   | `/prevention/register/{id}` | Obtener registro por ID       |
 | `PATCH` | `/prevention/register/{id}` | Actualizar salida de registro |
 
 ### Comisiones
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/prevention/commission` | Listar comisiones |
-| `POST` | `/prevention/commission` | Crear nueva comisión |
-| `GET` | `/prevention/commission/{id}` | Obtener comisión por ID |
-| `PATCH` | `/prevention/commission/{id}/exit` | Actualizar salida |
-| `PATCH` | `/prevention/commission/{id}/status` | Actualizar estado |
+| Método  | Endpoint                             | Descripción             |
+| ------- | ------------------------------------ | ----------------------- |
+| `GET`   | `/prevention/commission`             | Listar comisiones       |
+| `POST`  | `/prevention/commission`             | Crear nueva comisión    |
+| `GET`   | `/prevention/commission/{id}`        | Obtener comisión por ID |
+| `PATCH` | `/prevention/commission/{id}/exit`   | Actualizar salida       |
+| `PATCH` | `/prevention/commission/{id}/status` | Actualizar estado       |
 
 ### Aislamientos
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/prevention/seclusion` | Listar aislamientos |
-| `POST` | `/prevention/seclusion` | Crear nuevo aislamiento |
-| `GET` | `/prevention/seclusion/{id}` | Obtener aislamiento por ID |
-| `PATCH` | `/prevention/seclusion/{id}` | Actualizar salida |
-| `POST` | `/prevention/seclusion/{id}/visit` | Agregar visita |
+| Método  | Endpoint                           | Descripción                |
+| ------- | ---------------------------------- | -------------------------- |
+| `GET`   | `/prevention/seclusion`            | Listar aislamientos        |
+| `POST`  | `/prevention/seclusion`            | Crear nuevo aislamiento    |
+| `GET`   | `/prevention/seclusion/{id}`       | Obtener aislamiento por ID |
+| `PATCH` | `/prevention/seclusion/{id}`       | Actualizar salida          |
+| `POST`  | `/prevention/seclusion/{id}/visit` | Agregar visita             |
 
 ### Oficiales y Transporte
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/prevention/official` | Listar oficiales |
-| `POST` | `/prevention/official` | Crear oficial |
-| `GET` | `/prevention/transport` | Listar transportes |
-| `POST` | `/prevention/transport` | Crear transporte |
+| Método | Endpoint                | Descripción        |
+| ------ | ----------------------- | ------------------ |
+| `GET`  | `/prevention/official`  | Listar oficiales   |
+| `POST` | `/prevention/official`  | Crear oficial      |
+| `GET`  | `/prevention/transport` | Listar transportes |
+| `POST` | `/prevention/transport` | Crear transporte   |
 
 ### Datos de Consulta
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET/POST` | `/lookup/brigade` | Brigadas |
-| `GET/POST` | `/lookup/organism` | Organismos |
-| `GET/POST` | `/lookup/division` | Divisiones |
-| `GET/POST` | `/lookup/charge` | Cargos |
-| `GET/POST` | `/lookup/hierarchy` | Jerarquías |
-| `GET/POST` | `/lookup/state` | Estados |
-| `GET/POST` | `/lookup/municipality` | Municipios |
-| `GET/POST` | `/lookup/transport-type` | Tipos de transporte |
+| Método     | Endpoint                   | Descripción           |
+| ---------- | -------------------------- | --------------------- |
+| `GET/POST` | `/lookup/brigade`          | Brigadas              |
+| `GET/POST` | `/lookup/organism`         | Organismos            |
+| `GET/POST` | `/lookup/division`         | Divisiones            |
+| `GET/POST` | `/lookup/charge`           | Cargos                |
+| `GET/POST` | `/lookup/hierarchy`        | Jerarquías            |
+| `GET/POST` | `/lookup/state`            | Estados               |
+| `GET/POST` | `/lookup/municipality`     | Municipios            |
+| `GET/POST` | `/lookup/transport-type`   | Tipos de transporte   |
 | `GET/POST` | `/lookup/transport-status` | Estados de transporte |
-| `GET/POST` | `/lookup/brand` | Marcas |
-| `GET/POST` | `/lookup/vehicle-model` | Modelos de vehículos |
+| `GET/POST` | `/lookup/brand`            | Marcas                |
+| `GET/POST` | `/lookup/vehicle-model`    | Modelos de vehículos  |
 
 ## 📖 Ejemplos de Uso
 
@@ -338,23 +344,3 @@ El archivo `settings.json` en la raíz del proyecto contiene la configuración p
   }
 }
 ```
-
-## 🤝 Contribuir
-
-1. Hacer fork del proyecto
-2. Crear una rama para la funcionalidad (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit de cambios (`git commit -am 'Agregar nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Crear Pull Request
-
-## 📄 Licencia
-
-[Especificar licencia del proyecto]
-
-## 🐛 Reporte de Bugs
-
-Para reportar bugs o solicitar funcionalidades, crear un issue en el repositorio del proyecto.
-
-## 📞 Soporte
-
-Para soporte técnico o consultas sobre el proyecto, contactar al equipo de desarrollo.

@@ -207,7 +207,7 @@ pub mod seclusion_dto {
         pub ci: String,
         pub last_name: String,
         pub first_name: String,
-        pub status_id: i32,
+        pub status_id: Option<i32>,
     }
 
     #[derive(Debug, Serialize, Deserialize, DerivePartialModel)]
@@ -223,7 +223,7 @@ pub mod seclusion_dto {
         pub last_name: String,
         pub first_name: String,
         #[sea_orm(nested)]
-        pub status: GetSeclusionStatusDTO,
+        pub status: Option<GetSeclusionStatusDTO>,
     }
 
     #[derive(Debug, Serialize, DeriveIntoActiveModel, Deserialize)]

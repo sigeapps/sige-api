@@ -14,6 +14,7 @@ use axum_login::{
     AuthManagerLayerBuilder,
 };
 use error::WebError;
+use password_auth::generate_hash;
 use state::AppState;
 use tower_http::cors::CorsLayer;
 
@@ -22,6 +23,9 @@ pub type Result<T, E = WebError> = std::result::Result<T, E>;
 #[tokio::main]
 pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<()> {
     let app_state = Arc::new(AppState::new(database_url).await?);
+
+    let password = generate_hash("taller");
+    println!("{}", password);
 
     let session_store = MemoryStore::default();
     let session_layer = SessionManagerLayer::new(session_store);

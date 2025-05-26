@@ -3,6 +3,9 @@
 ### GET COMMISSIONS
 GET {{baseURL}}/commission
 
+### GET OFFICIALS 
+GET {{baseURL}}/official
+
 ### CREATE COMMISSION
 
 POST {{baseURL}}/commission

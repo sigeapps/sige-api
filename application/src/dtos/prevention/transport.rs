@@ -1,5 +1,5 @@
-use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
 use domain::entities::transport::ActiveModel;
+use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
 use serde::{Deserialize, Serialize};
 
 use super::lookup::{GetBrandDTO, GetTransportStatusDTO, GetTransportTypeDTO, GetVehicleModelDTO};
@@ -29,5 +29,5 @@ pub struct GetTransportDTO {
     pub plate: String,
     pub unit: String,
     #[sea_orm(nested)]
-    pub status: GetTransportStatusDTO,
+    pub status: Option<GetTransportStatusDTO>,
 }

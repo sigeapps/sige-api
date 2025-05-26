@@ -18,6 +18,7 @@ pub struct CreateOfficialDTO {
 #[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
 #[sea_orm(entity = "domain::entities::official::Entity", from_query_result)]
 pub struct GetOfficialDTO {
+    pub id: i32,
     pub ci: String,
     pub last_name: String,
     pub first_name: String,

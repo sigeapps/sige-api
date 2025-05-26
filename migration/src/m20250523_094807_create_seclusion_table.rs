@@ -1,4 +1,4 @@
-use sea_orm_migration::{prelude::*, schema::*};
+use sea_orm_migration::prelude::*;
 
 use crate::m20250504_000015_create_commissions_table::Commission;
 

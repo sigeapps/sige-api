@@ -1,4 +1,5 @@
 pub use sea_orm_migration::prelude::*;
+use sea_orm_migration::sea_orm::{Database};
 
 mod m20250419_000001_create_role_table;
 mod m20250419_000002_create_user_table;
@@ -41,4 +42,13 @@ impl MigratorTrait for Migrator {
             Box::new(m20250523_094807_create_seclusion_table::Migration),
         ]
     }
+}
+
+#[tokio::main]
+pub async fn migrate(db_url: &str) -> Result<(), DbErr> {
+    let db = Database::connect(db_url).await?;
+
+    Migrator::refresh(&db).await?;
+
+    Ok(())
 }
