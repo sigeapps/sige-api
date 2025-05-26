@@ -14,6 +14,7 @@ impl MigrationName for Migration {
 impl MigrationTrait for Migration {
     // Define how to apply this migration: Create the Bakery table.
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+
         manager
             .create_table(
                 Table::create()
@@ -34,6 +35,19 @@ impl MigrationTrait for Migration {
                             .from(User::Table, User::RoleId)
                             .to(Role::Table, Role::Id),
                     )
+                    .to_owned(),
+            )
+            .await
+
+        ?;
+
+        // Seed initial test user
+        manager
+            .exec_stmt(
+                Query::insert()
+                    .into_table(User::Table)
+                    .columns([User::Name, User::PasswordHash])
+                    .values_panic(["taller".into(), "$argon2id$v=19$m=19456,t=2,p=1$c6ge1SHEIvbV5agUlnkHJQ$Z5SKu0Urq3f+I04odyHC1A7j3x9iuiriMMSuEeZK9PE".into()])
                     .to_owned(),
             )
             .await
