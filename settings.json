@@ -1,9 +1,0 @@
-{
-  "database": {
-    "url": "postgresql://postgres:postgres@localhost:5432/prevencion-api"
-  },
-  "address": {
-    "host": "127.0.0.1",
-    "port": 8443
-  }
-}
