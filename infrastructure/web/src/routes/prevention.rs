@@ -2,16 +2,21 @@ use axum::{
     routing::{get, patch, post},
     Router,
 };
+use axum_login::login_required;
 
 use crate::{
+    auth::Backend,
     controllers::prevention::{
         commission::{
-            create_commission, get_commission_by_id, get_commission_status, get_commission_status_by_id, get_commissions, update_commission_exit, update_commission_status
+            create_commission, get_commission_by_id, get_commission_status,
+            get_commission_status_by_id, get_commissions, update_commission_exit,
+            update_commission_status,
         },
         official::{create_official, get_officials},
         register::{create_register, get_register_by_id, get_registers, update_register_exit},
         seclusion::{
-            add_seclusion_visit, create_seclusion, get_seclusion_by_id, get_seclusions, update_seclusion_exit
+            add_seclusion_visit, create_seclusion, get_seclusion_by_id, get_seclusions,
+            update_seclusion_exit,
         },
         transport::{create_transport, get_tranports},
     },
@@ -22,19 +27,26 @@ use std::sync::Arc;
 pub fn prevention_routes(app_state: &Arc<AppState>) -> Router {
     Router::new()
         .route("/prevention/register", get(get_registers))
+        .route_layer(login_required!(Backend, login_url = "/login"))
         .route("/prevention/register", post(create_register))
+        .route_layer(login_required!(Backend, login_url = "/login"))
         .route("/prevention/register/{id}", get(get_register_by_id))
         .route("/prevention/register/{id}", patch(update_register_exit))
         .route("/prevention/official", get(get_officials))
         .route("/prevention/official", post(create_official))
+        .route_layer(login_required!(Backend, login_url = "/login"))
         .route("/prevention/transport", get(get_tranports))
         .route("/prevention/transport", post(create_transport))
         .route("/prevention/seclusion", get(get_seclusions))
         .route("/prevention/seclusion", post(create_seclusion))
         .route("/prevention/seclusion/{id}", get(get_seclusion_by_id))
         .route("/prevention/seclusion/{id}", patch(update_seclusion_exit))
-        .route("/prevention/seclusion/{id}/visit", post(add_seclusion_visit))
+        .route(
+            "/prevention/seclusion/{id}/visit",
+            post(add_seclusion_visit),
+        )
         .route("/prevention/commission", post(create_commission))
+        .route_layer(login_required!(Backend, login_url = "/login"))
         .route("/prevention/commission", get(get_commissions))
         .route(
             "/prevention/commission/{id}/exit",
@@ -52,9 +64,6 @@ pub fn prevention_routes(app_state: &Arc<AppState>) -> Router {
             "/prevention/commission/{id}/status",
             get(get_commission_status_by_id),
         )
-        .route(
-            "/prevention/commission/{id}",
-            get(get_commission_by_id),
-        )
+        .route("/prevention/commission/{id}", get(get_commission_by_id))
         .with_state(app_state.as_ref().clone())
 }

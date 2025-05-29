@@ -17,7 +17,7 @@ Content-Type: application/json
 
 
 ### CREATE A REGISTER
-POST http://127.0.0.1:1234/prevention/register
+POST http://127.0.0.1:8443/prevention/register
 Content-Type: application/json
 
 {
@@ -33,7 +33,7 @@ Content-Type: application/json
 }
 
 ### GET REGISTERS 
-GET http://127.0.0.1:3000/prevention/register
+GET http://127.0.0.1:8443/prevention/register
 
 ### GET BRIGADES 
 GET http://127.0.0.1:1234/lookup/brigade

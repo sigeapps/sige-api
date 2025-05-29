@@ -15,9 +15,4 @@ tracing = "0.1"
 tracing-subscriber = "0.3"
 
 [workspace]
-members = [
-  "infrastructure/web",
-  "domain",
-  "application",
-  "migration"
-]
+members = ["infrastructure/web", "domain", "application", "migration"]
