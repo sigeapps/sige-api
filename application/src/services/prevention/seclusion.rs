@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use domain::entities::{seclusion, seclusion_visit};
+use domain::entities::{family_relationship, seclusion, seclusion_visit};
 use sea_orm::*;
 
 use crate::dtos::{
@@ -32,6 +32,7 @@ impl SeclusionService {
 
         let visits = seclusion
             .find_related(seclusion_visit::Entity)
+            .left_join(family_relationship::Entity)
             .into_partial_model::<GetSeclusionVisitDTO>()
             .all(&*self.db)
             .await?;

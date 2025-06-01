@@ -138,7 +138,7 @@ Content-Type: application/json
 }
 
 ### GET SECLUSION BY ID
-GET {{baseURL}}/seclusion/1
+GET {{baseURL}}/seclusion/2
 
 ### UPDATE SECLUSION EXIT
 PATCH {{baseURL}}/seclusion/1

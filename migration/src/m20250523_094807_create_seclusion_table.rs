@@ -262,9 +262,8 @@ impl MigrationTrait for Migration {
                             .char_len(255)
                             .not_null(),
                     )
-                    .col(ColumnDef::new(SeclusionVisit::Date).date().not_null())
-                    .col(ColumnDef::new(SeclusionVisit::Address).date().not_null())
-                    .col(ColumnDef::new(SeclusionVisit::Reason).date().null())
+                    .col(ColumnDef::new(SeclusionVisit::Address).string().not_null())
+                    .col(ColumnDef::new(SeclusionVisit::Reason).string().null())
                     .col(
                         ColumnDef::new(SeclusionVisit::CreatedAt)
                             .timestamp_with_time_zone()
@@ -368,7 +367,6 @@ enum SeclusionVisit {
     LastName,
     FirstName,
     Phone,
-    Date,
     Address,
     RelationshipId,
     Reason,

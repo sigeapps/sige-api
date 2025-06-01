@@ -14,9 +14,8 @@ pub struct Model {
     pub first_name: String,
     pub relationship_id: i32,
     pub phone: String,
-    pub date: Date,
-    pub address: Date,
-    pub reason: Option<Date>,
+    pub address: String,
+    pub reason: Option<String>,
     pub created_at: DateTimeWithTimeZone,
 }
 

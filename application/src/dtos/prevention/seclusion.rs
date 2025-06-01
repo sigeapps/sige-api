@@ -1,6 +1,6 @@
 use chrono::NaiveDate;
 use domain::entities::seclusion::{self, ActiveModel};
-use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
+use sea_orm::{prelude::DateTimeUtc, DeriveIntoActiveModel, DerivePartialModel};
 use serde::{Deserialize, Serialize};
 use visit::GetSeclusionVisitDTO;
 
@@ -73,7 +73,6 @@ pub struct CreateSeclusionDTO {
     pub last_name: String,
     pub first_name: String,
     pub reason: String,
-    pub exit_reason: String,
     pub physical_state: String,
     pub outfit: String,
     pub belongings: String,
@@ -89,10 +88,11 @@ pub struct UpdateSeclusionExitDTO {
 }
 
 pub mod visit {
-    use chrono::NaiveDate;
     use domain::entities::seclusion_visit::ActiveModel;
     use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
+
+    use crate::dtos::prevention::lookup::GetFamilyRelationshipDTO;
 
     #[derive(Debug, Serialize, Deserialize, DeriveIntoActiveModel)]
     pub struct AddSeclusionVisitDTO {
@@ -103,9 +103,8 @@ pub mod visit {
         pub first_name: String,
         pub relationship_id: i32,
         pub phone: String,
-        pub date: NaiveDate,
-        pub address: NaiveDate,
-        pub reason: NaiveDate,
+        pub address: String,
+        pub reason: String,
     }
 
     #[derive(Debug, Serialize, Deserialize, DerivePartialModel)]
@@ -119,10 +118,10 @@ pub mod visit {
         pub ci: String,
         pub last_name: String,
         pub first_name: String,
-        pub relationship_id: i32,
+        #[sea_orm(nested)]
+        pub relationship: GetFamilyRelationshipDTO,
         pub phone: String,
-        pub date: NaiveDate,
-        pub address: NaiveDate,
-        pub reason: Option<NaiveDate>,
+        pub address: String,
+        pub reason: Option<String>,
     }
 }
