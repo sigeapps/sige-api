@@ -7,12 +7,13 @@ use super::lookup::{GetBrandDTO, GetTransportStatusDTO, GetTransportTypeDTO, Get
 #[derive(Debug, Clone, Deserialize, Serialize, DeriveIntoActiveModel)]
 pub struct CreateTransportDTO {
     pub type_id: i32,
-    pub details: String,
+    pub details: Option<String>,
     pub brand_id: i32,
     pub model_id: i32,
     pub plate: String,
     pub unit: String,
     pub status_id: Option<i32>,
+    pub serial_photo: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]

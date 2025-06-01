@@ -1,6 +1,9 @@
 use sea_orm_migration::prelude::*;
 
-use crate::m20250419_000009_create_municipality_table::Municipality;
+use crate::{
+    m20250419_000005_create_organism_table::Parish,
+    m20250419_000009_create_municipality_table::Municipality,
+};
 
 pub struct Migration;
 
@@ -270,6 +273,11 @@ impl MigrationTrait for Migration {
                             .integer()
                             .not_null(),
                     ) // Link to municipality
+                    .col(
+                        ColumnDef::new(CommissionReason::ParishId)
+                            .integer()
+                            .not_null(),
+                    ) // Link to municipality
                     // Add foreign keys
                     .foreign_key(
                         ForeignKey::create()
@@ -283,6 +291,13 @@ impl MigrationTrait for Migration {
                             .name("fk-commission_reasons-municipality_id")
                             .from(CommissionReason::Table, CommissionReason::MunicipalityId)
                             .to(Municipality::Table, Municipality::Id)
+                            .on_delete(ForeignKeyAction::Restrict),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk-commission_reasons-parish_id")
+                            .from(CommissionReason::Table, CommissionReason::ParishId)
+                            .to(Parish::Table, Parish::Id)
                             .on_delete(ForeignKeyAction::Restrict),
                     )
                     .to_owned(),
@@ -427,6 +442,7 @@ enum CommissionReason {
     Description,
     Zone,
     MunicipalityId, // FK to municipalities
+    ParishId,
 }
 
 #[derive(Iden)]

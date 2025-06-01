@@ -27,14 +27,11 @@ use std::sync::Arc;
 pub fn prevention_routes(app_state: &Arc<AppState>) -> Router {
     Router::new()
         .route("/prevention/register", get(get_registers))
-        .route_layer(login_required!(Backend, login_url = "/login"))
         .route("/prevention/register", post(create_register))
-        .route_layer(login_required!(Backend, login_url = "/login"))
         .route("/prevention/register/{id}", get(get_register_by_id))
         .route("/prevention/register/{id}", patch(update_register_exit))
         .route("/prevention/official", get(get_officials))
         .route("/prevention/official", post(create_official))
-        .route_layer(login_required!(Backend, login_url = "/login"))
         .route("/prevention/transport", get(get_tranports))
         .route("/prevention/transport", post(create_transport))
         .route("/prevention/seclusion", get(get_seclusions))
@@ -46,7 +43,6 @@ pub fn prevention_routes(app_state: &Arc<AppState>) -> Router {
             post(add_seclusion_visit),
         )
         .route("/prevention/commission", post(create_commission))
-        .route_layer(login_required!(Backend, login_url = "/login"))
         .route("/prevention/commission", get(get_commissions))
         .route(
             "/prevention/commission/{id}/exit",

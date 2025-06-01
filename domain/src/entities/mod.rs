@@ -17,6 +17,7 @@ pub mod hierarchy;
 pub mod municipality;
 pub mod official;
 pub mod organism;
+pub mod parish;
 pub mod permission;
 pub mod register;
 pub mod role;

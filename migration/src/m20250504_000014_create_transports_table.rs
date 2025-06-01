@@ -10,7 +10,6 @@ impl MigrationName for Migration {
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-
         println!("📦 Creating transport lookup tables (Brands, Types, Units)...");
 
         // Create transport_types lookup table
@@ -73,7 +72,7 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(Transport::TypeId).integer().not_null())
-                    .col(ColumnDef::new(Transport::Details).string().not_null())
+                    .col(ColumnDef::new(Transport::Details).string().null())
                     .col(ColumnDef::new(Transport::BrandId).integer().not_null())
                     .col(ColumnDef::new(Transport::ModelId).integer().not_null())
                     .col(
@@ -82,6 +81,7 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .unique_key(),
                     )
+                    .col(ColumnDef::new(Transport::SerialPhoto).string().null())
                     .col(ColumnDef::new(Transport::Unit).string_len(50).not_null())
                     .col(ColumnDef::new(Transport::StatusId).integer().null()) // Nullable status
                     .foreign_key(
@@ -232,12 +232,13 @@ enum VehicleModel {
 enum Transport {
     Table,
     Id,
-    TypeId, // FK to transport_types
+    TypeId,
     Details,
-    BrandId, // FK to brands
-    ModelId, // FK to models
+    BrandId,
+    ModelId,
     Plate,
-    Unit,     // FK to transport_units
-    StatusId, // Using the ENUM type directly
+    Unit,
+    SerialPhoto,
+    StatusId,
     CreatedAt,
 }

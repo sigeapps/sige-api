@@ -4,15 +4,24 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "commission_seized_transport")]
+#[sea_orm(table_name = "parish")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    pub commission_id: i32,
-    pub transport_id: i32,
+    #[sea_orm(unique)]
+    pub name: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(has_many = "super::commission_reason::Entity")]
+    CommissionReason,
+}
+
+impl Related<super::commission_reason::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::CommissionReason.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}

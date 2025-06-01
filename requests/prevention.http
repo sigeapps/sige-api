@@ -22,13 +22,14 @@ Content-Type: application/json
     "name": "Annual Review",
     "description": "Standard annual safety inspection",
     "zone": "North Zone",
+    "parish_id": 1,
     "municipality_id": 1
   },
   "officials": [
     { "official_id": 1 }
   ],
   "transports": [
-    { "transport_id": 3 }
+    { "transport_id": 4 }
   ]
 }
 
@@ -47,8 +48,8 @@ Content-Type: application/json
   "type_id": 1,
   "details": "This is a sample transport detail",
   "brand_id": 1,
-  "model_id": 4,
-  "plate": "ABC-123433",
+  "model_id": 1,
+  "plate": "ABC-1234333",
   "unit": "Unit-01",
   "status_id": 1
 }
@@ -105,7 +106,7 @@ Content-Type: application/json
   "type_id": 1,
   "details": "This is a sample transport detail",
   "brand_id": 1,
-  "model_id": 4,
+  "model_id": 1,
   "plate": "ABC-12343",
   "unit": "Unit-01",
   "status_id": 1

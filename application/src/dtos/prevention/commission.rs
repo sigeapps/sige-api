@@ -150,6 +150,7 @@ pub mod reason_dto {
         pub description: String,
         pub zone: Option<String>,
         pub municipality_id: i32,
+        pub parish_id: i32,
     }
 }
 

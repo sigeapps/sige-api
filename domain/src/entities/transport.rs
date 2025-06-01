@@ -9,11 +9,12 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub type_id: i32,
-    pub details: String,
+    pub details: Option<String>,
     pub brand_id: i32,
     pub model_id: i32,
     #[sea_orm(unique)]
     pub plate: String,
+    pub serial_photo: Option<String>,
     pub unit: String,
     pub status_id: Option<i32>,
     pub created_at: Option<DateTimeWithTimeZone>,
@@ -29,8 +30,6 @@ pub enum Relation {
         on_delete = "Restrict"
     )]
     Brand,
-    #[sea_orm(has_many = "super::commission_seized_transport::Entity")]
-    CommissionSeizedTransport,
     #[sea_orm(has_many = "super::commission_transport::Entity")]
     CommissionTransport,
     #[sea_orm(
@@ -62,12 +61,6 @@ pub enum Relation {
 impl Related<super::brand::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Brand.def()
-    }
-}
-
-impl Related<super::commission_seized_transport::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::CommissionSeizedTransport.def()
     }
 }
 

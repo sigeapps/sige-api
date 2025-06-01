@@ -7,8 +7,8 @@ use axum::{
     Json,
 };
 use domain::entities::{
-    brand, brigade, charge, division, hierarchy, municipality, organism, state, transport_statuses,
-    transport_type, vehicle_model,
+    brand, brigade, charge, division, family_relationship, hierarchy, municipality, organism,
+    parish, seclusion_statuses, state, transport_statuses, transport_type, vehicle_model,
 };
 use tracing::debug;
 
@@ -322,6 +322,87 @@ pub async fn create_vehicle_model(
         .create::<vehicle_model::Entity, vehicle_model::Model, vehicle_model::ActiveModel>(
             active_model,
         )
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_parish(State(app_state): State<AppState>) -> Result<Response> {
+    let vehicle_models = app_state
+        .lookup_service
+        .find::<parish::Entity, parish::Model, parish::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&vehicle_models));
+    Ok((StatusCode::OK, Json(vehicle_models)).into_response())
+}
+
+pub async fn create_parish(
+    State(app_state): State<AppState>,
+    Json(vehicle_model): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    let active_model = parish::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(vehicle_model.name),
+    };
+
+    app_state
+        .lookup_service
+        .create::<parish::Entity, parish::Model, parish::ActiveModel>(active_model)
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_seclusion_statuses(State(app_state): State<AppState>) -> Result<Response> {
+    let vehicle_models = app_state
+        .lookup_service
+        .find::<seclusion_statuses::Entity, seclusion_statuses::Model, seclusion_statuses::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&vehicle_models));
+    Ok((StatusCode::OK, Json(vehicle_models)).into_response())
+}
+
+pub async fn create_seclusion_statuses(
+    State(app_state): State<AppState>,
+    Json(vehicle_model): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    let active_model = seclusion_statuses::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(vehicle_model.name),
+    };
+
+    app_state
+        .lookup_service
+        .create::<seclusion_statuses::Entity, seclusion_statuses::Model, seclusion_statuses::ActiveModel>(active_model)
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_family_relationships(State(app_state): State<AppState>) -> Result<Response> {
+    let vehicle_models = app_state
+        .lookup_service
+        .find::<family_relationship::Entity, family_relationship::Model, family_relationship::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&vehicle_models));
+    Ok((StatusCode::OK, Json(vehicle_models)).into_response())
+}
+
+pub async fn create_family_relationships(
+    State(app_state): State<AppState>,
+    Json(vehicle_model): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    let active_model = family_relationship::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(vehicle_model.name),
+    };
+
+    app_state
+        .lookup_service
+        .create::<family_relationship::Entity, family_relationship::Model, family_relationship::ActiveModel>(active_model)
         .await?;
 
     Ok(StatusCode::CREATED.into_response())

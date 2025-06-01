@@ -15,6 +15,7 @@ pub use super::hierarchy::Entity as Hierarchy;
 pub use super::municipality::Entity as Municipality;
 pub use super::official::Entity as Official;
 pub use super::organism::Entity as Organism;
+pub use super::parish::Entity as Parish;
 pub use super::permission::Entity as Permission;
 pub use super::register::Entity as Register;
 pub use super::role::Entity as Role;

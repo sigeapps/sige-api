@@ -5,11 +5,13 @@ use axum::{
 
 use crate::{
     controllers::lookup::{
-        create_brand, create_brigade, create_charge, create_division, create_hierarchy,
-        create_municipality, create_organism, create_state, create_transport_status,
-        create_transport_type, create_vehicle_model, get_brands, get_brigades, get_charges,
-        get_divisions, get_hierarchies, get_municipalities, get_organisms, get_states,
-        get_transport_statuses, get_transport_types, get_vehicle_models,
+        create_brand, create_brigade, create_charge, create_division, create_family_relationships,
+        create_hierarchy, create_municipality, create_organism, create_parish,
+        create_seclusion_statuses, create_state, create_transport_status, create_transport_type,
+        create_vehicle_model, get_brands, get_brigades, get_charges, get_divisions,
+        get_family_relationships, get_hierarchies, get_municipalities, get_organisms, get_parish,
+        get_seclusion_statuses, get_states, get_transport_statuses, get_transport_types,
+        get_vehicle_models,
     },
     state::AppState,
 };
@@ -39,5 +41,17 @@ pub fn lookup_routes(app_state: &Arc<AppState>) -> Router {
         .route("/lookup/brand", post(create_brand))
         .route("/lookup/vehicle-model", get(get_vehicle_models))
         .route("/lookup/vehicle-model", post(create_vehicle_model))
+        .route("/lookup/parish", get(get_parish))
+        .route("/lookup/parish", post(create_parish))
+        .route("/lookup/seclusion-status", get(get_seclusion_statuses))
+        .route(
+            "/lookup/seclusion-status",
+            post(create_family_relationships),
+        )
+        .route("/lookup/family-relationship", get(get_family_relationships))
+        .route(
+            "/lookup/family-relationship",
+            post(create_seclusion_statuses),
+        )
         .with_state(app_state.as_ref().clone())
 }

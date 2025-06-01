@@ -34,6 +34,27 @@ impl MigrationTrait for Migration {
             .await?;
 
         manager
+            .create_table(
+                Table::create()
+                    .table(Parish::Table)
+                    .col(
+                        ColumnDef::new(Parish::Id)
+                            .integer()
+                            .primary_key()
+                            .auto_increment()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(Parish::Name)
+                            .string_len(255)
+                            .unique_key()
+                            .not_null(),
+                    )
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
             .exec_stmt(
                 Query::insert()
                     .into_table(Organism::Table)
@@ -57,4 +78,11 @@ pub enum Organism {
     Id,
     Name,
     Phone,
+}
+
+#[derive(Iden)]
+pub enum Parish {
+    Table,
+    Id,
+    Name,
 }

@@ -14,6 +14,7 @@ pub struct Model {
     pub description: String,
     pub zone: Option<String>,
     pub municipality_id: i32,
+    pub parish_id: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -34,6 +35,14 @@ pub enum Relation {
         on_delete = "Restrict"
     )]
     Municipality,
+    #[sea_orm(
+        belongs_to = "super::parish::Entity",
+        from = "Column::ParishId",
+        to = "super::parish::Column::Id",
+        on_update = "NoAction",
+        on_delete = "Restrict"
+    )]
+    Parish,
 }
 
 impl Related<super::commission::Entity> for Entity {
@@ -45,6 +54,12 @@ impl Related<super::commission::Entity> for Entity {
 impl Related<super::municipality::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Municipality.def()
+    }
+}
+
+impl Related<super::parish::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Parish.def()
     }
 }
 
