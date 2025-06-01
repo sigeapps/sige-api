@@ -8,7 +8,7 @@ use crate::dtos::{
         visit::{AddSeclusionVisitDTO, GetSeclusionVisitDTO},
         CreateSeclusionDTO, GetSeclusionDTO, GetSeclusionWithVisitDTO, UpdateSeclusionExitDTO,
     },
-    CommonQueryFilterDTO,
+    CommonQueryFilterDTO, PaginationDTO,
 };
 
 #[derive(Debug, Clone)]
@@ -43,26 +43,78 @@ impl SeclusionService {
     }
 
     pub async fn find(self, filter: CommonQueryFilterDTO) -> Result<Vec<GetSeclusionDTO>, DbErr> {
-        let mut query = seclusion::Entity::find()
-            .limit(filter.limit)
-            .offset(filter.offset);
+        let mut query = seclusion::Entity::find();
 
-        if let Some(search) = filter.search {
+        if let Some(search) = &filter.search {
             query = query.filter(
                 Condition::all()
-                    .add(seclusion::Column::Reason.contains(&search))
-                    .add(seclusion::Column::Belongings.contains(&search))
-                    .add(seclusion::Column::ExitReason.contains(&search))
-                    .add(seclusion::Column::Ci.contains(&search))
-                    .add(seclusion::Column::FirstName.contains(&search))
-                    .add(seclusion::Column::LastName.contains(&search)),
+                    .add(seclusion::Column::Reason.contains(search))
+                    .add(seclusion::Column::Belongings.contains(search))
+                    .add(seclusion::Column::ExitReason.contains(search))
+                    .add(seclusion::Column::Ci.contains(search))
+                    .add(seclusion::Column::FirstName.contains(search))
+                    .add(seclusion::Column::LastName.contains(search)),
             )
         }
 
+        if let Some(from_date) = &filter.from_date {
+            query = query.filter(seclusion::Column::CreatedAt.gte(*from_date));
+        }
+
+        if let Some(to_date) = &filter.to_date {
+            query = query.filter(seclusion::Column::CreatedAt.lte(*to_date));
+        }
+
+        let pagination = &filter.into_pagination();
+
         query
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .into_partial_model::<GetSeclusionDTO>()
             .all(&*self.db)
             .await
+    }
+
+    pub async fn get_pagination(
+        self,
+        filter: CommonQueryFilterDTO,
+    ) -> Result<PaginationDTO, DbErr> {
+        let mut query = seclusion::Entity::find();
+
+        if let Some(search) = &filter.search {
+            query = query.filter(
+                Condition::all()
+                    .add(seclusion::Column::Reason.contains(search))
+                    .add(seclusion::Column::Belongings.contains(search))
+                    .add(seclusion::Column::ExitReason.contains(search))
+                    .add(seclusion::Column::Ci.contains(search))
+                    .add(seclusion::Column::FirstName.contains(search))
+                    .add(seclusion::Column::LastName.contains(search)),
+            )
+        }
+
+        if let Some(from_date) = &filter.from_date {
+            query = query.filter(seclusion::Column::CreatedAt.gte(*from_date));
+        }
+
+        if let Some(to_date) = &filter.to_date {
+            query = query.filter(seclusion::Column::CreatedAt.lte(*to_date));
+        }
+
+        let pagination = &filter.into_pagination();
+
+        let paginator = query.paginate(&*self.db, pagination.limit);
+
+        let items = paginator.num_items().await?;
+        let pages = paginator.num_pages().await?;
+
+        Ok(PaginationDTO {
+            offset: pagination.offset,
+            page_count: pages,
+            total_count: items,
+            page: pagination.page,
+            limit: pagination.limit,
+        })
     }
 
     pub async fn update_exit(self, id: i32, mut dto: UpdateSeclusionExitDTO) -> Result<i32, DbErr> {

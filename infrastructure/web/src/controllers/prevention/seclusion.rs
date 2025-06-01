@@ -2,7 +2,7 @@ use application::dtos::prevention::seclusion::GetSeclusionDTO;
 use application::dtos::prevention::seclusion::{
     visit::AddSeclusionVisitDTO, CreateSeclusionDTO, UpdateSeclusionExitDTO,
 };
-use application::dtos::CommonQueryFilterDTO;
+use application::dtos::{CommonQueryFilterDTO, PaginationDTO};
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
@@ -21,6 +21,7 @@ pub struct SeclusionBody<T> {
 #[derive(Serialize, Deserialize)]
 pub struct MultipleSeclusionsBody {
     seclusions: Vec<GetSeclusionDTO>,
+    pagination: PaginationDTO,
 }
 
 pub async fn create_seclusion(
@@ -42,9 +43,23 @@ pub async fn get_seclusions(
     State(app_state): State<AppState>,
     Query(query): Query<CommonQueryFilterDTO>,
 ) -> Result<Response> {
-    let seclusions = app_state.seclusion_service.find(query).await?;
+    let seclusions = app_state
+        .clone()
+        .seclusion_service
+        .find(query.clone())
+        .await?;
 
-    Ok(Json(MultipleSeclusionsBody { seclusions }).into_response())
+    let pagination = app_state
+        .clone()
+        .seclusion_service
+        .get_pagination(query.clone())
+        .await?;
+
+    Ok(Json(MultipleSeclusionsBody {
+        seclusions,
+        pagination,
+    })
+    .into_response())
 }
 
 pub async fn get_seclusion_by_id(
