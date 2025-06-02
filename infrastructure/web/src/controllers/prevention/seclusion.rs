@@ -24,6 +24,8 @@ pub struct MultipleSeclusionsBody {
     pagination: PaginationDTO,
 }
 
+// TODO: This is a temporary solution, we should use a proper DTO for this
+//
 pub async fn create_seclusion(
     State(app_state): State<AppState>,
     Json(seclusion): Json<CreateSeclusionDTO>,

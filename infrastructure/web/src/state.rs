@@ -5,7 +5,8 @@ use application::{
     services::{
         prevention::{
             commission::CommissionService, lookup::LookupService, official::OfficialService,
-            register::RegisterService, seclusion::SeclusionService, transport::TransportService,
+            part::PartService, register::RegisterService, seclusion::SeclusionService,
+            transport::TransportService,
         },
         user::UserService,
     },
@@ -21,6 +22,7 @@ pub struct AppState {
     pub official_service: OfficialService,
     pub commission_service: CommissionService,
     pub seclusion_service: SeclusionService,
+    pub part_service: PartService,
 }
 
 impl AppState {
@@ -37,7 +39,8 @@ impl AppState {
             lookup_service: LookupService::new(db.clone()),
             transport_service: TransportService::new(db.clone()),
             commission_service: CommissionService::new(db.clone()),
-            seclusion_service: SeclusionService::new(db),
+            seclusion_service: SeclusionService::new(db.clone()),
+            part_service: PartService::new(db),
         })
     }
 }

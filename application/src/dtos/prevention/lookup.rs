@@ -92,3 +92,11 @@ pub struct GetFamilyRelationshipDTO {
     pub id: i32,
     pub name: String,
 }
+
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::novelty::Entity", from_query_result)]
+pub struct GetNoveltyDTO {
+    pub id: i32,
+    pub name: String,
+    pub format: String,
+}

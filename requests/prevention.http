@@ -4,7 +4,7 @@
 ### GET COMMISSIONS
 GET {{baseURL}}/commission
 
-### GET OFFICIALS 
+### GET OFFICIALS
 GET {{baseURL}}/official
 
 ### CREATE COMMISSION
@@ -86,9 +86,9 @@ POST {{baseURL}}/official
 Content-Type: application/json
 
 {
-  "ci": "12345678",
-  "last_name": "Doe",
-  "first_name": "John",
+  "ci": "33071696",
+  "last_name": "Avila",
+  "first_name": "Aaron",
   "phone": "555-1234",
   "charge_id": 1,
   "hierarchy_id": 1,
@@ -113,7 +113,7 @@ Content-Type: application/json
 }
 
 ### GET SECLUSIONS
-GET {{baseURL}}/seclusion
+GET {{baseURL}}/seclusion?page=2&limit=1
 
 ### GET SECLUSIONS WITH SEARCH
 GET {{baseURL}}/seclusion?search=Smith
@@ -162,4 +162,89 @@ Content-Type: application/json
   "date": "2024-01-10",
   "address": "2024-01-10",
   "reason": "2024-01-10"
+}
+
+### GET PARTS
+GET {{baseURL}}/part
+
+### CREATE PART
+POST {{baseURL}}/part
+Content-Type: application/json
+
+{
+  "part": {
+    "date": "2024-01-15"
+  },
+  "officials": [
+    {
+      "official_id": 1,
+      "type": "coordinator"
+    },
+    {
+      "official_id": 1,
+      "type": "assistant"
+    }
+  ],
+  "developments": [
+    {
+      "data": {
+        "description": "Initial part development",
+        "findings": "All systems operational",
+        "recommendations": "Continue monitoring"
+      },
+      "date": "2024-01-15",
+      "type_id": 1
+    }
+  ],
+  "responsability": {
+    "official_service_ci": "33071696",
+    "official_receive_ci": "33071696",
+    "official_block_ci": "33071696",
+    "official_writer_ci": "33071696",
+    "official_deliver_ci": "33071696",
+    "official_receive_custody_ci": "33071696",
+    "official_hr_ci": "33071696",
+    "official_supervisor_ci": "33071696",
+    "official_director_ci": "33071696",
+    "official_dae_ci": "33071696",
+    "official_die_ci": "33071696"
+  }
+}
+
+### GET PART BY ID
+GET {{baseURL}}/part/4
+
+### UPDATE PART COMPLETE
+PATCH {{baseURL}}/part/4
+Content-Type: application/json
+
+{
+  "date": "2024-01-16",
+  "responsabilities": 
+    {
+      "id": 4,
+    "official_service_ci": "33071696",
+    "official_receive_ci": "33071696",
+    "official_block_ci": "33071696",
+    "official_writer_ci": "33071696",
+    "official_deliver_ci": "33071696",
+    "official_receive_custody_ci": "33071696",
+    "official_hr_ci": "33071696",
+    "official_supervisor_ci": "33071696",
+    "official_director_ci": "33071696",
+    "official_dae_ci": "33071696",
+    "official_die_ci": "33071696"
+    },
+  "developments": [
+    {
+      "id": 3,
+      "data": {
+        "description": "Updated part development",
+        "findings": "Minor issues detected",
+        "recommendations": "Schedule maintenance"
+      },
+      "date": "2024-01-16",
+      "type_id": 1
+    }
+  ]
 }

@@ -90,3 +90,16 @@ Content-Type: application/json
   "name": "Corolla",
   "brand": 1
 }
+
+### GET NOVELTYS 
+
+GET {{baseURL}}/novelty
+
+### Create a novelty 
+POST {{baseURL}}/novelty
+Content-Type: application/json
+
+{
+  "name": "Revision",
+  "format": "Inspeccion de estado a las ________"
+}

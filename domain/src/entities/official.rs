@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
+    #[sea_orm(unique)]
     pub ci: String,
     pub last_name: String,
     pub first_name: String,
@@ -47,6 +48,8 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Hierarchy,
+    #[sea_orm(has_many = "super::part_official::Entity")]
+    PartOfficial,
 }
 
 impl Related<super::brigade::Entity> for Entity {
@@ -70,6 +73,12 @@ impl Related<super::commission_official::Entity> for Entity {
 impl Related<super::hierarchy::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Hierarchy.def()
+    }
+}
+
+impl Related<super::part_official::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PartOfficial.def()
     }
 }
 

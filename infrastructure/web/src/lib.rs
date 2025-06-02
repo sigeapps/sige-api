@@ -10,11 +10,11 @@ use std::sync::Arc;
 use auth::Backend;
 use axum::{http::HeaderValue, routing::get, Router};
 use axum_login::AuthManagerLayerBuilder;
-use tower_sessions::{cookie::SameSite, SessionManagerLayer};
 use error::WebError;
 use state::AppState;
 use tower_http::cors::CorsLayer;
 use tower_sessions::cookie::Key;
+use tower_sessions::{cookie::SameSite, SessionManagerLayer};
 use tower_sessions_sqlx_store::PostgresStore;
 
 pub type Result<T, E = WebError> = std::result::Result<T, E>;
@@ -32,9 +32,9 @@ pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<
     session_store.migrate().await?;
 
     let session_layer = SessionManagerLayer::new(session_store)
-    .with_same_site(SameSite::None)
-    .with_signed(key)
-    .with_http_only(true);
+        .with_same_site(SameSite::None)
+        .with_signed(key)
+        .with_http_only(true);
 
     let backend = Backend {
         users: app_state.user_service.clone(),
@@ -44,10 +44,9 @@ pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<
 
     let address = format!("{}:{}", host, port);
 
-    let cors = CorsLayer::very_permissive().allow_origin(
-    "http://localhost:1420".parse::<HeaderValue>().unwrap(),
-    ).allow_credentials(true);
-
+    let cors = CorsLayer::very_permissive()
+        .allow_origin("http://localhost:1420".parse::<HeaderValue>().unwrap())
+        .allow_credentials(true);
     let app = Router::new()
         .route("/", get(root))
         .with_state(app_state.clone())

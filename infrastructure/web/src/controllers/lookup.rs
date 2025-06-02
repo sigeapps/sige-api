@@ -7,8 +7,7 @@ use axum::{
     Json,
 };
 use domain::entities::{
-    brand, brigade, charge, division, family_relationship, hierarchy, municipality, organism,
-    parish, seclusion_statuses, state, transport_statuses, transport_type, vehicle_model,
+    brand, brigade, charge, division, family_relationship, hierarchy, municipality, novelty, organism, parish, seclusion_statuses, state, transport_statuses, transport_type, vehicle_model
 };
 use tracing::debug;
 
@@ -403,6 +402,34 @@ pub async fn create_family_relationships(
     app_state
         .lookup_service
         .create::<family_relationship::Entity, family_relationship::Model, family_relationship::ActiveModel>(active_model)
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_novelties(State(app_state): State<AppState>) -> Result<Response> {
+    let novelties = app_state
+        .lookup_service
+        .find::<novelty::Entity, novelty::Model, novelty::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&novelties));
+    Ok((StatusCode::OK, Json(novelties)).into_response())
+}
+
+pub async fn create_novelty(
+    State(app_state): State<AppState>,
+    Json(novelty): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    let active_model = novelty::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(novelty.name),
+        format: sea_orm::Set(novelty.format.unwrap_or_default()),
+    };
+
+    app_state
+        .lookup_service
+        .create::<novelty::Entity, novelty::Model, novelty::ActiveModel>(active_model)
         .await?;
 
     Ok(StatusCode::CREATED.into_response())

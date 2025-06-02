@@ -54,7 +54,12 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .not_null(),
                     )
-                    .col(ColumnDef::new(Official::Ci).string_len(20).not_null())
+                    .col(
+                        ColumnDef::new(Official::Ci)
+                            .string_len(20)
+                            .unique_key()
+                            .not_null(),
+                    )
                     .col(
                         ColumnDef::new(Official::LastName)
                             .string_len(255)
@@ -123,15 +128,15 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Official::Table).to_owned())
+            .drop_table(Table::drop().table(Official::Table).cascade().to_owned())
             .await?;
 
         manager
-            .drop_table(Table::drop().table(Charge::Table).to_owned())
+            .drop_table(Table::drop().table(Charge::Table).cascade().to_owned())
             .await?;
 
         manager
-            .drop_table(Table::drop().table(Hierarchy::Table).to_owned())
+            .drop_table(Table::drop().table(Hierarchy::Table).cascade().to_owned())
             .await
     }
 }

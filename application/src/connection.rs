@@ -6,7 +6,7 @@ use sea_orm::{
 pub async fn connect(db_url: &str) -> Result<DatabaseConnection, DbErr> {
     let mut opt = ConnectOptions::new(db_url.to_owned());
 
-    opt.sqlx_logging(false);
+    opt.sqlx_logging(true);
 
     let db = Database::connect(opt).await?;
 

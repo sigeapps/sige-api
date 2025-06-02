@@ -2,10 +2,8 @@ use axum::{
     routing::{get, patch, post},
     Router,
 };
-use axum_login::login_required;
 
 use crate::{
-    auth::Backend,
     controllers::prevention::{
         commission::{
             create_commission, get_commission_by_id, get_commission_status,
@@ -13,6 +11,7 @@ use crate::{
             update_commission_status,
         },
         official::{create_official, get_officials},
+        part::{create_part, get_part_by_id, get_parts, update_part_complete},
         register::{create_register, get_register_by_id, get_registers, update_register_exit},
         seclusion::{
             add_seclusion_visit, create_seclusion, get_seclusion_by_id, get_seclusions,
@@ -61,5 +60,9 @@ pub fn prevention_routes(app_state: &Arc<AppState>) -> Router {
             get(get_commission_status_by_id),
         )
         .route("/prevention/commission/{id}", get(get_commission_by_id))
+        .route("/prevention/part", get(get_parts))
+        .route("/prevention/part", post(create_part))
+        .route("/prevention/part/{id}", get(get_part_by_id))
+        .route("/prevention/part/{id}", patch(update_part_complete))
         .with_state(app_state.as_ref().clone())
 }

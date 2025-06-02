@@ -6,4 +6,5 @@ pub struct CreateBasicLookUpDTO {
     pub phone: Option<String>,
     pub state: Option<i32>,
     pub brand: Option<i32>,
+    pub format: Option<String>,
 }

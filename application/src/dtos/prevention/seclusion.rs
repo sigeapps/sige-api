@@ -1,6 +1,6 @@
 use chrono::NaiveDate;
 use domain::entities::seclusion::{self, ActiveModel};
-use sea_orm::{prelude::DateTimeUtc, DeriveIntoActiveModel, DerivePartialModel};
+use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
 use serde::{Deserialize, Serialize};
 use visit::GetSeclusionVisitDTO;
 
