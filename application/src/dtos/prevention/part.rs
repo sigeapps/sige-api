@@ -88,7 +88,7 @@ pub mod official_dto {
 
     #[derive(Debug, Serialize, DeriveIntoActiveModel, Deserialize, Clone)]
     pub struct CreatePartOfficialDTO {
-        pub official_id: i32,
+        pub id: i32,
         #[serde(skip_deserializing)]
         pub part_id: i32,
         pub r#type: String,
@@ -190,7 +190,7 @@ pub mod development_dto {
 
     #[derive(Debug, Serialize, DeriveIntoActiveModel, Deserialize)]
     pub struct CreatePartDevelopmentDTO {
-        pub data: Json,
+        pub data: String,
         pub date: sea_orm::prelude::ChronoDate,
         #[serde(skip_deserializing)]
         pub part_id: i32,
@@ -204,7 +204,7 @@ pub mod development_dto {
     )]
     pub struct GetPartDevelopmentDTO {
         pub id: i32,
-        pub data: Json,
+        pub data: String,
         pub date: NaiveDate,
         #[sea_orm(nested)]
         pub novelty: GetNoveltyDTO,
@@ -215,7 +215,7 @@ pub mod development_dto {
         pub id: i32,
         #[serde(skip_deserializing)]
         pub part_id: i32,
-        pub data: Json,
+        pub data: String,
         pub date: NaiveDate,
         pub type_id: i32,
     }

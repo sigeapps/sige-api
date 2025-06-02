@@ -173,7 +173,6 @@ Content-Type: application/json
 
 {
   "part": {
-    "date": "2024-01-15"
   },
   "officials": [
     {
@@ -187,11 +186,7 @@ Content-Type: application/json
   ],
   "developments": [
     {
-      "data": {
-        "description": "Initial part development",
-        "findings": "All systems operational",
-        "recommendations": "Continue monitoring"
-      },
+      "data": "bearear",
       "date": "2024-01-15",
       "type_id": 1
     }
@@ -212,7 +207,7 @@ Content-Type: application/json
 }
 
 ### GET PART BY ID
-GET {{baseURL}}/part/4
+GET {{baseURL}}/part/3
 
 ### UPDATE PART COMPLETE
 PATCH {{baseURL}}/part/4

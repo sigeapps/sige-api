@@ -68,7 +68,7 @@ impl MigrationTrait for Migration {
                     .if_not_exists()
                     .col(pk_auto(PartDevelopment::Id))
                     .col(integer(PartDevelopment::PartId))
-                    .col(json(PartDevelopment::Data))
+                    .col(string(PartDevelopment::Data))
                     .col(date(PartDevelopment::Date).default(Keyword::CurrentDate))
                     .col(integer(PartDevelopment::TypeId))
                     .foreign_key(
