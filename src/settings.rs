@@ -24,7 +24,7 @@ impl Settings {
         let settings = Config::builder()
             .add_source(config::File::with_name("settings.json"))
             .set_default("address.host", "127.0.0.1")?
-            .set_default("address.port", 3000)?
+            .set_default("address.port", 8443)?
             .build()?;
 
         Ok(settings.try_deserialize()?)
