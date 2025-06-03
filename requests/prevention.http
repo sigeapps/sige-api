@@ -2,7 +2,7 @@
 #@baseURL=http://app.tecnoelectronics.com.ve:8443/prevention
 
 ### GET COMMISSIONS
-GET {{baseURL}}/commission
+GET {{baseURL}}/commission?from_date=2019-06-03&to_date=2028-06-03&limit=1&page=1
 
 ### GET OFFICIALS
 GET {{baseURL}}/official

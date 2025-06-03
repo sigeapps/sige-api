@@ -2,7 +2,7 @@ use application::dtos::prevention::commission::{
     CreateCommissionAggregateDTO, GetCommissionAggregateDTO, GetCommissionStatusAggregateDTO,
     GetCommissionSummaryDTO, UpdateCommissionExitDTO, UpdateCommissionStatusAggregateDTO,
 };
-use application::dtos::CommonQueryFilterDTO;
+use application::dtos::{CommonQueryFilterDTO, PaginationDTO};
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
@@ -20,6 +20,7 @@ pub struct CommissionBody<T> {
 #[derive(Serialize, Deserialize)]
 pub struct MultipleCommissionsBody {
     commissions: Vec<GetCommissionSummaryDTO>,
+    pagination: PaginationDTO,
 }
 
 pub async fn create_commission(
@@ -41,9 +42,22 @@ pub async fn get_commissions(
     State(app_state): State<AppState>,
     Query(query): Query<CommonQueryFilterDTO>,
 ) -> Result<Response> {
-    let commissions = app_state.commission_service.find(query).await?;
+    let commissions = app_state
+        .commission_service
+        .clone()
+        .find(query.clone())
+        .await?;
+    let pagination = app_state
+        .commission_service
+        .clone()
+        .get_pagination(query.clone())
+        .await?;
 
-    Ok(Json(MultipleCommissionsBody { commissions }).into_response())
+    Ok(Json(MultipleCommissionsBody {
+        commissions,
+        pagination,
+    })
+    .into_response())
 }
 
 pub async fn get_commission_status(
