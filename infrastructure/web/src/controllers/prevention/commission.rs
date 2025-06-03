@@ -1,6 +1,8 @@
 use application::dtos::prevention::commission::{
-    CreateCommissionAggregateDTO, GetCommissionAggregateDTO, GetCommissionStatusAggregateDTO, GetCommissionSummaryDTO, UpdateCommissionExitDTO, UpdateCommissionStatusAggregateDTO
+    CreateCommissionAggregateDTO, GetCommissionAggregateDTO, GetCommissionStatusAggregateDTO,
+    GetCommissionSummaryDTO, UpdateCommissionExitDTO, UpdateCommissionStatusAggregateDTO,
 };
+use application::dtos::CommonQueryFilterDTO;
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
@@ -8,7 +10,6 @@ use axum::Json;
 use serde::{Deserialize, Serialize};
 
 use crate::state::AppState;
-use crate::types::CommonQuery;
 use crate::Result;
 
 #[derive(Serialize, Deserialize)]
@@ -38,9 +39,9 @@ pub async fn create_commission(
 
 pub async fn get_commissions(
     State(app_state): State<AppState>,
-    Query(query): Query<CommonQuery>,
+    Query(query): Query<CommonQueryFilterDTO>,
 ) -> Result<Response> {
-    let commissions = app_state.commission_service.find(query.search).await?;
+    let commissions = app_state.commission_service.find(query).await?;
 
     Ok(Json(MultipleCommissionsBody { commissions }).into_response())
 }

@@ -11,7 +11,6 @@ use axum::http::StatusCode;
 use axum::response::Response;
 use axum::Json;
 use axum::{extract::State, response::IntoResponse};
-use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use tracing::error;
 
@@ -22,7 +21,7 @@ pub struct RegistersBody {
 }
 
 pub async fn create_register(
-    State(app_state): State<Arc<AppState>>,
+    State(app_state): State<AppState>,
     Json(register): Json<CreateRegisterDTO>,
 ) -> Result<Response> {
     app_state.register_service.create(register.into()).await?;
@@ -31,7 +30,7 @@ pub async fn create_register(
 }
 
 pub async fn get_registers(
-    State(app_state): State<Arc<AppState>>,
+    State(app_state): State<AppState>,
     Query(query): Query<CommonQueryFilterDTO>,
 ) -> Result<Response> {
     let registers = app_state.register_service.find(query.clone()).await?;
@@ -48,7 +47,7 @@ pub async fn get_registers(
 }
 
 pub async fn get_register_by_id(
-    State(app_state): State<Arc<AppState>>,
+    State(app_state): State<AppState>,
     axum::extract::Path(id): axum::extract::Path<i32>,
 ) -> Result<Response> {
     match app_state.register_service.find_by_id(id).await {
@@ -67,7 +66,7 @@ pub async fn get_register_by_id(
 /// TODO: Refactor this to an use case
 #[axum::debug_handler]
 pub async fn update_register_exit(
-    State(app_state): State<Arc<AppState>>,
+    State(app_state): State<AppState>,
     axum::extract::Path(id): axum::extract::Path<i32>,
     Json(register): Json<UpdateRegisterExitDTO>,
 ) -> Result<Response> {

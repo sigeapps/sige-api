@@ -19,7 +19,7 @@ pub struct CommonQueryFilterDTO {
 
 impl CommonQueryFilterDTO {
     pub fn into_pagination(self) -> PaginationDTO {
-        let limit = self.limit.unwrap_or(20);
+        let limit = self.limit.unwrap_or(1000);
         let page = self.page.unwrap_or(1);
 
         PaginationDTO {

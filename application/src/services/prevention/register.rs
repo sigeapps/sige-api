@@ -7,7 +7,10 @@ use domain::entities::{
 };
 use sea_orm::*;
 
-use crate::dtos::prevention::register::{CreateRegisterDTO, GetRegisterDTO, UpdateRegisterExitDTO};
+use crate::dtos::{
+    prevention::register::{CreateRegisterDTO, GetRegisterDTO, UpdateRegisterExitDTO},
+    CommonQueryFilterDTO, PaginationDTO,
+};
 
 #[derive(Debug, Clone)]
 pub struct RegisterService {
@@ -31,37 +34,66 @@ impl RegisterService {
         Ok(register)
     }
 
-    pub async fn find(
-        &self,
-        search: Option<String>,
-        from_date: Option<NaiveDate>,
-        to_date: Option<NaiveDate>,
-        limit: Option<u64>,
-        offset: Option<u64>,
-    ) -> Result<Vec<GetRegisterDTO>, DbErr> {
+    pub async fn find(&self, filter: CommonQueryFilterDTO) -> Result<Vec<GetRegisterDTO>, DbErr> {
         let mut query = register::Entity::find();
 
-        if let Some(from_date) = from_date {
-            query = query.filter(register::Column::EntryDate.gte(from_date));
+        if let Some(from_date) = &filter.from_date {
+            query = query.filter(register::Column::EntryDate.gte(*from_date));
         }
 
-        if let Some(to_date) = to_date {
-            query = query.filter(register::Column::EntryDate.lte(to_date));
+        if let Some(to_date) = &filter.to_date {
+            query = query.filter(register::Column::EntryDate.lte(*to_date));
         }
 
-        if let Some(search) = search {
+        if let Some(search) = &filter.search {
             query = query.filter(register::Column::Observations.contains(search));
         }
 
+        let pagination = &filter.into_pagination();
+
         let registers = query
-            .limit(limit.unwrap_or(10))
-            .offset(offset.unwrap_or(0))
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .find_also_related(organism::Entity)
             .find_also_related(division::Entity)
             .all(&*self.db)
             .await?;
 
         Ok(registers.into_iter().map(GetRegisterDTO::from).collect())
+    }
+
+    pub async fn get_pagination(
+        &self,
+        filter: CommonQueryFilterDTO,
+    ) -> Result<PaginationDTO, DbErr> {
+        let mut query = register::Entity::find();
+
+        if let Some(from_date) = &filter.from_date {
+            query = query.filter(register::Column::EntryDate.gte(*from_date));
+        }
+
+        if let Some(to_date) = &filter.to_date {
+            query = query.filter(register::Column::EntryDate.lte(*to_date));
+        }
+
+        if let Some(search) = &filter.search {
+            query = query.filter(register::Column::Observations.contains(search));
+        }
+
+        let pagination = filter.into_pagination();
+
+        let paginator = query.paginate(&*self.db, pagination.limit);
+
+        let total_count = paginator.num_items().await?;
+        let page_count = paginator.num_pages().await?;
+
+        Ok(PaginationDTO {
+            page: pagination.page,
+            limit: pagination.limit,
+            page_count,
+            total_count,
+            offset: pagination.offset,
+        })
     }
 
     pub async fn create(&self, register: CreateRegisterDTO) -> Result<(), DbErr> {
