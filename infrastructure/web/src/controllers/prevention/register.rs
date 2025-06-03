@@ -1,17 +1,28 @@
+use std::sync::Arc;
+
 use crate::state::AppState;
 use crate::Result;
-use application::dtos::prevention::register::{CreateRegisterDTO, UpdateRegisterExitDTO};
+use application::dtos::prevention::register::{
+    CreateRegisterDTO, GetRegisterDTO, UpdateRegisterExitDTO,
+};
+use application::dtos::{CommonQueryFilterDTO, PaginationDTO};
 use axum::extract::Query;
 use axum::http::StatusCode;
 use axum::response::Response;
 use axum::Json;
 use axum::{extract::State, response::IntoResponse};
 use chrono::NaiveDate;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tracing::error;
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RegistersBody {
+    registers: Vec<GetRegisterDTO>,
+    pagination: PaginationDTO,
+}
+
 pub async fn create_register(
-    State(app_state): State<AppState>,
+    State(app_state): State<Arc<AppState>>,
     Json(register): Json<CreateRegisterDTO>,
 ) -> Result<Response> {
     app_state.register_service.create(register.into()).await?;
@@ -19,35 +30,25 @@ pub async fn create_register(
     Ok((StatusCode::CREATED, "Register created successfully").into_response())
 }
 
-#[derive(Debug, Deserialize)]
-pub struct GetRegistersQuery {
-    search: Option<String>,
-    from_date: Option<NaiveDate>,
-    to_date: Option<NaiveDate>,
-    limit: Option<u64>,
-    offset: Option<u64>,
-}
-
 pub async fn get_registers(
-    State(app_state): State<AppState>,
-    Query(query): Query<GetRegistersQuery>,
+    State(app_state): State<Arc<AppState>>,
+    Query(query): Query<CommonQueryFilterDTO>,
 ) -> Result<Response> {
-    let registers = app_state
-        .register_service
-        .find(
-            query.search,
-            query.from_date,
-            query.to_date,
-            query.limit,
-            query.offset,
-        )
-        .await?;
+    let registers = app_state.register_service.find(query.clone()).await?;
+    let pagination = app_state.register_service.get_pagination(query).await?;
 
-    Ok((StatusCode::OK, Json(registers)).into_response())
+    Ok((
+        StatusCode::OK,
+        Json(RegistersBody {
+            registers,
+            pagination,
+        }),
+    )
+        .into_response())
 }
 
 pub async fn get_register_by_id(
-    State(app_state): State<AppState>,
+    State(app_state): State<Arc<AppState>>,
     axum::extract::Path(id): axum::extract::Path<i32>,
 ) -> Result<Response> {
     match app_state.register_service.find_by_id(id).await {
@@ -66,7 +67,7 @@ pub async fn get_register_by_id(
 /// TODO: Refactor this to an use case
 #[axum::debug_handler]
 pub async fn update_register_exit(
-    State(app_state): State<AppState>,
+    State(app_state): State<Arc<AppState>>,
     axum::extract::Path(id): axum::extract::Path<i32>,
     Json(register): Json<UpdateRegisterExitDTO>,
 ) -> Result<Response> {
