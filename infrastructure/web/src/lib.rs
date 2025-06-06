@@ -31,10 +31,7 @@ pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<
 
     session_store.migrate().await?;
 
-    let session_layer = SessionManagerLayer::new(session_store)
-        .with_same_site(SameSite::None)
-        .with_signed(key)
-        .with_http_only(true);
+    let session_layer = SessionManagerLayer::new(session_store).with_signed(key);
 
     let backend = Backend {
         users: app_state.user_service.clone(),
@@ -44,9 +41,8 @@ pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<
 
     let address = format!("{}:{}", host, port);
 
-    let cors = CorsLayer::very_permissive()
-        .allow_origin("http://localhost:1420".parse::<HeaderValue>().unwrap())
-        .allow_credentials(true);
+    let cors = CorsLayer::very_permissive().allow_credentials(true);
+
     let app = Router::new()
         .route("/", get(root))
         .with_state(app_state.clone())
