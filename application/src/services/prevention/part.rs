@@ -51,6 +51,7 @@ impl PartService {
             for mut official in dto.officials {
                 official.part_id = part_id;
 
+
                 official.into_active_model().insert(&transaction).await?;
             }
             Ok::<(), DbErr>(())

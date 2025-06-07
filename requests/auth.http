@@ -1,10 +1,10 @@
-@baseURL=http://127.0.0.1:8443
+@baseURL=http://192.168.1.101:8443
 
 POST {{baseURL}}/register
 Content-Type: application/json
 
 {
-    "username": "taller",
+    "username": "tallers",
     "password": "taller"
 }
 

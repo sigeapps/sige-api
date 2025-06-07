@@ -87,11 +87,10 @@ pub mod official_dto {
     use crate::dtos::prevention::official::GetOfficialDTO;
 
     #[derive(Debug, Serialize, DeriveIntoActiveModel, Deserialize, Clone)]
-    pub struct CreatePartOfficialDTO {
-        pub id: i32,
+    pub struct CreatePartOfficialDTO {  
+        pub official_id: i32,
         #[serde(skip_deserializing)]
         pub part_id: i32,
-        pub official_id: i32,
         pub r#type: String,
     }
 
