@@ -91,6 +91,7 @@ pub mod official_dto {
         pub id: i32,
         #[serde(skip_deserializing)]
         pub part_id: i32,
+        pub official_id: i32,
         pub r#type: String,
     }
 
