@@ -15,6 +15,7 @@ pub struct CommonQueryFilterDTO {
     #[validate(range(min = 1, max = 50))]
     pub limit: Option<u64>,
     pub page: Option<u64>,
+    pub ci: Option<String>,
 }
 
 impl CommonQueryFilterDTO {
