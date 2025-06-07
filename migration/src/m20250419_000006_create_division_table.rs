@@ -1,5 +1,7 @@
 use sea_orm_migration::prelude::*;
 
+use crate::m20250419_000008_create_state_table::State;
+
 pub struct Migration;
 
 impl MigrationName for Migration {
@@ -28,7 +30,15 @@ impl MigrationTrait for Migration {
                             .unique_key()
                             .not_null(),
                     )
-                    .col(ColumnDef::new(Division::State).text().not_null())
+                    .col(ColumnDef::new(Division::State).integer().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_division_state")
+                            .from(Division::Table, Division::State)
+                            .to(State::Table, State::Id)
+                            .on_delete(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade),
+                    )
                     .to_owned(),
             )
             .await?;
@@ -36,7 +46,7 @@ impl MigrationTrait for Migration {
         let insert = Query::insert()
             .into_table(Division::Table)
             .columns([Division::Name, Division::State])
-            .values_panic(["División de Homicidios".into(), "Distrito Capital".into()])
+            .values_panic(["División de Homicidios".into(), 24.into()])
             .to_owned();
 
         manager.exec_stmt(insert).await?;
