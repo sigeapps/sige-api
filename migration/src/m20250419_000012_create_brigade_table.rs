@@ -35,7 +35,7 @@ impl MigrationTrait for Migration {
         let insert = Query::insert()
             .into_table(Brigade::Table)
             .columns([Brigade::Name])
-            .values_panic(["CICPC".into()])
+            .values_panic(["CPNB".into()])
             .to_owned();
 
         manager.exec_stmt(insert).await

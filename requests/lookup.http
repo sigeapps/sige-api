@@ -6,7 +6,7 @@ POST {{baseURL}}/brigade
 Content-Type: application/json
 
 {
-  "name": "CICPC"
+  "name": "CPNB"
 }
 
 ### GET BRIGADES 
