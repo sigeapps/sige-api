@@ -18,6 +18,7 @@ mod m20250504_000014_create_transports_table;
 mod m20250504_000015_create_commissions_table;
 mod m20250523_094807_create_seclusion_table;
 mod m20250602_011258_create_part_table;
+mod m20250607_152359_create_lookup_tables;
 
 pub struct Migrator;
 
@@ -42,6 +43,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20250504_000015_create_commissions_table::Migration),
             Box::new(m20250523_094807_create_seclusion_table::Migration),
             Box::new(m20250602_011258_create_part_table::Migration),
+            Box::new(m20250607_152359_create_lookup_tables::Migration),
         ]
     }
 }

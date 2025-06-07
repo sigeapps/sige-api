@@ -31,6 +31,7 @@ pub mod seclusion;
 pub mod seclusion_statuses;
 pub mod seclusion_visit;
 pub mod state;
+pub mod status_condition;
 pub mod temporal_seclusion;
 pub mod transport;
 pub mod transport_statuses;

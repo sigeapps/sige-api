@@ -8,13 +8,13 @@ pub mod types;
 use std::sync::Arc;
 
 use auth::Backend;
-use axum::{http::HeaderValue, routing::get, Router};
+use axum::{routing::get, Router};
 use axum_login::AuthManagerLayerBuilder;
 use error::WebError;
 use state::AppState;
 use tower_http::cors::CorsLayer;
 use tower_sessions::cookie::Key;
-use tower_sessions::{cookie::SameSite, SessionManagerLayer};
+use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::PostgresStore;
 
 pub type Result<T, E = WebError> = std::result::Result<T, E>;

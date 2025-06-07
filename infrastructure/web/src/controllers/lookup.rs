@@ -7,7 +7,9 @@ use axum::{
     Json,
 };
 use domain::entities::{
-    brand, brigade, charge, division, family_relationship, hierarchy, municipality, novelty, organism, parish, seclusion_statuses, state, transport_statuses, transport_type, vehicle_model
+    brand, brigade, charge, division, family_relationship, hierarchy, municipality, novelty,
+    organism, parish, seclusion_statuses, state, status_condition, transport_statuses,
+    transport_type, vehicle_model,
 };
 use tracing::debug;
 
@@ -433,4 +435,14 @@ pub async fn create_novelty(
         .await?;
 
     Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_status_conditions(State(app_state): State<AppState>) -> Result<Response> {
+    let novelties = app_state
+        .lookup_service
+        .find::<status_condition::Entity, status_condition::Model, status_condition::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&novelties));
+    Ok((StatusCode::OK, Json(novelties)).into_response())
 }
