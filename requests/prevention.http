@@ -60,7 +60,7 @@ Content-Type: application/json
 }
 
 ### GET COMMISSIONS
-GET {{baseURL}}/commission/5/status
+GET {{baseURL}}/commission/5
 Content-Type: application/json
 
 ### UPDATE COMMISSION STATUS

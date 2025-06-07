@@ -86,6 +86,13 @@ pub struct GetMunicipalityDTO {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::parish::Entity", from_query_result)]
+pub struct GetParishDTO {
+    pub id: i32,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
 #[sea_orm(
     entity = "domain::entities::family_relationship::Entity",
     from_query_result

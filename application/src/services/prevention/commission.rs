@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use domain::entities::{
     brigade, charge, commission, commission_official, commission_reason,
-    commission_seized_transport, commission_transport, hierarchy, municipality, official,
+    commission_seized_transport, commission_transport, hierarchy, municipality, official, parish,
     temporal_seclusion, transport,
 };
 use sea_orm::{prelude::Expr, *};
@@ -104,6 +104,7 @@ impl CommissionService {
         let reason = commission_reason::Entity::find()
             .filter(commission_reason::Column::CommissionId.eq(id))
             .left_join(municipality::Entity)
+            .left_join(parish::Entity)
             .into_partial_model::<GetCommissionReasonDTO>()
             .one(&*self.db)
             .await?
@@ -138,11 +139,25 @@ impl CommissionService {
             .all(&*self.db)
             .await?;
 
+        let officials = commission_official::Entity::find()
+            .filter(commission_official::Column::CommissionId.eq(id))
+            .join(
+                JoinType::LeftJoin,
+                commission_official::Relation::Official.def(),
+            )
+            .join(JoinType::LeftJoin, official::Relation::Hierarchy.def())
+            .join(JoinType::LeftJoin, official::Relation::Charge.def())
+            .join(JoinType::LeftJoin, official::Relation::Brigade.def())
+            .into_partial_model::<GetOfficialDTO>()
+            .all(&*self.db)
+            .await?;
+
         Ok(GetCommissionAggregateDTO {
             commission,
             reason,
             seclusions,
             transports,
+            officials,
         })
     }
 

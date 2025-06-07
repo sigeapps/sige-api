@@ -9,6 +9,8 @@ use seized_transport_dto::UpdateSeizedTransportDTO;
 use serde::{Deserialize, Serialize};
 use transport_dto::CreateCommissionTransportDTO;
 
+use crate::dtos::prevention::official::GetOfficialDTO;
+
 use super::transport::{CreateTransportDTO, GetTransportDTO};
 
 #[derive(Debug, Serialize, Deserialize, FromQueryResult)]
@@ -35,6 +37,7 @@ pub struct GetCommissionAggregateDTO {
     #[serde(flatten)]
     pub reason: GetCommissionReasonDTO,
     pub seclusions: Vec<GetTemporalSeclusionDTO>,
+    pub officials: Vec<GetOfficialDTO>,
     pub transports: Vec<GetTransportDTO>,
 }
 
@@ -127,7 +130,7 @@ pub mod reason_dto {
     use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
 
-    use crate::dtos::prevention::lookup::GetMunicipalityDTO;
+    use crate::dtos::prevention::lookup::{GetMunicipalityDTO, GetParishDTO};
 
     #[derive(Debug, Serialize, Deserialize, DerivePartialModel)]
     #[sea_orm(
@@ -140,6 +143,8 @@ pub mod reason_dto {
         pub zone: Option<String>,
         #[sea_orm(nested)]
         pub municipality: GetMunicipalityDTO,
+        #[sea_orm(nested)]
+        pub parish: GetParishDTO,
     }
 
     #[derive(Debug, Serialize, DeriveIntoActiveModel, Deserialize)]
