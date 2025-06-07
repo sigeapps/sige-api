@@ -203,22 +203,22 @@ impl CommissionService {
             .join_as(
                 JoinType::LeftJoin,
                 commission::Relation::Official1.def(),
-                BossOfficial,
-            )
-            .join_as(
-                JoinType::LeftJoin,
-                official::Relation::Hierarchy.def().from_alias(BossOfficial),
-                BossOfficialHierarchy,
-            )
-            .join_as(
-                JoinType::LeftJoin,
-                commission::Relation::Official2.def(),
                 AuthOfficial,
             )
             .join_as(
                 JoinType::LeftJoin,
                 official::Relation::Hierarchy.def().from_alias(AuthOfficial),
                 AuthOfficialHierarchy,
+            )
+            .join_as(
+                JoinType::LeftJoin,
+                commission::Relation::Official2.def(),
+                BossOfficial,
+            )
+            .join_as(
+                JoinType::LeftJoin,
+                official::Relation::Hierarchy.def().from_alias(BossOfficial),
+                BossOfficialHierarchy,
             );
 
         if let Some(search) = &filter.search {
@@ -333,6 +333,7 @@ impl CommissionService {
 
     pub async fn create(self, mut commission: CreateCommissionAggregateDTO) -> Result<i32, DbErr> {
         commission.commission.boss_id = commission.officials.first().unwrap().official_id;
+        println!("{}", commission.commission.boss_id);
 
         let txn = self.db.begin().await?;
 

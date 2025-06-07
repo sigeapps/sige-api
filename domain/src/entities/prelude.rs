@@ -29,6 +29,7 @@ pub use super::seclusion::Entity as Seclusion;
 pub use super::seclusion_statuses::Entity as SeclusionStatuses;
 pub use super::seclusion_visit::Entity as SeclusionVisit;
 pub use super::state::Entity as State;
+pub use super::status_condition::Entity as StatusCondition;
 pub use super::temporal_seclusion::Entity as TemporalSeclusion;
 pub use super::transport::Entity as Transport;
 pub use super::transport_statuses::Entity as TransportStatuses;

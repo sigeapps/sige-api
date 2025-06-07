@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
+use domain::entities::{brand, division, state, vehicle_model};
 use sea_orm::*;
+
+use crate::dtos::prevention::lookup::{GetDivisionDTO, GetVehicleModelDTO};
 
 #[derive(Debug, Clone)]
 pub struct LookupService {
@@ -30,5 +33,25 @@ impl LookupService {
         E::insert(active_model).exec(&*self.db).await?;
 
         Ok(())
+    }
+
+    pub async fn find_vehicle_models(&self) -> Result<Vec<GetVehicleModelDTO>, DbErr> {
+        let vehicle_models = vehicle_model::Entity::find()
+            .left_join(brand::Entity)
+            .into_partial_model::<GetVehicleModelDTO>()
+            .all(&*self.db)
+            .await?;
+
+        Ok(vehicle_models)
+    }
+
+    pub async fn find_divisions(&self) -> Result<Vec<GetDivisionDTO>, DbErr> {
+        let divisions = division::Entity::find()
+            .left_join(state::Entity)
+            .into_partial_model::<GetDivisionDTO>()
+            .all(&*self.db)
+            .await?;
+
+        Ok(divisions)
     }
 }

@@ -26,6 +26,8 @@ pub struct GetBrandDTO {
 pub struct GetVehicleModelDTO {
     pub id: i32,
     pub name: String,
+    #[sea_orm(nested)]
+    pub brand: GetBrandDTO,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
@@ -99,4 +101,13 @@ pub struct GetNoveltyDTO {
     pub id: i32,
     pub name: String,
     pub format: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::division::Entity", from_query_result)]
+pub struct GetDivisionDTO {
+    pub id: i32,
+    pub name: String,
+    #[sea_orm(nested)]
+    pub state: GetStateDTO,
 }

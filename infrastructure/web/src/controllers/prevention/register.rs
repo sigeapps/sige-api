@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crate::state::AppState;
 use crate::Result;
 use application::dtos::prevention::register::{

@@ -10,19 +10,32 @@ pub struct Model {
     pub id: i32,
     #[sea_orm(unique)]
     pub name: String,
-    #[sea_orm(column_type = "Text")]
-    pub state: String,
+    pub state: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(has_many = "super::register::Entity")]
     Register,
+    #[sea_orm(
+        belongs_to = "super::state::Entity",
+        from = "Column::State",
+        to = "super::state::Column::Id",
+        on_update = "Cascade",
+        on_delete = "Cascade"
+    )]
+    State,
 }
 
 impl Related<super::register::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Register.def()
+    }
+}
+
+impl Related<super::state::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::State.def()
     }
 }
 

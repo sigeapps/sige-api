@@ -7,7 +7,9 @@ use axum::{
     Json,
 };
 use domain::entities::{
-    brand, brigade, charge, division, family_relationship, hierarchy, municipality, novelty, organism, parish, seclusion_statuses, state, transport_statuses, transport_type, vehicle_model
+    brand, brigade, charge, division, family_relationship, hierarchy, municipality, novelty,
+    organism, parish, seclusion_statuses, state, status_condition, transport_statuses,
+    transport_type, vehicle_model,
 };
 use tracing::debug;
 
@@ -68,16 +70,6 @@ pub async fn create_organism(
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_divisions(State(app_state): State<AppState>) -> Result<Response> {
-    let divisions = app_state
-        .lookup_service
-        .find::<division::Entity, division::Model, division::ActiveModel>()
-        .await?;
-
-    debug!("{:?}", Json(&divisions));
-    Ok((StatusCode::OK, Json(divisions)).into_response())
-}
-
 pub async fn create_division(
     State(app_state): State<AppState>,
     Json(division): Json<CreateBasicLookUpDTO>,
@@ -85,7 +77,7 @@ pub async fn create_division(
     let active_model = division::ActiveModel {
         id: Default::default(),
         name: sea_orm::Set(division.name),
-        state: sea_orm::Set(String::new()), // Default empty string for state
+        state: sea_orm::Set(division.state.unwrap_or_default() as i32),
     };
 
     app_state
@@ -293,10 +285,7 @@ pub async fn create_brand(
 }
 
 pub async fn get_vehicle_models(State(app_state): State<AppState>) -> Result<Response> {
-    let vehicle_models = app_state
-        .lookup_service
-        .find::<vehicle_model::Entity, vehicle_model::Model, vehicle_model::ActiveModel>()
-        .await?;
+    let vehicle_models = app_state.lookup_service.find_vehicle_models().await?;
 
     debug!("{:?}", Json(&vehicle_models));
     Ok((StatusCode::OK, Json(vehicle_models)).into_response())
@@ -433,4 +422,21 @@ pub async fn create_novelty(
         .await?;
 
     Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_status_conditions(State(app_state): State<AppState>) -> Result<Response> {
+    let novelties = app_state
+        .lookup_service
+        .find::<status_condition::Entity, status_condition::Model, status_condition::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&novelties));
+    Ok((StatusCode::OK, Json(novelties)).into_response())
+}
+
+pub async fn get_divisions(State(app_state): State<AppState>) -> Result<Response> {
+    let divisions = app_state.lookup_service.find_divisions().await?;
+
+    debug!("{:?}", Json(&divisions));
+    Ok((StatusCode::OK, Json(divisions)).into_response())
 }

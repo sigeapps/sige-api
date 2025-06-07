@@ -34,6 +34,19 @@ impl RegisterService {
         Ok(register)
     }
 
+    pub async fn find_by_ci(&self, ci: String) -> Result<Option<GetRegisterDTO>, DbErr> {
+        let register = register::Entity::find()
+            .filter(register::Column::Ci.eq(ci))
+            .find_also_related(organism::Entity)
+            .find_also_related(division::Entity)
+            .one(&*self.db)
+            .await?;
+
+        let register = register.map(GetRegisterDTO::from);
+
+        Ok(register)
+    }
+
     pub async fn find(&self, filter: CommonQueryFilterDTO) -> Result<Vec<GetRegisterDTO>, DbErr> {
         let mut query = register::Entity::find();
 
@@ -47,6 +60,10 @@ impl RegisterService {
 
         if let Some(search) = &filter.search {
             query = query.filter(register::Column::Observations.contains(search));
+        }
+
+        if let Some(ci) = &filter.ci {
+            query = query.filter(register::Column::Ci.eq(ci));
         }
 
         let pagination = &filter.into_pagination();

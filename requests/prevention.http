@@ -1,11 +1,14 @@
-#@baseURL=http://127.0.0.1:8443/prevention
-@baseURL=http://app.tecnoelectronics.com.ve:9052/prevention
+@baseURL=http://127.0.0.1:8443/prevention
+#@baseURL=http://app.tecnoelectronics.com.ve:9052/prevention
 
 ### GET COMMISSIONS
 GET {{baseURL}}/commission?from_date=2019-06-03&to_date=2028-06-03&limit=1&page=1
 
 ### GET OFFICIALS
 GET {{baseURL}}/official
+
+### GET REGISTER 
+GET {{baseURL}}/register?ci=V33071696
 
 ### CREATE COMMISSION
 
