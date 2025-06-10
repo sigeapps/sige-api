@@ -13,8 +13,8 @@ pub struct CommonQueryFilterDTO {
     pub ci: Option<String>,
     pub from_date: Option<NaiveDate>,
     pub to_date: Option<NaiveDate>,
-    pub page: Option<i32>,
-    pub limit: Option<i32>,
+    pub page: Option<u64>,
+    pub limit: Option<u64>,
     pub sort: Option<String>,
 }
 
@@ -36,9 +36,9 @@ impl CommonQueryFilterDTO {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PaginationDTO {
-    pub page: i32,
-    pub limit: i32,
-    pub page_count: i32,
-    pub total_count: i32,
-    pub offset: i32,
+    pub page: u64,
+    pub limit: u64,
+    pub page_count: u64,
+    pub total_count: u64,
+    pub offset: u64,
 }
