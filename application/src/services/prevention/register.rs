@@ -3,7 +3,7 @@ use std::sync::Arc;
 use chrono::NaiveDate;
 use domain::entities::{
     division, organism,
-    register::{self},
+    register::{self, Column},
 };
 use sea_orm::*;
 
@@ -51,19 +51,65 @@ impl RegisterService {
         let mut query = register::Entity::find();
 
         if let Some(from_date) = &filter.from_date {
-            query = query.filter(register::Column::EntryDate.gte(*from_date));
+            query = query.filter(Column::EntryDate.gte(*from_date));
         }
 
         if let Some(to_date) = &filter.to_date {
-            query = query.filter(register::Column::EntryDate.lte(*to_date));
+            query = query.filter(Column::EntryDate.lte(*to_date));
         }
 
         if let Some(search) = &filter.search {
-            query = query.filter(register::Column::Observations.contains(search));
+            query = query.filter(
+                Condition::any()
+                    .add(Column::Ci.contains(search))
+                    .add(Column::FirstName.contains(search))
+                    .add(Column::LastName.contains(search))
+                    .add(Column::Observations.contains(search)),
+            );
         }
 
         if let Some(ci) = &filter.ci {
-            query = query.filter(register::Column::Ci.eq(ci));
+            query = query.filter(Column::Ci.eq(ci));
+        }
+
+        if let Some(sort) = &filter.sort {
+            match sort.as_str() {
+                "-entry_date" => {
+                    query = query.order_by_desc(Column::EntryDate);
+                }
+                "entry_date" => {
+                    query = query.order_by_asc(Column::EntryDate);
+                }
+                "-exit_date" => {
+                    query = query.order_by_desc(Column::ExitDate);
+                }
+                "exit_date" => {
+                    query = query.order_by_asc(Column::ExitDate);
+                }
+                "-last_name" => {
+                    query = query.order_by_desc(Column::LastName);
+                }
+                "last_name" => {
+                    query = query.order_by_asc(Column::LastName);
+                }
+                "-first_name" => {
+                    query = query.order_by_desc(Column::FirstName);
+                }
+                "first_name" => {
+                    query = query.order_by_asc(Column::FirstName);
+                }
+                "-ci" => {
+                    query = query.order_by_desc(Column::Ci);
+                }
+                "ci" => {
+                    query = query.order_by_asc(Column::Ci);
+                }
+                _ => {
+                    query = query.order_by_desc(Column::EntryDate);
+                }
+            }
+        } else {
+            query = query.order_by_desc(Column::EntryDate);
         }
 
         let pagination = &filter.into_pagination();
@@ -86,15 +132,25 @@ impl RegisterService {
         let mut query = register::Entity::find();
 
         if let Some(from_date) = &filter.from_date {
-            query = query.filter(register::Column::EntryDate.gte(*from_date));
+            query = query.filter(Column::EntryDate.gte(*from_date));
         }
 
         if let Some(to_date) = &filter.to_date {
-            query = query.filter(register::Column::EntryDate.lte(*to_date));
+            query = query.filter(Column::EntryDate.lte(*to_date));
         }
 
         if let Some(search) = &filter.search {
-            query = query.filter(register::Column::Observations.contains(search));
+            query = query.filter(
+                Condition::any()
+                    .add(Column::Ci.contains(search))
+                    .add(Column::FirstName.contains(search))
+                    .add(Column::LastName.contains(search))
+                    .add(Column::Observations.contains(search)),
+            );
+        }
+
+        if let Some(ci) = &filter.ci {
+            query = query.filter(Column::Ci.eq(ci));
         }
 
         let pagination = filter.into_pagination();
