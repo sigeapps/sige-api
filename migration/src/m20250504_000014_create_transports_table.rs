@@ -125,7 +125,7 @@ impl MigrationTrait for Migration {
 
         println!("🔨 Seeding transport statuses");
 
-        let statuses = ["Activo", "Mantenimiento", "Fuera de servicio", "Reservado"];
+        let statuses = ["Verificado", "Solicitado", "Espera por experto", "Entregado"];
 
         for status in statuses {
             let insert = Query::insert()

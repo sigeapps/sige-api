@@ -111,6 +111,18 @@ impl PartService {
         let fetch_official = |ci: &str| {
             official::Entity::find()
                 .filter(official::Column::Ci.eq(ci))
+                .select_only()
+                .columns([
+                    official::Column::Id,
+                    official::Column::Ci,
+                    official::Column::LastName,
+                    official::Column::FirstName,
+                    official::Column::Phone,
+                    official::Column::Code,
+                ])
+                .columns([charge::Column::Id, charge::Column::Name])
+                .columns([hierarchy::Column::Id, hierarchy::Column::Name])
+                .columns([brigade::Column::Id, brigade::Column::Name])
                 .join(JoinType::LeftJoin, official::Relation::Charge.def())
                 .join(JoinType::LeftJoin, official::Relation::Hierarchy.def())
                 .join(JoinType::LeftJoin, official::Relation::Brigade.def())
