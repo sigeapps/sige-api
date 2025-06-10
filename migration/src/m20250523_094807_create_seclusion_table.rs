@@ -60,7 +60,7 @@ impl MigrationTrait for Migration {
         println!("✅ Seclusion Statuses table created");
 
         // Seed family relationships
-        let relationships = ["Padre", "Madre", "Hermano/a", "Tío/a", "Abuelo/a", "Otro"];
+        let relationships = ["Esposo/a", "Padre", "Madre", "Hermano/a", "Tío/a", "Abuelo/a", "Primo/a", "Sobrino/a", "Otro"];
 
         for relationship in relationships {
             let insert = Query::insert()
@@ -80,7 +80,7 @@ impl MigrationTrait for Migration {
         println!("✅ Family Relationships seeded");
 
         // Seed seclusion statuses
-        let statuses = ["Activo", "Liberado", "Trasladado"];
+        let statuses = ["Activo", "Liberado", "Procedimiento", "Trasladado"];
 
         for status in statuses {
             let insert = Query::insert()
