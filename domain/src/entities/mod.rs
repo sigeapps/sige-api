@@ -2,6 +2,7 @@
 
 pub mod prelude;
 
+pub mod band;
 pub mod brand;
 pub mod brigade;
 pub mod charge;
@@ -14,6 +15,7 @@ pub mod commission_transport;
 pub mod division;
 pub mod family_relationship;
 pub mod hierarchy;
+pub mod institution;
 pub mod municipality;
 pub mod novelty;
 pub mod official;
@@ -24,6 +26,7 @@ pub mod part_development;
 pub mod part_official;
 pub mod part_responsability;
 pub mod permission;
+pub mod profession;
 pub mod register;
 pub mod role;
 pub mod role_permission;

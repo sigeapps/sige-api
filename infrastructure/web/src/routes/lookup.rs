@@ -5,13 +5,15 @@ use axum::{
 
 use crate::{
     controllers::lookup::{
-        create_brand, create_brigade, create_charge, create_division, create_family_relationships,
-        create_hierarchy, create_municipality, create_novelty, create_organism, create_parish,
+        create_band, create_brand, create_brigade, create_charge, create_division,
+        create_family_relationships, create_hierarchy, create_institution, create_municipality,
+        create_novelty, create_organism, create_parish, create_profession,
         create_seclusion_statuses, create_state, create_transport_status, create_transport_type,
-        create_vehicle_model, get_brands, get_brigades, get_charges, get_divisions,
-        get_family_relationships, get_hierarchies, get_municipalities, get_novelties,
-        get_organisms, get_parish, get_seclusion_statuses, get_states, get_status_conditions,
-        get_transport_statuses, get_transport_types, get_vehicle_models,
+        create_vehicle_model, get_bands, get_brands, get_brigades, get_charges, get_divisions,
+        get_family_relationships, get_hierarchies, get_institutions, get_municipalities,
+        get_novelties, get_organisms, get_parish, get_professions, get_seclusion_statuses,
+        get_states, get_status_conditions, get_transport_statuses, get_transport_types,
+        get_vehicle_models,
     },
     state::AppState,
 };
@@ -47,6 +49,12 @@ pub fn lookup_routes(app_state: &Arc<AppState>) -> Router {
         .route("/lookup/status-conditions", get(get_status_conditions))
         .route("/lookup/novelty", post(create_novelty))
         .route("/lookup/seclusion-status", get(get_seclusion_statuses))
+        .route("/lookup/band", get(get_bands))
+        .route("/lookup/band", post(create_band))
+        .route("/lookup/institution", get(get_institutions))
+        .route("/lookup/institution", post(create_institution))
+        .route("/lookup/profession", get(get_professions))
+        .route("/lookup/profession", post(create_profession))
         .route(
             "/lookup/seclusion-status",
             post(create_family_relationships),

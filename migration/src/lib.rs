@@ -48,6 +48,28 @@ impl MigratorTrait for Migrator {
     }
 }
 
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
+
 #[tokio::main]
 pub async fn migrate(db_url: &str) -> Result<(), DbErr> {
     let db = Database::connect(db_url).await?;
