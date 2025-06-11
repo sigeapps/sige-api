@@ -17,6 +17,39 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
+        manager
+            .create_table(
+                Table::create()
+                    .table(Band::Table)
+                    .if_not_exists()
+                    .col(pk_auto(Band::Id))
+                    .col(string(Band::Name).unique_key())
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(Institution::Table)
+                    .if_not_exists()
+                    .col(pk_auto(Institution::Id))
+                    .col(string(Institution::Name).unique_key())
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(Profession::Table)
+                    .if_not_exists()
+                    .col(pk_auto(Profession::Id))
+                    .col(string(Profession::Name).unique_key())
+                    .to_owned(),
+            )
+            .await?;
+
         let statuses = ["Activo", "Vacaciones", "Reposo", "Civil"];
 
         for status in statuses {
@@ -46,6 +79,27 @@ impl MigrationTrait for Migration {
 
 #[derive(DeriveIden)]
 enum StatusCondition {
+    Table,
+    Id,
+    Name,
+}
+
+#[derive(DeriveIden)]
+enum Band {
+    Table,
+    Id,
+    Name,
+}
+
+#[derive(DeriveIden)]
+enum Institution {
+    Table,
+    Id,
+    Name,
+}
+
+#[derive(DeriveIden)]
+enum Profession {
     Table,
     Id,
     Name,

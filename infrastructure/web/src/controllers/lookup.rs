@@ -7,9 +7,9 @@ use axum::{
     Json,
 };
 use domain::entities::{
-    brand, brigade, charge, division, family_relationship, hierarchy, municipality, novelty,
-    organism, parish, seclusion_statuses, state, status_condition, transport_statuses,
-    transport_type, vehicle_model,
+    band, brand, brigade, charge, division, family_relationship, hierarchy, institution,
+    municipality, novelty, organism, parish, profession, seclusion_statuses, state,
+    status_condition, transport_statuses, transport_type, vehicle_model,
 };
 use tracing::debug;
 
@@ -432,6 +432,87 @@ pub async fn get_status_conditions(State(app_state): State<AppState>) -> Result<
 
     debug!("{:?}", Json(&novelties));
     Ok((StatusCode::OK, Json(novelties)).into_response())
+}
+
+pub async fn create_band(
+    State(app_state): State<AppState>,
+    Json(novelty): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    let active_model = band::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(novelty.name),
+    };
+
+    app_state
+        .lookup_service
+        .create::<band::Entity, band::Model, band::ActiveModel>(active_model)
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_bands(State(app_state): State<AppState>) -> Result<Response> {
+    let novelties = app_state
+        .lookup_service
+        .find::<band::Entity, band::Model, band::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&novelties));
+    Ok((StatusCode::OK, Json(novelties)).into_response())
+}
+
+pub async fn create_institution(
+    State(app_state): State<AppState>,
+    Json(institution): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    let active_model = institution::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(institution.name),
+    };
+
+    app_state
+        .lookup_service
+        .create::<institution::Entity, institution::Model, institution::ActiveModel>(active_model)
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_institutions(State(app_state): State<AppState>) -> Result<Response> {
+    let institutions = app_state
+        .lookup_service
+        .find::<institution::Entity, institution::Model, institution::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&institutions));
+    Ok((StatusCode::OK, Json(institutions)).into_response())
+}
+
+pub async fn create_profession(
+    State(app_state): State<AppState>,
+    Json(profession): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    let active_model = profession::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(profession.name),
+    };
+
+    app_state
+        .lookup_service
+        .create::<profession::Entity, profession::Model, profession::ActiveModel>(active_model)
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_professions(State(app_state): State<AppState>) -> Result<Response> {
+    let professions = app_state
+        .lookup_service
+        .find::<profession::Entity, profession::Model, profession::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&professions));
+    Ok((StatusCode::OK, Json(professions)).into_response())
 }
 
 pub async fn get_divisions(State(app_state): State<AppState>) -> Result<Response> {
