@@ -418,11 +418,7 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(PersonaHealth::Allergies).string().null())
                     .col(ColumnDef::new(PersonaHealth::Operations).string().null())
-                    .col(
-                        ColumnDef::new(PersonaHealth::HasFractures)
-                            .boolean()
-                            .not_null(),
-                    )
+                    .col(ColumnDef::new(PersonaHealth::HasFractures).boolean().null())
                     .col(ColumnDef::new(PersonaHealth::Fractures).string().null())
                     .to_owned(),
             )
@@ -668,7 +664,6 @@ enum PersonaConyuge {
     Birthdate,
     Age,
     Phone,
-    Address,
 }
 
 #[derive(DeriveIden)]

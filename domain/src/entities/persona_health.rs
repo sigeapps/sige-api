@@ -12,7 +12,7 @@ pub struct Model {
     pub blood_group: String,
     pub allergies: Option<String>,
     pub operations: Option<String>,
-    pub has_fractures: bool,
+    pub has_fractures: Option<bool>,
     pub fractures: Option<String>,
 }
 

@@ -68,7 +68,7 @@ pub mod health {
         pub allergies: String,
         pub operations: String,
         pub blood_group: String,
-        pub has_fractures: bool,
+        pub has_fractures: Option<bool>,
         pub fractures: Option<String>,
     }
 }
