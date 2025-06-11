@@ -120,7 +120,7 @@ pub mod personal {
         pub birthplace: String,
         pub address: String,
         pub phone: String,
-        pub coordinates: String,
+        pub coordinates: Option<String>,
         pub homeland_ci: String,
         pub bank_account: String,
         pub front_photo: String,
