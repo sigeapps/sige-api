@@ -85,7 +85,7 @@ Content-Type: application/json
     {
       "name": "Curso de Programación",
       "date": "2023-06-15",
-      "institution_id": 2,
+      "institution_id": 1,
       "document": "certificado_programacion.pdf"
     }
   ],
@@ -104,7 +104,7 @@ Content-Type: application/json
     "allergies": "Polen, mariscos",
     "operations": "Apendicitis (2018)",
     "fractures": "Brazo izquierdo (2010)",
-    "blood_group": "O+"
+    "blood_group": "O+",
     "has_fractures": true
   },
   "operational": [

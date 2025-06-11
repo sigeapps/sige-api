@@ -12,13 +12,28 @@ pub struct Model {
     pub relationship_id: i32,
     pub name: String,
     pub last_name: String,
-    pub birth_date: Date,
+    pub birthdate: Date,
     pub age: i32,
     pub phone: String,
     pub address: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::persona::Entity",
+        from = "Column::PersonaId",
+        to = "super::persona::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Persona,
+}
+
+impl Related<super::persona::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Persona.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}

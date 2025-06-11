@@ -16,7 +16,7 @@ pub struct Model {
     pub passport_years_valid: i32,
     pub name: String,
     pub last_name: String,
-    pub birth_date: String,
+    pub birthdate: String,
     pub age: i32,
     pub birthplace: String,
     pub address: String,
@@ -32,16 +32,34 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(has_many = "super::persona_children::Entity")]
+    PersonaChildren,
+    #[sea_orm(has_many = "super::persona_conyuge::Entity")]
+    PersonaConyuge,
     #[sea_orm(has_many = "super::persona_health::Entity")]
     PersonaHealth,
     #[sea_orm(has_many = "super::persona_operational::Entity")]
     PersonaOperational,
     #[sea_orm(has_many = "super::persona_record::Entity")]
     PersonaRecord,
+    #[sea_orm(has_many = "super::persona_relative::Entity")]
+    PersonaRelative,
     #[sea_orm(has_many = "super::persona_traits::Entity")]
     PersonaTraits,
     #[sea_orm(has_many = "super::persona_work_experience::Entity")]
     PersonaWorkExperience,
+}
+
+impl Related<super::persona_children::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PersonaChildren.def()
+    }
+}
+
+impl Related<super::persona_conyuge::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PersonaConyuge.def()
+    }
 }
 
 impl Related<super::persona_health::Entity> for Entity {
@@ -59,6 +77,12 @@ impl Related<super::persona_operational::Entity> for Entity {
 impl Related<super::persona_record::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PersonaRecord.def()
+    }
+}
+
+impl Related<super::persona_relative::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PersonaRelative.def()
     }
 }
 

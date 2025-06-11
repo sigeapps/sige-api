@@ -34,7 +34,7 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(Persona::Name).string().not_null())
                     .col(ColumnDef::new(Persona::LastName).string().not_null())
-                    .col(ColumnDef::new(Persona::BirthDate).string().not_null())
+                    .col(ColumnDef::new(Persona::Birthdate).string().not_null())
                     .col(ColumnDef::new(Persona::Age).integer().not_null())
                     .col(ColumnDef::new(Persona::Birthplace).string().not_null())
                     .col(ColumnDef::new(Persona::Address).string().not_null())
@@ -122,7 +122,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(PersonaConyuge::Name).string().not_null())
                     .col(ColumnDef::new(PersonaConyuge::LastName).string().not_null())
                     .col(ColumnDef::new(PersonaConyuge::Ci).string().not_null())
-                    .col(ColumnDef::new(PersonaConyuge::BirthDate).date().not_null())
+                    .col(ColumnDef::new(PersonaConyuge::Birthdate).date().not_null())
                     .col(ColumnDef::new(PersonaConyuge::Age).integer().not_null())
                     .col(ColumnDef::new(PersonaConyuge::Phone).string().not_null())
                     .col(ColumnDef::new(PersonaConyuge::Address).string().not_null())
@@ -159,7 +159,7 @@ impl MigrationTrait for Migration {
                             .string()
                             .not_null(),
                     )
-                    .col(ColumnDef::new(PersonaChildren::BirthDate).date().not_null())
+                    .col(ColumnDef::new(PersonaChildren::Birthdate).date().not_null())
                     .col(ColumnDef::new(PersonaChildren::Age).integer().not_null())
                     .col(ColumnDef::new(PersonaChildren::Grade).string().not_null())
                     .to_owned(),
@@ -200,7 +200,7 @@ impl MigrationTrait for Migration {
                             .string()
                             .not_null(),
                     )
-                    .col(ColumnDef::new(PersonaRelative::BirthDate).date().not_null())
+                    .col(ColumnDef::new(PersonaRelative::Birthdate).date().not_null())
                     .col(ColumnDef::new(PersonaRelative::Age).integer().not_null())
                     .col(ColumnDef::new(PersonaRelative::Phone).string().not_null())
                     .col(ColumnDef::new(PersonaRelative::Address).string().not_null())
@@ -556,7 +556,34 @@ impl MigrationTrait for Migration {
         manager
             .drop_table(
                 Table::drop()
+                    .table(PersonaChildren::Table)
+                    .cascade()
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .drop_table(
+                Table::drop()
+                    .table(PersonaRelative::Table)
+                    .cascade()
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .drop_table(
+                Table::drop()
                     .table(PersonaOperational::Table)
+                    .cascade()
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .drop_table(
+                Table::drop()
+                    .table(PersonaConyuge::Table)
                     .cascade()
                     .to_owned(),
             )
@@ -595,7 +622,7 @@ enum Persona {
     PassportYearsValid,
     Name,
     LastName,
-    BirthDate,
+    Birthdate,
     Age,
     Birthplace,
     Address,
@@ -639,7 +666,7 @@ enum PersonaConyuge {
     Ci,
     Name,
     LastName,
-    BirthDate,
+    Birthdate,
     Age,
     Phone,
     Address,
@@ -652,7 +679,7 @@ enum PersonaChildren {
     PersonaId,
     Name,
     LastName,
-    BirthDate,
+    Birthdate,
     Age,
     Grade,
 }
@@ -665,7 +692,7 @@ enum PersonaRelative {
     RelationshipId,
     Name,
     LastName,
-    BirthDate,
+    Birthdate,
     Age,
     Phone,
     Address,
