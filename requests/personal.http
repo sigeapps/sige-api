@@ -79,7 +79,6 @@ Content-Type: application/json
     "birth_date": "1992-08-25",
     "age": 31,
     "phone": "+591 70456789",
-    "address": "Av. Arce 2589, La Paz"
   },
   "courses": [
     {

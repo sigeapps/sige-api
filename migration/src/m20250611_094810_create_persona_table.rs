@@ -125,7 +125,6 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(PersonaConyuge::Birthdate).date().not_null())
                     .col(ColumnDef::new(PersonaConyuge::Age).integer().not_null())
                     .col(ColumnDef::new(PersonaConyuge::Phone).string().not_null())
-                    .col(ColumnDef::new(PersonaConyuge::Address).string().not_null())
                     .to_owned(),
             )
             .await?;

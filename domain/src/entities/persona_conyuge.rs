@@ -15,7 +15,6 @@ pub struct Model {
     pub birthdate: Date,
     pub age: i32,
     pub phone: String,
-    pub address: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -165,7 +165,6 @@ pub mod conyuge {
         pub birthdate: NaiveDate,
         pub age: i32,
         pub phone: String,
-        pub address: String,
     }
 }
 
