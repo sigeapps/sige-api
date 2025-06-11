@@ -67,8 +67,9 @@ pub mod health {
         pub persona_id: i32,
         pub allergies: String,
         pub operations: String,
-        pub fractures: String,
         pub blood_group: String,
+        pub has_fractures: bool,
+        pub fractures: Option<String>,
     }
 }
 

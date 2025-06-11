@@ -7,76 +7,124 @@ Content-Type: application/json
 
 {
   "personal": {
-    "name": "Juan",
-    "last_name": "Pérez",
-    "ci": "12345678",
-    "birth_date": "1990-05-15"
+    "passport_number": "P123456789",
+    "passport_expiration": "2030-12-31",
+    "passport_years_valid": 10,
+    "name": "Juan Carlos",
+    "last_name": "García López",
+    "birth_date": "1990-05-15",
+    "birthplace": "La Paz, Bolivia",
+    "address": "Av. Arce 2589, La Paz",
+    "phone": "+591 70123456",
+    "coordinates": "-16.5000,-68.1193",
+    "homeland_ci": "8765432 LP",
+    "bank_account": "12345678901234567890",
+    "front_photo": "front_photo_url.jpg",
+    "back_photo": "back_photo_url.jpg",
+    "ci": "8765432",
+    "genre": "Masculino",
+    "status_civil": "Soltero",
+    "vehicle_license": "VL123456",
+    "age": 33
   },
   "traits": {
     "height": 175,
-    "weight": 70,
-    "eye_color": "marrón"
+    "others": "Cicatriz en la mano derecha",
+    "build": "Atlético",
+    "skin_color": "Moreno",
+    "has_tattoos": true,
+    "eyes_color": "Marrón",
+    "eyes_type": "Almendrados",
+    "hair_color": "Negro",
+    "hair_type": "Ondulado",
+    "eyebrow_type": "Pobladas",
+    "nose_type": "Aguileño",
+    "face_type": "Ovalado",
+    "lips_type": "Medianos",
+    "hands_type": "Grandes"
   },
   "relatives": [
     {
-      "name": "María Pérez",
-      "relationship": "madre",
-      "phone": "123456789"
+      "name": "María Elena",
+      "last_name": "García Mendoza",
+      "birth_date": "1965-03-20",
+      "age": 58,
+      "phone": "+591 70987654",
+      "address": "Calle 21 de Calacoto, La Paz",
+      "relationship_id": 1
     }
   ],
   "childrens": [
     {
-      "name": "Ana Pérez",
-      "birth_date": "2015-03-20"
+      "name": "Sofía",
+      "last_name": "García Morales",
+      "age": 8,
+      "birth_date": "2015-09-10",
+      "grade": "3ro Primaria"
     }
   ],
   "education": [
     {
       "end_date": "2012-12-15",
-      "grade": "Bachiller",
+      "grade": "Licenciatura",
       "institution_id": 1,
       "profession_id": 1,
-      "photo": "diploma.jpg"
+      "photo": "diploma_photo.jpg"
     }
   ],
   "conyuge": {
-    "name": "Laura García",
-    "ci": "87654321"
+    "ci": "9876543",
+    "name": "Ana María",
+    "last_name": "Morales Pérez",
+    "birth_date": "1992-08-25",
+    "age": 31,
+    "phone": "+591 70456789",
+    "address": "Av. Arce 2589, La Paz"
   },
   "courses": [
     {
-      "name": "Primeros Auxilios",
-      "date": "2023-06-10",
+      "name": "Curso de Programación",
+      "date": "2023-06-15",
       "institution_id": 2,
-      "document": "certificado.pdf"
+      "document": "certificado_programacion.pdf"
     }
   ],
   "work_experiencies": [
     {
-      "company": "Empresa ABC",
-      "position": "Analista",
-      "start_date": "2020-01-01"
+      "boss_phone": "+591 70111222",
+      "description": "Desarrollador de software senior",
+      "organism_id": 1,
+      "charge_id": 1,
+      "hierarchy_id": 1,
+      "photo": "work_photo.jpg",
+      "is_active": true
     }
   ],
   "health": {
-    "allergies": "ninguna",
-    "operations": "apendicitis",
-    "fractures": "ninguna",
+    "allergies": "Polen, mariscos",
+    "operations": "Apendicitis (2018)",
+    "fractures": "Brazo izquierdo (2010)",
     "blood_group": "O+"
+    "has_fractures": true
   },
   "operational": [
     {
-      "type": "entrenamiento",
-      "date": "2023-01-15"
+      "phone": "+591 70123456",
+      "organism_id": 1,
+      "charge_id": 1,
+      "file": "expediente_001.pdf",
+      "time": 8,
+      "start_at": "2020-01-15",
+      "end_at": "2023-12-31"
     }
   ],
   "records": [
     {
-      "type": "antecedente",
-      "description": "limpio"
+      "name": "Registro de Antecedentes",
+      "type": "Criminal"
     }
   ],
   "others": {
-    "notes": "información adicional"
+    "others": "Información adicional relevante"
   }
 }
