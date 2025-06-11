@@ -11,6 +11,8 @@ impl MigrationName for Migration {
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        println!("Creating official table");
+
         manager
             .create_table(
                 Table::create()
@@ -138,6 +140,8 @@ impl MigrationTrait for Migration {
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        println!("Dropping official table");
+
         manager
             .drop_table(Table::drop().table(Official::Table).cascade().to_owned())
             .await?;
@@ -148,7 +152,11 @@ impl MigrationTrait for Migration {
 
         manager
             .drop_table(Table::drop().table(Hierarchy::Table).cascade().to_owned())
-            .await
+            .await?;
+
+        println!("✅ Official table dropped");
+
+        Ok(())
     }
 }
 

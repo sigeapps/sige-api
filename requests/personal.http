@@ -1,0 +1,82 @@
+@baseURL=http://127.0.0.1:8443/personal
+
+### CREATE PERSONA
+
+POST {{baseURL}}/persona
+Content-Type: application/json
+
+{
+  "personal": {
+    "name": "Juan",
+    "last_name": "Pérez",
+    "ci": "12345678",
+    "birth_date": "1990-05-15"
+  },
+  "traits": {
+    "height": 175,
+    "weight": 70,
+    "eye_color": "marrón"
+  },
+  "relatives": [
+    {
+      "name": "María Pérez",
+      "relationship": "madre",
+      "phone": "123456789"
+    }
+  ],
+  "childrens": [
+    {
+      "name": "Ana Pérez",
+      "birth_date": "2015-03-20"
+    }
+  ],
+  "education": [
+    {
+      "end_date": "2012-12-15",
+      "grade": "Bachiller",
+      "institution_id": 1,
+      "profession_id": 1,
+      "photo": "diploma.jpg"
+    }
+  ],
+  "conyuge": {
+    "name": "Laura García",
+    "ci": "87654321"
+  },
+  "courses": [
+    {
+      "name": "Primeros Auxilios",
+      "date": "2023-06-10",
+      "institution_id": 2,
+      "document": "certificado.pdf"
+    }
+  ],
+  "work_experiencies": [
+    {
+      "company": "Empresa ABC",
+      "position": "Analista",
+      "start_date": "2020-01-01"
+    }
+  ],
+  "health": {
+    "allergies": "ninguna",
+    "operations": "apendicitis",
+    "fractures": "ninguna",
+    "blood_group": "O+"
+  },
+  "operational": [
+    {
+      "type": "entrenamiento",
+      "date": "2023-01-15"
+    }
+  ],
+  "records": [
+    {
+      "type": "antecedente",
+      "description": "limpio"
+    }
+  ],
+  "others": {
+    "notes": "información adicional"
+  }
+}

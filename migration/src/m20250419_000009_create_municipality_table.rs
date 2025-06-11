@@ -11,6 +11,8 @@ impl MigrationName for Migration {
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        println!("Creating municipality table");
+
         manager
             .create_table(
                 Table::create()
@@ -39,13 +41,29 @@ impl MigrationTrait for Migration {
                     )
                     .to_owned(),
             )
-            .await
+            .await?;
+
+        println!("✅ Municipality table created");
+
+        Ok(())
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        println!("Dropping municipality table");
+
         manager
-            .drop_table(Table::drop().table(Municipality::Table).to_owned())
-            .await
+            .drop_table(
+                Table::drop()
+                    .if_exists()
+                    .cascade()
+                    .table(Municipality::Table)
+                    .to_owned(),
+            )
+            .await?;
+
+        println!("✅ Municipality table dropped");
+
+        Ok(())
     }
 }
 

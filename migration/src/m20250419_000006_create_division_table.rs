@@ -13,6 +13,8 @@ impl MigrationName for Migration {
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        println!("Creating division table");
+
         manager
             .create_table(
                 Table::create()
@@ -51,13 +53,27 @@ impl MigrationTrait for Migration {
 
         manager.exec_stmt(insert).await?;
 
+        println!("✅ Division table created");
+
         Ok(())
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        println!("Dropping division table");
+
         manager
-            .drop_table(Table::drop().table(Division::Table).to_owned())
-            .await
+            .drop_table(
+                Table::drop()
+                    .if_exists()
+                    .cascade()
+                    .table(Division::Table)
+                    .to_owned(),
+            )
+            .await?;
+
+        println!("✅ Division table dropped");
+
+        Ok(())
     }
 }
 

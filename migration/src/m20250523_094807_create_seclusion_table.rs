@@ -8,6 +8,7 @@ pub struct Migration;
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        println!("Creating seclusion table");
         // Create tables
         manager
             .create_table(
@@ -60,7 +61,17 @@ impl MigrationTrait for Migration {
         println!("✅ Seclusion Statuses table created");
 
         // Seed family relationships
-        let relationships = ["Esposo/a", "Padre", "Madre", "Hermano/a", "Tío/a", "Abuelo/a", "Primo/a", "Sobrino/a", "Otro"];
+        let relationships = [
+            "Esposo/a",
+            "Padre",
+            "Madre",
+            "Hermano/a",
+            "Tío/a",
+            "Abuelo/a",
+            "Primo/a",
+            "Sobrino/a",
+            "Otro",
+        ];
 
         for relationship in relationships {
             let insert = Query::insert()

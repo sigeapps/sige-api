@@ -4,24 +4,21 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "profession")]
+#[sea_orm(table_name = "persona_relative")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    #[sea_orm(unique)]
+    pub persona_id: i32,
+    pub relationship_id: i32,
     pub name: String,
+    pub last_name: String,
+    pub birth_date: Date,
+    pub age: i32,
+    pub phone: String,
+    pub address: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-    #[sea_orm(has_many = "super::persona_education::Entity")]
-    PersonaEducation,
-}
-
-impl Related<super::persona_education::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::PersonaEducation.def()
-    }
-}
+pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}

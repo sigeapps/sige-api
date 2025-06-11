@@ -193,6 +193,8 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
+        println!("✅ Transports table dropped");
+
         Ok(())
     }
 }

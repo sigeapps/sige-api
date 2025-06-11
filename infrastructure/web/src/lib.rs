@@ -48,6 +48,7 @@ pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<
         .with_state(app_state.clone())
         .merge(routes::auth::auth_routes(&app_state))
         .merge(routes::prevention::prevention_routes(&app_state))
+        .merge(routes::personal::personal_routes(&app_state))
         .merge(routes::lookup::lookup_routes(&app_state))
         .layer(cors)
         .layer(auth_layer);
