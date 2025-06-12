@@ -13,6 +13,15 @@ pub struct Model {
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(has_many = "super::country_verification::Entity")]
+    CountryVerification,
+}
+
+impl Related<super::country_verification::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::CountryVerification.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}

@@ -1,6 +1,9 @@
 use crate::state::AppState;
 use crate::Result;
 use application::dtos::personal::persona::CreatePersonaDTO;
+use application::dtos::personal::persona::GetPersonaSummaryDTO;
+use application::dtos::CommonQueryFilterDTO;
+use axum::extract::Query;
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
@@ -25,4 +28,13 @@ pub async fn create_persona(
         }),
     )
         .into_response())
+}
+
+pub async fn get_personas(
+    State(app_state): State<AppState>,
+    Query(query): Query<CommonQueryFilterDTO>,
+) -> Result<Response> {
+    let personas: Vec<GetPersonaSummaryDTO> = app_state.persona_service.find_summary(query).await?;
+
+    Ok((StatusCode::OK, Json(personas)).into_response())
 }

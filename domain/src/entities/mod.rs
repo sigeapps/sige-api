@@ -12,6 +12,7 @@ pub mod commission_official;
 pub mod commission_reason;
 pub mod commission_seized_transport;
 pub mod commission_transport;
+pub mod country_verification;
 pub mod division;
 pub mod family_relationship;
 pub mod hierarchy;

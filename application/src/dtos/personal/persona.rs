@@ -1,8 +1,12 @@
+use sea_orm::DerivePartialModel;
 use serde::{Deserialize, Serialize};
 
-use crate::dtos::personal::persona::{
-    course::Course, educational::Educational, health::Health, operational::Operational,
-    others::Others, personal::Personal, record::Record,
+use crate::dtos::personal::{
+    country::GetVerificationDTO,
+    persona::{
+        course::Course, educational::Educational, health::Health, operational::Operational,
+        others::Others, personal::Personal, record::Record,
+    },
 };
 
 #[derive(Serialize, Deserialize)]
@@ -19,6 +23,17 @@ pub struct CreatePersonaDTO {
     pub operational: Vec<Operational>,
     pub records: Vec<Record>,
     pub others: Others,
+}
+
+#[derive(Serialize, Deserialize, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::persona::Entity", from_query_result)]
+pub struct GetPersonaSummaryDTO {
+    pub id: i32,
+    pub ci: String,
+    pub name: String,
+    pub last_name: String,
+    #[sea_orm(nested)]
+    pub verification: Option<GetVerificationDTO>,
 }
 
 pub mod course {
@@ -65,8 +80,8 @@ pub mod health {
     pub struct Health {
         #[serde(skip_deserializing)]
         pub persona_id: i32,
-        pub allergies: String,
-        pub operations: String,
+        pub allergies: Option<String>,
+        pub operations: Option<String>,
         pub blood_group: String,
         pub has_fractures: Option<bool>,
         pub fractures: Option<String>,

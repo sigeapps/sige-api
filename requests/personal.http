@@ -12,7 +12,7 @@ Content-Type: application/json
     "passport_years_valid": 10,
     "name": "Juan Carlos",
     "last_name": "García López",
-    "birth_date": "1990-05-15",
+    "birthdate": "1990-05-15",
     "birthplace": "La Paz, Bolivia",
     "address": "Av. Arce 2589, La Paz",
     "phone": "+591 70123456",
@@ -47,7 +47,7 @@ Content-Type: application/json
     {
       "name": "María Elena",
       "last_name": "García Mendoza",
-      "birth_date": "1965-03-20",
+      "birthdate": "1965-03-20",
       "age": 58,
       "phone": "+591 70987654",
       "address": "Calle 21 de Calacoto, La Paz",
@@ -59,7 +59,7 @@ Content-Type: application/json
       "name": "Sofía",
       "last_name": "García Morales",
       "age": 8,
-      "birth_date": "2015-09-10",
+      "birthdate": "2015-09-10",
       "grade": "3ro Primaria"
     }
   ],
@@ -76,9 +76,9 @@ Content-Type: application/json
     "ci": "9876543",
     "name": "Ana María",
     "last_name": "Morales Pérez",
-    "birth_date": "1992-08-25",
+    "birthdate": "1992-08-25",
     "age": 31,
-    "phone": "+591 70456789",
+    "phone": "+591 70456789"
   },
   "courses": [
     {
@@ -127,3 +127,17 @@ Content-Type: application/json
     "others": "Información adicional relevante"
   }
 }
+
+### ADD VERIFICATION
+
+POST {{baseURL}}/country/verification
+Content-Type: application/json
+
+{
+  "persona_id": 1,
+  "condition_id": 2,
+  "reported": true
+}
+
+### GET personas
+GET {{baseURL}}/persona

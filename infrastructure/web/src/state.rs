@@ -3,7 +3,7 @@ use std::sync::Arc;
 use application::{
     connection::connect,
     services::{
-        personal::persona::PersonaService,
+        personal::{country::CountryService, persona::PersonaService},
         prevention::{
             commission::CommissionService, lookup::LookupService, official::OfficialService,
             part::PartService, register::RegisterService, seclusion::SeclusionService,
@@ -25,6 +25,7 @@ pub struct AppState {
     pub seclusion_service: SeclusionService,
     pub part_service: PartService,
     pub persona_service: PersonaService,
+    pub country_service: CountryService,
 }
 
 impl AppState {
@@ -43,7 +44,8 @@ impl AppState {
             commission_service: CommissionService::new(db.clone()),
             seclusion_service: SeclusionService::new(db.clone()),
             part_service: PartService::new(db.clone()),
-            persona_service: PersonaService::new(db),
+            persona_service: PersonaService::new(db.clone()),
+            country_service: CountryService::new(db),
         })
     }
 }

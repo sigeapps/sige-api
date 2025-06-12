@@ -118,3 +118,13 @@ pub struct GetDivisionDTO {
     #[sea_orm(nested)]
     pub state: GetStateDTO,
 }
+
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[sea_orm(
+    entity = "domain::entities::status_condition::Entity",
+    from_query_result
+)]
+pub struct GetStatusConditionDTO {
+    pub id: i32,
+    pub name: String,
+}

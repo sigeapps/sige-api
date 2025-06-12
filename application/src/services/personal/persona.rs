@@ -1,7 +1,11 @@
-use sea_orm::*;
+use sea_orm::{sea_query::Alias, *};
 use std::sync::Arc;
 
-use crate::dtos::personal::persona::CreatePersonaDTO;
+use crate::dtos::{
+    personal::persona::{CreatePersonaDTO, GetPersonaSummaryDTO},
+    CommonQueryFilterDTO,
+};
+use domain::entities::{country_verification, persona};
 
 #[derive(Debug, Clone)]
 pub struct PersonaService {
@@ -110,5 +114,36 @@ impl PersonaService {
         transaction.commit().await?;
 
         Ok(persona_id)
+    }
+
+    pub async fn find_summary(
+        &self,
+        filter: CommonQueryFilterDTO,
+    ) -> Result<Vec<GetPersonaSummaryDTO>, DbErr> {
+        let mut query = persona::Entity::find().left_join(country_verification::Entity);
+
+        if let Some(search) = &filter.search {
+            query = query.filter(
+                persona::Column::Name
+                    .contains(search)
+                    .or(persona::Column::LastName.contains(search))
+                    .or(persona::Column::Ci.contains(search)),
+            );
+        }
+
+        if let Some(ci) = &filter.ci {
+            query = query.filter(persona::Column::Ci.eq(ci))
+        }
+
+        let pagination = &filter.into_pagination();
+
+        let personas = query
+            .limit(pagination.limit)
+            .offset(pagination.offset)
+            .into_partial_model::<GetPersonaSummaryDTO>()
+            .all(&*self.db)
+            .await?;
+
+        Ok(personas)
     }
 }
