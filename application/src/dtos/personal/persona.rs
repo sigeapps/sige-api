@@ -32,6 +32,7 @@ pub struct GetPersonaSummaryDTO {
     pub ci: String,
     pub name: String,
     pub last_name: String,
+    pub genre: String,
     #[sea_orm(nested)]
     pub verification: Option<GetVerificationDTO>,
 }
