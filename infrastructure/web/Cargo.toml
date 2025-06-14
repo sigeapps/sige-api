@@ -23,3 +23,6 @@ tower-sessions = { version = "0.14.0", default-features = false, features = [
   "signed",
 ] }
 tower-sessions-sqlx-store = { version = "0.15.0", features = ["postgres"] }
+jwt = "0.16.0"
+hmac = "0.12.1"
+sha2 = "0.10.9"

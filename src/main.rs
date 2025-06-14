@@ -8,6 +8,8 @@ use tracing::Level;
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
+    dotenv::dotenv().ok();
+
     let settings = Settings::new()?;
 
     match &args.command {

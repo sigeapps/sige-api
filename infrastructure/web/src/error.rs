@@ -14,6 +14,8 @@ pub enum WebError {
     Database(#[from] DbErr),
     #[error("unprocessable entity")]
     Validation(#[from] rejection::JsonSyntaxError),
+    #[error("token management failed")]
+    Jwt(#[from] jwt::Error),
 }
 
 impl WebError {
@@ -24,6 +26,7 @@ impl WebError {
             Self::NotFound => StatusCode::NOT_FOUND,
             Self::Database(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::Validation(_) => StatusCode::UNPROCESSABLE_ENTITY,
+            Self::Jwt(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }
@@ -41,6 +44,11 @@ impl IntoResponse for WebError {
             Self::NotFound => self.status_code().into_response(),
             Self::Validation(e) => {
                 error!("validation error: {}", e);
+
+                self.status_code().into_response()
+            }
+            Self::Jwt(e) => {
+                error!("jwt error: {}", e);
 
                 self.status_code().into_response()
             }

@@ -1,81 +1,30 @@
-use application::dtos::auth::LoginRequest;
 use application::dtos::user::GetUserDTO;
-use application::services::user::UserService;
-use async_trait::async_trait;
-use axum_login::{AuthUser, AuthnBackend, UserId};
-use password_auth::verify_password;
+use hmac::{Hmac, Mac};
+use jwt::{SignWithKey, VerifyWithKey};
 use serde::{Deserialize, Serialize};
-use std::ops::Deref;
-use tracing::debug;
+use sha2::Sha256;
 
-use crate::error::WebError;
+#[derive(Serialize, Deserialize)]
+pub struct AuthUser(pub GetUserDTO);
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct User {
-    #[serde(flatten)]
-    model: GetUserDTO,
-}
+impl AuthUser {
+    pub fn to_jwt(self) -> Result<String, jwt::Error> {
+        let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
 
-impl Deref for User {
-    type Target = GetUserDTO;
+        let hmac: Hmac<Sha256> = Hmac::new_from_slice(secret.as_bytes())?;
 
-    fn deref(&self) -> &Self::Target {
-        &self.model
-    }
-}
+        let token = self.0.sign_with_key(&hmac)?;
 
-impl AuthUser for User {
-    type Id = i32;
-
-    fn id(&self) -> Self::Id {
-        self.id
+        Ok(token)
     }
 
-    fn session_auth_hash(&self) -> &[u8] {
-        self.password_hash.as_bytes()
+    pub fn from_jwt(jwt: String) -> Result<Self, jwt::Error> {
+        let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+
+        let hmac: Hmac<Sha256> = Hmac::new_from_slice(secret.as_bytes())?;
+
+        let user = jwt.verify_with_key(&hmac)?;
+
+        Ok(user)
     }
 }
-
-#[derive(Debug, Clone)]
-pub struct Backend {
-    pub users: UserService,
-}
-
-#[async_trait]
-impl AuthnBackend for Backend {
-    type User = User;
-    type Credentials = LoginRequest;
-    type Error = WebError;
-
-    async fn authenticate(
-        &self,
-        creds: Self::Credentials,
-    ) -> Result<Option<Self::User>, Self::Error> {
-        let user = self.users.find_by_username(creds.username).await?;
-
-        match user {
-            Some(u) => {
-                if verify_password(creds.password, &u.password_hash).is_ok() {
-                    Ok(Some(User { model: u }))
-                } else {
-                    debug!("Invalid password for user");
-
-                    Ok(None)
-                }
-            }
-            None => {
-                debug!("User not found");
-
-                Ok(None)
-            }
-        }
-    }
-
-    async fn get_user(&self, user_id: &UserId<Self>) -> Result<Option<Self::User>, Self::Error> {
-        let user = self.users.find_by_id(*user_id).await?;
-
-        Ok(user.map(|u| User { model: u }))
-    }
-}
-
-pub type AuthSession = axum_login::AuthSession<Backend>;

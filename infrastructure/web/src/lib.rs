@@ -1,43 +1,23 @@
 pub mod auth;
 pub mod controllers;
 pub mod error;
+pub mod middleware;
 pub mod routes;
 pub mod state;
 pub mod types;
 
 use std::sync::Arc;
 
-use auth::Backend;
 use axum::{routing::get, Router};
-use axum_login::AuthManagerLayerBuilder;
 use error::WebError;
 use state::AppState;
 use tower_http::cors::CorsLayer;
-use tower_sessions::cookie::Key;
-use tower_sessions::SessionManagerLayer;
-use tower_sessions_sqlx_store::PostgresStore;
 
 pub type Result<T, E = WebError> = std::result::Result<T, E>;
 
 #[tokio::main]
 pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<()> {
     let app_state = Arc::new(AppState::new(database_url).await?);
-
-    let pool = application::connection::connect_pool(database_url).await?;
-
-    let key = Key::generate();
-
-    let session_store = PostgresStore::new(pool);
-
-    session_store.migrate().await?;
-
-    let session_layer = SessionManagerLayer::new(session_store).with_signed(key);
-
-    let backend = Backend {
-        users: app_state.user_service.clone(),
-    };
-
-    let auth_layer = AuthManagerLayerBuilder::new(backend, session_layer).build();
 
     let address = format!("{}:{}", host, port);
 
@@ -50,8 +30,7 @@ pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<
         .merge(routes::prevention::prevention_routes(&app_state))
         .merge(routes::personal::personal_routes(&app_state))
         .merge(routes::lookup::lookup_routes(&app_state))
-        .layer(cors)
-        .layer(auth_layer);
+        .layer(cors);
 
     let listener = tokio::net::TcpListener::bind(address).await?;
 
