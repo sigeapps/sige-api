@@ -34,7 +34,7 @@ pub async fn get_parts(
     State(app_state): State<AppState>,
     Query(_query): Query<CommonQuery>,
 ) -> Result<Response> {
-    let parts = app_state.part_service.get_part_summaries().await?;
+    let parts = app_state.part_service.find().await?;
 
     Ok(Json(MultiplePartsBody { parts }).into_response())
 }

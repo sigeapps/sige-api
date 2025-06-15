@@ -1,3 +1,4 @@
+use chrono::NaiveDateTime;
 use domain::entities::register::ActiveModel;
 use domain::entities::{division, organism, register};
 use sea_orm::DeriveIntoActiveModel;
@@ -32,6 +33,8 @@ pub struct GetRegisterDTO {
     pub first_name: String,
     pub organism: Option<LookupItemDto>,
     pub division: Option<LookupItemDto>,
+    pub entry_date: NaiveDateTime,
+    pub exit_date: Option<NaiveDateTime>,
     pub is_official: Option<bool>,
     pub visit_reason: String,
     pub observations: Option<String>,
@@ -67,6 +70,8 @@ impl
             }),
             is_official: Some(r.0.is_official),
             visit_reason: r.0.visit_reason,
+            entry_date: r.0.entry_date,
+            exit_date: r.0.exit_date,
             observations: r.0.observations,
         }
     }

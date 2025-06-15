@@ -8,11 +8,15 @@ use responsability_dto::{
 use sea_orm::FromQueryResult;
 use serde::{Deserialize, Serialize};
 
+use super::official::GetOfficialDTO;
+
 #[derive(Debug, Serialize, Deserialize, FromQueryResult)]
 pub struct GetPartSummaryDTO {
     pub id: i32,
     pub date: NaiveDateTime,
     pub officials_count: i64,
+    #[sea_orm(nested)]
+    pub official_receive_boss: GetOfficialDTO,
     pub developments_count: i64,
 }
 

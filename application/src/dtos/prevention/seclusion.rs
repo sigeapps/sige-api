@@ -83,8 +83,9 @@ pub struct CreateSeclusionDTO {
 pub struct UpdateSeclusionExitDTO {
     #[serde(skip_deserializing)]
     pub id: i32,
-    exit_at: NaiveDate,
-    observations: String,
+    pub exit_at: NaiveDate,
+    pub exit_reason: String,
+    pub observations: String,
 }
 
 pub mod visit {

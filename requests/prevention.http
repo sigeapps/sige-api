@@ -148,8 +148,9 @@ PATCH {{baseURL}}/seclusion/1
 Content-Type: application/json
 
 {
-  "exit_at": "2024-01-15",
-  "observations": "Released after investigation completed. No charges filed."
+  "exit_at": "2023-06-15T08:02:00",
+  "exit_reason": "as",
+  "observations": "as↵"
 }
 
 ### ADD VISIT TO SECLUSION

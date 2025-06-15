@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use chrono::Local;
 use domain::entities::{
     division, organism,
     register::{self, Column},
@@ -184,6 +185,7 @@ impl RegisterService {
         let mut register = register.into_active_model();
 
         register.id = Set(register_id);
+        register.exit_date = Set(Some(Local::now().naive_local()));
 
         register::Entity::update(register).exec(&*self.db).await?;
 

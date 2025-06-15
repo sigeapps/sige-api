@@ -51,7 +51,6 @@ impl PartService {
             for mut official in dto.officials {
                 official.part_id = part_id;
 
-
                 official.into_active_model().insert(&transaction).await?;
             }
             Ok::<(), DbErr>(())
@@ -213,7 +212,7 @@ impl PartService {
         })
     }
 
-    pub async fn get_part_summaries(&self) -> Result<Vec<GetPartSummaryDTO>, DbErr> {
+    pub async fn find(&self) -> Result<Vec<GetPartSummaryDTO>, DbErr> {
         part::Entity::find()
             .select_only()
             .column(part::Column::Id)
@@ -224,6 +223,7 @@ impl PartService {
             .left_join(part_development::Entity)
             .group_by(part::Column::Id)
             .group_by(part::Column::Date)
+            .order_by_desc(part::Column::Id)
             .into_model::<GetPartSummaryDTO>()
             .all(&*self.db)
             .await
