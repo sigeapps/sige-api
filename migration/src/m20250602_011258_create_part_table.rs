@@ -28,7 +28,7 @@ impl MigrationTrait for Migration {
                     .table(Part::Table)
                     .if_not_exists()
                     .col(pk_auto(Part::Id))
-                    .col(date(Part::Date).default(Keyword::CurrentDate))
+                    .col(timestamp(Part::Date).default(Keyword::CurrentTimestamp))
                     .col(timestamp(Part::CreatedAt).default(Keyword::CurrentTimestamp))
                     .to_owned(),
             )
@@ -69,7 +69,7 @@ impl MigrationTrait for Migration {
                     .col(pk_auto(PartDevelopment::Id))
                     .col(integer(PartDevelopment::PartId))
                     .col(string(PartDevelopment::Data))
-                    .col(date(PartDevelopment::Date).default(Keyword::CurrentDate))
+                    .col(date_time(PartDevelopment::Date).default(Keyword::CurrentTimestamp))
                     .col(integer(PartDevelopment::TypeId))
                     .foreign_key(
                         ForeignKey::create()

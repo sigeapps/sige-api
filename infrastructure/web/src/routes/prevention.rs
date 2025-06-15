@@ -3,7 +3,6 @@ use axum::{
     routing::{get, patch, post},
     Router,
 };
-use axum_login::login_required;
 
 use crate::{
     controllers::prevention::{

@@ -77,7 +77,7 @@ pub async fn create_division(
     let active_model = division::ActiveModel {
         id: Default::default(),
         name: sea_orm::Set(division.name),
-        state: sea_orm::Set(division.state.unwrap_or_default() as i32),
+        state: sea_orm::Set(division.state.unwrap_or_default()),
     };
 
     app_state

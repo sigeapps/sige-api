@@ -27,6 +27,6 @@ impl Settings {
             .set_default("address.port", 8443)?
             .build()?;
 
-        Ok(settings.try_deserialize()?)
+        settings.try_deserialize()
     }
 }

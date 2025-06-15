@@ -22,7 +22,7 @@ pub async fn create_register(
     State(app_state): State<AppState>,
     Json(register): Json<CreateRegisterDTO>,
 ) -> Result<Response> {
-    app_state.register_service.create(register.into()).await?;
+    app_state.register_service.create(register).await?;
 
     Ok((StatusCode::CREATED, "Register created successfully").into_response())
 }

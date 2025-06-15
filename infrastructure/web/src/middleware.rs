@@ -22,7 +22,7 @@ pub async fn auth_required(request: Request, next: Next) -> Result<Response> {
         return Err(WebError::Unauthorized);
     }
 
-    if let Err(_) = AuthUser::from_jwt(token.to_string()) {
+    if AuthUser::from_jwt(token.to_string()).is_err() {
         return Err(WebError::Unauthorized);
     };
 

@@ -10,7 +10,7 @@ pub struct Model {
     pub id: i32,
     pub part_id: i32,
     pub data: String,
-    pub date: Date,
+    pub date: DateTime,
     pub type_id: i32,
     pub created_at: DateTime,
 }

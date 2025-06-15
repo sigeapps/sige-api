@@ -174,40 +174,7 @@ GET {{baseURL}}/part
 POST {{baseURL}}/part
 Content-Type: application/json
 
-{
-  "part": {
-  },
-  "officials": [
-    {
-      "official_id": 1,
-      "type": "coordinator"
-    },
-    {
-      "official_id": 1,
-      "type": "assistant"
-    }
-  ],
-  "developments": [
-    {
-      "data": "bearear",
-      "date": "2024-01-15",
-      "type_id": 1
-    }
-  ],
-  "responsability": {
-    "official_service_ci": "33071696",
-    "official_receive_ci": "33071696",
-    "official_block_ci": "33071696",
-    "official_writer_ci": "33071696",
-    "official_deliver_ci": "33071696",
-    "official_receive_custody_ci": "33071696",
-    "official_hr_ci": "33071696",
-    "official_supervisor_ci": "33071696",
-    "official_director_ci": "33071696",
-    "official_dae_ci": "33071696",
-    "official_die_ci": "33071696"
-  }
-}
+{ "part": { "date": "15/06/2025 07:08" }, "developments": [ { "date": "15/6/2023, 7:17", "data": "Revisado a las ______ en _____a", "type_id": 1 } ], "officials": [ { "id": 1, "official_id": 1, "type": "nightly" } ], "responsability": { "local_save": true, "official_service_ci": "V33071696", "official_receive_ci": "V33071696", "official_block_ci": "V33071696", "official_writer_ci": "V33071696", "official_deliver_ci": "V33071696", "official_receive_custody_ci": "V33071696", "official_hr_ci": "V33071696", "official_supervisor_ci": "V33071696", "official_director_ci": "V33071696", "official_dae_ci": "V33071696", "official_die_ci": "V33071696" }, "actions": {} }
 
 ### GET PART BY ID
 GET {{baseURL}}/part/3

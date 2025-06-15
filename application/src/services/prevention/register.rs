@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use chrono::NaiveDate;
 use domain::entities::{
     division, organism,
     register::{self, Column},

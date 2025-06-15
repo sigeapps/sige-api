@@ -1,16 +1,17 @@
+use chrono::NaiveDateTime;
 use development_dto::{CreatePartDevelopmentDTO, GetPartDevelopmentDTO, UpdatePartDevelopmentDTO};
 use dto::{CreatePartDTO, GetPartDTO, UpdatePartDTO};
 use official_dto::{CreatePartOfficialDTO, GetPartOfficialDTO};
 use responsability_dto::{
     CreatePartResponsabilityDTO, GetPartResponsabilityDTO, UpdatePartResponsabilityDTO,
 };
-use sea_orm::{prelude::ChronoDate, FromQueryResult};
+use sea_orm::FromQueryResult;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, FromQueryResult)]
 pub struct GetPartSummaryDTO {
     pub id: i32,
-    pub date: ChronoDate,
+    pub date: NaiveDateTime,
     pub officials_count: i64,
     pub developments_count: i64,
 }
@@ -50,32 +51,27 @@ pub struct UpdatePartCompleteDTO {
 }
 
 pub mod dto {
+    use chrono::NaiveDateTime;
     use domain::entities::part::ActiveModel;
-    use sea_orm::{
-        prelude::{ChronoDate, DateTime},
-        DeriveIntoActiveModel, DerivePartialModel,
-    };
+    use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
 
     #[derive(Debug, Serialize, Deserialize, DerivePartialModel)]
     #[sea_orm(entity = "domain::entities::part::Entity", from_query_result)]
     pub struct GetPartDTO {
         pub id: i32,
-        pub date: ChronoDate,
-        pub created_at: DateTime,
+        pub date: NaiveDateTime,
+        pub created_at: NaiveDateTime,
     }
 
     #[derive(Debug, Serialize, DeriveIntoActiveModel, Deserialize, Clone)]
-    pub struct CreatePartDTO {
-        #[serde(skip_deserializing)]
-        pub date: ChronoDate,
-    }
+    pub struct CreatePartDTO {}
 
     #[derive(Debug, Serialize, DeriveIntoActiveModel, Deserialize)]
     pub struct UpdatePartDTO {
         #[serde(skip_deserializing)]
         pub id: i32,
-        pub date: ChronoDate,
+        pub date: NaiveDateTime,
     }
 }
 
@@ -87,7 +83,7 @@ pub mod official_dto {
     use crate::dtos::prevention::official::GetOfficialDTO;
 
     #[derive(Debug, Serialize, DeriveIntoActiveModel, Deserialize, Clone)]
-    pub struct CreatePartOfficialDTO {  
+    pub struct CreatePartOfficialDTO {
         pub official_id: i32,
         #[serde(skip_deserializing)]
         pub part_id: i32,
@@ -161,6 +157,7 @@ pub mod responsability_dto {
         pub official_die_ci: GetOfficialDTO,
     }
 
+    #[allow(clippy::needless_update)]
     #[derive(Debug, Serialize, DeriveIntoActiveModel, Deserialize)]
     pub struct UpdatePartResponsabilityDTO {
         pub id: i32,
@@ -181,9 +178,9 @@ pub mod responsability_dto {
 }
 
 pub mod development_dto {
-    use chrono::NaiveDate;
+    use chrono::NaiveDateTime;
     use domain::entities::part_development::ActiveModel;
-    use sea_orm::{prelude::Json, DeriveIntoActiveModel, DerivePartialModel};
+    use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
 
     use crate::dtos::prevention::lookup::GetNoveltyDTO;
@@ -191,7 +188,7 @@ pub mod development_dto {
     #[derive(Debug, Serialize, DeriveIntoActiveModel, Deserialize)]
     pub struct CreatePartDevelopmentDTO {
         pub data: String,
-        pub date: sea_orm::prelude::ChronoDate,
+        pub date: NaiveDateTime,
         #[serde(skip_deserializing)]
         pub part_id: i32,
         pub type_id: i32,
@@ -205,7 +202,7 @@ pub mod development_dto {
     pub struct GetPartDevelopmentDTO {
         pub id: i32,
         pub data: String,
-        pub date: NaiveDate,
+        pub date: NaiveDateTime,
         #[sea_orm(nested)]
         pub novelty: GetNoveltyDTO,
     }
@@ -216,7 +213,7 @@ pub mod development_dto {
         #[serde(skip_deserializing)]
         pub part_id: i32,
         pub data: String,
-        pub date: NaiveDate,
+        pub date: NaiveDateTime,
         pub type_id: i32,
     }
 }
