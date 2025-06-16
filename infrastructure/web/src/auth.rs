@@ -1,19 +1,23 @@
 use application::dtos::user::GetUserDTO;
+use domain::auth::permissions::Permission;
 use hmac::{Hmac, Mac};
 use jwt::{SignWithKey, VerifyWithKey};
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;
 
 #[derive(Serialize, Deserialize)]
-pub struct AuthUser(pub GetUserDTO);
+pub struct AuthClaims {
+    pub user: GetUserDTO,
+    pub permissions: Vec<Permission>,
+}
 
-impl AuthUser {
-    pub fn to_jwt(self) -> Result<String, jwt::Error> {
+impl AuthClaims {
+    pub fn to_jwt(&self) -> Result<String, jwt::Error> {
         let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
 
         let hmac: Hmac<Sha256> = Hmac::new_from_slice(secret.as_bytes())?;
 
-        let token = self.0.sign_with_key(&hmac)?;
+        let token = self.sign_with_key(&hmac)?;
 
         Ok(token)
     }

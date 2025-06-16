@@ -26,7 +26,28 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Permission::Description).string())
                     .to_owned(),
             )
-            .await
+            .await?;
+
+        // Sembrar la tabla con todos los permisos disponibles
+        use domain::auth::permissions::Permission as DomainPermission;
+
+        for (index, permission) in DomainPermission::all().iter().enumerate() {
+            manager
+                .exec_stmt(
+                    Query::insert()
+                        .into_table(Permission::Table)
+                        .columns([Permission::Id, Permission::Name, Permission::Description])
+                        .values_panic([
+                            (index as i32 + 1).into(),
+                            permission.as_str().into(),
+                            format!("Permiso para {}", permission.as_str()).into(),
+                        ])
+                        .to_owned(),
+                )
+                .await?;
+        }
+
+        Ok(())
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {

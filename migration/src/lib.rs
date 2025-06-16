@@ -21,6 +21,7 @@ mod m20250602_011258_create_part_table;
 mod m20250607_152359_create_lookup_tables;
 mod m20250611_094810_create_persona_table;
 mod m20250612_114832_create_country_tables;
+mod m20250615_144231_seed_users;
 
 pub struct Migrator;
 
@@ -48,6 +49,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20250607_152359_create_lookup_tables::Migration),
             Box::new(m20250611_094810_create_persona_table::Migration),
             Box::new(m20250612_114832_create_country_tables::Migration),
+            Box::new(m20250615_144231_seed_users::Migration),
         ]
     }
 }

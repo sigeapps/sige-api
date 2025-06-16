@@ -1,4 +1,4 @@
-use crate::auth::AuthUser;
+use crate::auth::AuthClaims;
 use crate::state::AppState;
 use crate::Result;
 use application::dtos::auth::{LoginRequest, RegisterRequest};
@@ -45,7 +45,12 @@ pub async fn login(
             .unwrap());
     }
 
-    let token = AuthUser(user).to_jwt()?;
+    let permissions = app_state
+        .user_service
+        .find_permissions_by_role_id(user.role.id)
+        .await?;
+
+    let token = AuthClaims { user, permissions }.to_jwt()?;
 
     Ok((Json(UserBody { token })).into_response())
 }

@@ -14,7 +14,6 @@ impl MigrationName for Migration {
 impl MigrationTrait for Migration {
     // Define how to apply this migration: Create the Bakery table.
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-
         manager
             .create_table(
                 Table::create()
@@ -37,9 +36,7 @@ impl MigrationTrait for Migration {
                     )
                     .to_owned(),
             )
-            .await
-
-        ?;
+            .await?;
 
         // Seed initial test user
         manager
