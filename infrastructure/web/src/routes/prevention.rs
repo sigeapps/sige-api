@@ -1,9 +1,7 @@
 use axum::{
-    middleware,
     routing::{get, patch, post},
     Router,
 };
-use domain::auth::permissions::Permission;
 
 use crate::{
     controllers::prevention::{
@@ -21,7 +19,6 @@ use crate::{
         },
         transport::{create_transport, get_tranports},
     },
-    middleware::authorize,
     state::AppState,
 };
 use std::sync::Arc;
@@ -29,10 +26,6 @@ use std::sync::Arc;
 pub fn prevention_routes(app_state: &Arc<AppState>) -> Router {
     Router::new()
         .route("/prevention/register", get(get_registers))
-        .route_layer(middleware::from_fn_with_state(
-            Permission::RegistersRead,
-            authorize,
-        ))
         .route("/prevention/register", post(create_register))
         .route("/prevention/register/{id}", get(get_register_by_id))
         .route("/prevention/register/{id}", patch(update_register_exit))
