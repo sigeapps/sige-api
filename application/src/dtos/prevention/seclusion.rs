@@ -1,4 +1,4 @@
-use chrono::NaiveDate;
+use chrono::{NaiveDate, NaiveDateTime};
 use domain::entities::seclusion::{self, ActiveModel};
 use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
 use serde::{Deserialize, Serialize};
@@ -33,7 +33,7 @@ pub struct GetSeclusionDTO {
     pub outfit: Option<String>,
     pub belongings: Option<String>,
     pub observations: Option<String>,
-    pub exit_at: Option<NaiveDate>,
+    pub exit_at: Option<NaiveDateTime>,
 }
 
 impl From<seclusion::Model> for GetSeclusionDTO {
@@ -83,7 +83,7 @@ pub struct CreateSeclusionDTO {
 pub struct UpdateSeclusionExitDTO {
     #[serde(skip_deserializing)]
     pub id: i32,
-    pub exit_at: NaiveDate,
+    pub exit_at: NaiveDateTime,
     pub exit_reason: String,
     pub observations: String,
 }

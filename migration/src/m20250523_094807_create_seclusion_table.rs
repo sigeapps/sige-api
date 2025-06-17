@@ -149,7 +149,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Seclusion::Outfit).string().null())
                     .col(ColumnDef::new(Seclusion::Belongings).string().null())
                     .col(ColumnDef::new(Seclusion::Observations).string().null())
-                    .col(ColumnDef::new(Seclusion::ExitAt).date().null())
+                    .col(ColumnDef::new(Seclusion::ExitAt).timestamp().null())
                     .col(
                         ColumnDef::new(Seclusion::CreatedAt)
                             .timestamp_with_time_zone()

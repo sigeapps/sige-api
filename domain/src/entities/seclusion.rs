@@ -20,7 +20,7 @@ pub struct Model {
     pub outfit: Option<String>,
     pub belongings: Option<String>,
     pub observations: Option<String>,
-    pub exit_at: Option<Date>,
+    pub exit_at: Option<DateTime>,
     pub created_at: DateTimeWithTimeZone,
 }
 
