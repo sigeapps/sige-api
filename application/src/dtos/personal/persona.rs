@@ -127,9 +127,9 @@ pub mod personal {
 
     #[derive(Serialize, Deserialize, DeriveIntoActiveModel)]
     pub struct Personal {
-        pub passport_number: String,
-        pub passport_expiration: String,
-        pub passport_years_valid: i32,
+        pub passport_number: Option<String>,
+        pub passport_expiration: Option<String>,
+        pub passport_years_valid: Option<i32>,
         pub name: String,
         pub last_name: String,
         pub birthdate: String,
