@@ -7,7 +7,7 @@ use domain::{
 use password_auth::generate_hash;
 use sea_orm::*;
 
-use crate::dtos::user::{CreateUserDTO, GetRoleDTO, GetUserDTO};
+use crate::dtos::user::{CreateUserDTO, GetUserDTO};
 
 #[derive(Debug, Clone)]
 pub struct UserService {

@@ -5,15 +5,15 @@ use axum::{
 
 use crate::{
     controllers::lookup::{
-        create_band, create_brand, create_brigade, create_charge, create_division,
+        create_band, create_base, create_brand, create_brigade, create_charge, create_division,
         create_family_relationships, create_hierarchy, create_institution, create_municipality,
         create_novelty, create_organism, create_parish, create_profession,
         create_seclusion_statuses, create_state, create_transport_status, create_transport_type,
-        create_vehicle_model, get_bands, get_brands, get_brigades, get_charges, get_divisions,
-        get_family_relationships, get_hierarchies, get_institutions, get_municipalities,
-        get_novelties, get_organisms, get_parish, get_professions, get_seclusion_statuses,
-        get_states, get_status_conditions, get_transport_statuses, get_transport_types,
-        get_vehicle_models,
+        create_vehicle_model, get_bands, get_bases, get_brands, get_brigades, get_charges,
+        get_divisions, get_family_relationships, get_hierarchies, get_institutions,
+        get_municipalities, get_novelties, get_organisms, get_parish, get_professions,
+        get_seclusion_statuses, get_states, get_status_conditions, get_transport_statuses,
+        get_transport_types, get_vehicle_models,
     },
     state::AppState,
 };
@@ -64,5 +64,7 @@ pub fn lookup_routes(app_state: &Arc<AppState>) -> Router {
             "/lookup/family-relationship",
             post(create_seclusion_statuses),
         )
+        .route("/lookup/base", get(get_bases))
+        .route("/lookup/base", post(create_base))
         .with_state(app_state.as_ref().clone())
 }

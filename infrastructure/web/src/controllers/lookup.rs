@@ -7,7 +7,7 @@ use axum::{
     Json,
 };
 use domain::entities::{
-    band, brand, brigade, charge, division, family_relationship, hierarchy, institution,
+    band, base, brand, brigade, charge, division, family_relationship, hierarchy, institution,
     municipality, novelty, organism, parish, profession, seclusion_statuses, state,
     status_condition, transport_statuses, transport_type, vehicle_model,
 };
@@ -520,4 +520,31 @@ pub async fn get_divisions(State(app_state): State<AppState>) -> Result<Response
 
     debug!("{:?}", Json(&divisions));
     Ok((StatusCode::OK, Json(divisions)).into_response())
+}
+
+pub async fn create_base(
+    State(app_state): State<AppState>,
+    Json(base): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    let active_model = base::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(base.name),
+    };
+
+    app_state
+        .lookup_service
+        .create::<base::Entity, base::Model, base::ActiveModel>(active_model)
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_bases(State(app_state): State<AppState>) -> Result<Response> {
+    let bases = app_state
+        .lookup_service
+        .find::<base::Entity, base::Model, base::ActiveModel>()
+        .await?;
+
+    debug!("{:?}", Json(&bases));
+    Ok((StatusCode::OK, Json(bases)).into_response())
 }

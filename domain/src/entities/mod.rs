@@ -3,6 +3,7 @@
 pub mod prelude;
 
 pub mod band;
+pub mod base;
 pub mod brand;
 pub mod brigade;
 pub mod charge;
