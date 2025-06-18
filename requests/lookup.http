@@ -6,7 +6,7 @@ POST {{baseURL}}/brigade
 Content-Type: application/json
 
 {
-  "name": "CPNB"
+  "name": "Directivos"
 }
 
 ### GET BRIGADES 
@@ -25,8 +25,8 @@ POST {{baseURL}}/municipality
 Content-Type: application/json
 
 {
-  "name": "Ezequiel Zamora",
-  "state": 1
+  "name": "Libertador",
+  "state": 24
 }
 
 ### Get charges
@@ -72,6 +72,7 @@ Content-Type: application/json
 
 {
   "name": "Toyota"
+  
 }
 
 ### GET BRANDS

@@ -59,7 +59,13 @@ impl MigrationTrait for Migration {
                 Query::insert()
                     .into_table(Organism::Table)
                     .columns([Organism::Name, Organism::Phone])
-                    .values_panic(["DIE".into(), "911".into()])
+                    .values_panic(["CPNB".into(), "Cuerpo de Policia Nacional Bolivariana".into()])
+                    .values_panic(["CICPC".into(), "Cuerpo de Investigacion Cientifica, Penal y Criminal".into()])
+                    .values_panic(["SEBIN".into(), "Servicio Bolivariano de inteligencia".into()])
+                    .values_panic(["DGCIM".into(), "Dirección General de Contrainteligencia Militar".into()])
+                    .values_panic(["GOES".into(), "Grupo de Operaciones Estrategicas".into()])
+                    .values_panic(["GNB".into(), "Guardia Nacional Bolivariana".into()])
+                    .values_panic(["FANB".into(), "Fuerza Armada Nacional Bolivariana".into()])
                     .to_owned(),
             )
             .await
