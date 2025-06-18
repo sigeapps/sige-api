@@ -33,9 +33,11 @@ impl PersonaService {
 
         dto.traits.into_active_model().insert(&transaction).await?;
 
-        dto.conyuge.persona_id = persona_id;
+        if let Some(mut conyuge) = dto.conyuge {
+            conyuge.persona_id = persona_id;
 
-        dto.conyuge.into_active_model().insert(&transaction).await?;
+            conyuge.into_active_model().insert(&transaction).await?;
+        }
 
         dto.health.persona_id = persona_id;
 

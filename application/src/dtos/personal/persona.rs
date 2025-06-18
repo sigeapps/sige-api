@@ -16,7 +16,7 @@ pub struct CreatePersonaDTO {
     pub relatives: Vec<relative::Relative>,
     pub childrens: Vec<child::Child>,
     pub education: Vec<Educational>,
-    pub conyuge: conyuge::Conyuge,
+    pub conyuge: Option<conyuge::Conyuge>,
     pub courses: Vec<Course>,
     pub work_experiencies: Vec<labor::Labor>,
     pub health: Health,
