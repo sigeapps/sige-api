@@ -21,17 +21,9 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Persona::Ci).string().not_null())
                     .col(ColumnDef::new(Persona::FrontPhoto).string().null())
                     .col(ColumnDef::new(Persona::BackPhoto).string().null())
-                    .col(ColumnDef::new(Persona::PassportNumber).string().not_null())
-                    .col(
-                        ColumnDef::new(Persona::PassportExpiration)
-                            .string()
-                            .not_null(),
-                    )
-                    .col(
-                        ColumnDef::new(Persona::PassportYearsValid)
-                            .integer()
-                            .not_null(),
-                    )
+                    .col(ColumnDef::new(Persona::PassportNumber).string().null())
+                    .col(ColumnDef::new(Persona::PassportExpiration).string().null())
+                    .col(ColumnDef::new(Persona::PassportYearsValid).integer().null())
                     .col(ColumnDef::new(Persona::Name).string().not_null())
                     .col(ColumnDef::new(Persona::LastName).string().not_null())
                     .col(ColumnDef::new(Persona::Birthdate).string().not_null())
