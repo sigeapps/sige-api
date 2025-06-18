@@ -56,6 +56,7 @@ impl MigratorTrait for Migrator {
     }
 }
 
+// TODO: MAKE THIS ACCEPT VARIOUES PARAMS
 #[tokio::main]
 pub async fn migrate(db_url: &str) -> Result<(), DbErr> {
     let db = Database::connect(db_url).await?;
@@ -65,3 +66,4 @@ pub async fn migrate(db_url: &str) -> Result<(), DbErr> {
     Ok(())
 }
 /////código para usar Migrator::up() en lugar de Migrator::refresh()
+
