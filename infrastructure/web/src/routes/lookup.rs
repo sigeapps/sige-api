@@ -15,6 +15,7 @@ use crate::{
         get_seclusion_statuses, get_states, get_status_conditions, get_transport_statuses,
         get_transport_types, get_vehicle_models,
     },
+    middleware::authenticate,
     state::AppState,
 };
 use std::sync::Arc;
@@ -67,5 +68,6 @@ pub fn lookup_routes(app_state: &Arc<AppState>) -> Router {
         .route("/lookup/base", get(get_bases))
         .route("/lookup/role", get(get_roles))
         .route("/lookup/base", post(create_base))
+        .layer(axum::middleware::from_fn(authenticate))
         .with_state(app_state.as_ref().clone())
 }
