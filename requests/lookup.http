@@ -12,6 +12,9 @@ Content-Type: application/json
 ### GET BRIGADES 
 GET {{baseURL}}/lookup/brigades
 
+### GET ROLES 
+GET {{baseURL}}/role
+
 ### Create state
 POST {{baseURL}}/state
 Content-Type: application/json

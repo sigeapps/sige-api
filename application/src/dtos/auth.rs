@@ -18,6 +18,7 @@ pub struct LoginResponse {
 pub struct RegisterRequest {
     pub username: String,
     pub password: String,
+    pub role_id: i32,
 }
 
 impl From<RegisterRequest> for CreateUserDTO {
@@ -25,6 +26,7 @@ impl From<RegisterRequest> for CreateUserDTO {
         CreateUserDTO {
             name: dto.username,
             password_hash: dto.password,
+            role_id: dto.role_id,
         }
     }
 }

@@ -25,4 +25,5 @@ pub struct CreateUserDTO {
     pub name: String,
     #[serde(rename(serialize = "password"))]
     pub password_hash: String,
+    pub role_id: i32,
 }

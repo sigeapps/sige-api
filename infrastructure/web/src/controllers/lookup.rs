@@ -8,7 +8,7 @@ use axum::{
 };
 use domain::entities::{
     band, base, brand, brigade, charge, division, family_relationship, hierarchy, institution,
-    municipality, novelty, organism, parish, profession, seclusion_statuses, state,
+    municipality, novelty, organism, parish, profession, role, seclusion_statuses, state,
     status_condition, transport_statuses, transport_type, vehicle_model,
 };
 use tracing::debug;
@@ -543,6 +543,16 @@ pub async fn get_bases(State(app_state): State<AppState>) -> Result<Response> {
     let bases = app_state
         .lookup_service
         .find::<base::Entity, base::Model, base::ActiveModel>()
+        .await?;
+
+    debug!("roles: {:?}", Json(&bases));
+    Ok((StatusCode::OK, Json(bases)).into_response())
+}
+
+pub async fn get_roles(State(app_state): State<AppState>) -> Result<Response> {
+    let bases = app_state
+        .lookup_service
+        .find::<role::Entity, role::Model, role::ActiveModel>()
         .await?;
 
     debug!("{:?}", Json(&bases));

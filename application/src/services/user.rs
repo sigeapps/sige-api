@@ -7,7 +7,7 @@ use domain::{
 use password_auth::generate_hash;
 use sea_orm::*;
 
-use crate::dtos::user::{CreateUserDTO, GetUserDTO};
+use crate::dtos::user::{CreateUserDTO, GetRoleDTO, GetUserDTO};
 
 #[derive(Debug, Clone)]
 pub struct UserService {
@@ -28,6 +28,13 @@ impl UserService {
             .await?;
 
         Ok(user)
+    }
+
+    pub async fn find_roles(&self) -> Result<Vec<GetRoleDTO>, DbErr> {
+        role::Entity::find()
+            .into_partial_model::<GetRoleDTO>()
+            .all(&*self.db)
+            .await
     }
 
     pub async fn find_by_id(&self, id: i32) -> Result<Option<GetUserDTO>, DbErr> {
@@ -56,13 +63,11 @@ impl UserService {
         Ok(permissions)
     }
 
-    pub async fn create(&self, mut user: CreateUserDTO) -> Result<(), DbErr> {
+    pub async fn create(&self, mut user: CreateUserDTO) -> Result<i32, DbErr> {
         user.password_hash = generate_hash(user.password_hash);
 
-        let user = user.into_active_model();
+        let id = user.into_active_model().insert(&*self.db).await?.id;
 
-        user::Entity::insert(user).exec(&*self.db).await?;
-
-        Ok(())
+        Ok(id)
     }
 }

@@ -30,6 +30,7 @@ pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<
         .merge(routes::prevention::prevention_routes(&app_state))
         .merge(routes::personal::personal_routes(&app_state))
         .merge(routes::lookup::lookup_routes(&app_state))
+        .merge(routes::user::user_routes(&app_state))
         .layer(cors);
 
     let listener = tokio::net::TcpListener::bind(address).await?;
