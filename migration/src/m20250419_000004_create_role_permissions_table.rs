@@ -18,7 +18,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(RolePermission::RoleId).integer().not_null())
                     .col(
                         ColumnDef::new(RolePermission::PermissionId)
-                            .integer()
+                            .string()
                             .not_null(),
                     )
                     .primary_key(

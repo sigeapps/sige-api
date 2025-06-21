@@ -1,5 +1,5 @@
 use crate::Result;
-use application::dtos::user::{CreateUserDTO, GetRoleDTO};
+use application::dtos::user::{CreateRoleDTO, CreateUserDTO, GetRoleDTO};
 use axum::{
     extract::State,
     response::{IntoResponse, Response},
@@ -28,8 +28,11 @@ pub async fn create_user(
     Ok(Json(UserBody { id }).into_response())
 }
 
-pub async fn get_roles(State(app_state): State<AppState>) -> Result<Response> {
-    let roles = app_state.user_service.find_roles().await?;
+pub async fn create_role(
+    State(app_state): State<AppState>,
+    Json(role): Json<CreateRoleDTO>,
+) -> Result<Response> {
+    app_state.user_service.create_role(role).await?;
 
-    Ok(Json(RolesBody { roles }).into_response())
+    Ok(Json("Role created").into_response())
 }

@@ -1,5 +1,5 @@
 use domain::entities::user::ActiveModel;
-use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
+use sea_orm::{ActiveValue::Set, DeriveIntoActiveModel, DerivePartialModel};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
@@ -19,10 +19,26 @@ pub struct GetRoleDTO {
     pub name: String,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct CreateRoleDTO {
+    pub name: String,
+    pub permissions: Vec<String>,
+}
+
+impl From<CreateRoleDTO> for domain::entities::role::ActiveModel {
+    fn from(dto: CreateRoleDTO) -> Self {
+        domain::entities::role::ActiveModel {
+            name: Set(dto.name),
+            ..Default::default()
+        }
+    }
+}
+
 #[derive(DeriveIntoActiveModel, Deserialize, Serialize)]
 pub struct CreateUserDTO {
     #[serde(rename(serialize = "username"))]
     pub name: String,
+    pub persona_id: i32,
     #[serde(rename(serialize = "password"))]
     pub password_hash: String,
     pub role_id: i32,

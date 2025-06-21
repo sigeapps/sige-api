@@ -8,6 +8,8 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
+    #[sea_orm(unique)]
+    pub persona_id: Option<i32>,
     pub name: String,
     pub password_hash: String,
     pub role_id: i32,
@@ -16,6 +18,14 @@ pub struct Model {
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
+        belongs_to = "super::persona::Entity",
+        from = "Column::PersonaId",
+        to = "super::persona::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Persona,
+    #[sea_orm(
         belongs_to = "super::role::Entity",
         from = "Column::RoleId",
         to = "super::role::Column::Id",
@@ -23,6 +33,12 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Role,
+}
+
+impl Related<super::persona::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Persona.def()
+    }
 }
 
 impl Related<super::role::Entity> for Entity {

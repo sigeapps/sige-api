@@ -1,13 +1,12 @@
 use crate::auth::AuthClaims;
 use crate::state::AppState;
 use crate::Result;
-use application::dtos::auth::{LoginRequest, RegisterRequest};
-use application::dtos::user::CreateUserDTO;
+use application::dtos::auth::LoginRequest;
 use axum::body::Body;
 use axum::extract::State;
 use axum::http::StatusCode;
-use axum::response::{IntoResponse, Redirect, Response};
-use axum::Json;
+use axum::response::{IntoResponse, Response};
+use axum::{Extension, Json};
 use password_auth::verify_password;
 use serde::{Deserialize, Serialize};
 use tracing::debug;
@@ -55,18 +54,8 @@ pub async fn login(
     Ok((Json(UserBody { token })).into_response())
 }
 
-#[axum::debug_handler]
-pub async fn register(
-    State(app_state): State<AppState>,
-    Json(form): Json<RegisterRequest>,
-) -> Result<Response> {
-    let user = CreateUserDTO::from(form);
+pub async fn get_current_user(Extension(claims): Extension<AuthClaims>) -> Result<Response> {
+    debug!("Getting current user: {:?}", claims.user);
 
-    app_state.user_service.create(user).await?;
-
-    debug!("User created successfully!");
-
-    Ok(Redirect::to("/").into_response())
+    Ok(Json(claims).into_response())
 }
-
-// TODO: MAKE LOGOUT AND REFRESH ROUTES

@@ -23,6 +23,7 @@ mod m20250611_094810_create_persona_table;
 mod m20250612_114832_create_country_tables;
 mod m20250615_144231_seed_users;
 mod m20250618_113709_create_base_tables;
+mod m20250620_000001_seed_persona_example;
 
 pub struct Migrator;
 
@@ -30,9 +31,9 @@ pub struct Migrator;
 impl MigratorTrait for Migrator {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
         vec![
+            // USER SHOULD BE AFTER PERSONA
             Box::new(m20250419_000008_create_state_table::Migration),
             Box::new(m20250419_000001_create_role_table::Migration),
-            Box::new(m20250419_000002_create_user_table::Migration),
             Box::new(m20250419_000003_create_permission_table::Migration),
             Box::new(m20250419_000004_create_role_permissions_table::Migration),
             Box::new(m20250419_000005_create_organism_table::Migration),
@@ -50,8 +51,10 @@ impl MigratorTrait for Migrator {
             Box::new(m20250607_152359_create_lookup_tables::Migration),
             Box::new(m20250611_094810_create_persona_table::Migration),
             Box::new(m20250612_114832_create_country_tables::Migration),
+            Box::new(m20250419_000002_create_user_table::Migration),
             Box::new(m20250615_144231_seed_users::Migration),
             Box::new(m20250618_113709_create_base_tables::Migration),
+            Box::new(m20250620_000001_seed_persona_example::Migration),
         ]
     }
 }
@@ -61,9 +64,8 @@ impl MigratorTrait for Migrator {
 pub async fn migrate(db_url: &str) -> Result<(), DbErr> {
     let db = Database::connect(db_url).await?;
 
-    Migrator::up(&db, None).await?;
+    Migrator::refresh(&db).await?;
 
     Ok(())
 }
 /////código para usar Migrator::up() en lugar de Migrator::refresh()
-

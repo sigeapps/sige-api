@@ -7,6 +7,14 @@ use std::fmt;
 )]
 #[sea_orm(rs_type = "String", db_type = "Text")]
 pub enum Permission {
+    // Module permissions
+    #[sea_orm(string_value = "module:personal")]
+    ModulePersonal,
+    #[sea_orm(string_value = "module:prevention")]
+    ModulePrevention,
+    #[sea_orm(string_value = "module:users")]
+    ModuleUsers,
+
     // User permissions
     #[sea_orm(string_value = "users:read")]
     UsersRead,
@@ -110,6 +118,10 @@ impl Permission {
     /// Convierte el enum a string para almacenar en DB
     pub fn as_str(&self) -> &'static str {
         match self {
+            Self::ModulePersonal => "module:personal",
+            Self::ModulePrevention => "module:prevention",
+            Self::ModuleUsers => "module:users",
+
             Self::UsersRead => "users:read",
             Self::UsersCreate => "users:create",
             Self::UsersUpdate => "users:update",
@@ -164,6 +176,10 @@ impl Permission {
     /// Convierte string de DB a enum
     pub fn from_str(s: &str) -> Option<Self> {
         match s {
+            "module:personal" => Some(Self::ModulePersonal),
+            "module:prevention" => Some(Self::ModulePrevention),
+            "module:users" => Some(Self::ModuleUsers),
+
             "users:read" => Some(Self::UsersRead),
             "users:create" => Some(Self::UsersCreate),
             "users:update" => Some(Self::UsersUpdate),
@@ -220,6 +236,9 @@ impl Permission {
     /// Obtiene todos los permisos disponibles
     pub fn all() -> Vec<Self> {
         vec![
+            Self::ModulePersonal,
+            Self::ModulePrevention,
+            Self::ModuleUsers,
             Self::UsersRead,
             Self::UsersCreate,
             Self::UsersUpdate,

@@ -28,13 +28,16 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        let insert = Query::insert()
-            .into_table(Role::Table)
-            .columns([Role::Name])
-            .values_panic(["user".into()])
-            .to_owned();
-
-        manager.exec_stmt(insert).await?;
+        // Insertar rol básico "Usuario" para que tenga ID 1
+        manager
+            .exec_stmt(
+                Query::insert()
+                    .into_table(Role::Table)
+                    .columns([Role::Name])
+                    .values_panic(["Usuario".into()])
+                    .to_owned(),
+            )
+            .await?;
 
         Ok(())
     }

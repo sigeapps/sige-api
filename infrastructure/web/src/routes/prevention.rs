@@ -2,7 +2,6 @@ use axum::{
     routing::{get, patch, post},
     Router,
 };
-use domain::auth::permissions::Permission;
 
 use crate::{
     controllers::prevention::{
@@ -20,7 +19,7 @@ use crate::{
         },
         transport::{create_transport, get_tranports},
     },
-    middleware::authorize,
+    middleware::authenticate,
     state::AppState,
 };
 use std::sync::Arc;
@@ -62,13 +61,10 @@ pub fn prevention_routes(app_state: &Arc<AppState>) -> Router {
             get(get_commission_status_by_id),
         )
         .route("/prevention/commission/{id}", get(get_commission_by_id))
-        .route_layer(axum::middleware::from_fn_with_state(
-            Permission::CommissionsRead,
-            authorize,
-        ))
         .route("/prevention/part", get(get_parts))
         .route("/prevention/part", post(create_part))
         .route("/prevention/part/{id}", get(get_part_by_id))
         .route("/prevention/part/{id}", patch(update_part_complete))
+        .layer(axum::middleware::from_fn(authenticate))
         .with_state(app_state.as_ref().clone())
 }

@@ -598,7 +598,7 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(DeriveIden)]
-enum Persona {
+pub enum Persona {
     Table,
     Id,
     Ci,
@@ -624,7 +624,7 @@ enum Persona {
 }
 
 #[derive(DeriveIden)]
-enum PersonaTraits {
+pub enum PersonaTraits {
     Table,
     Id,
     PersonaId,
@@ -708,7 +708,7 @@ enum PersonaCourse {
 }
 
 #[derive(DeriveIden)]
-enum PersonaWorkExperience {
+pub enum PersonaWorkExperience {
     Table,
     Id,
     PersonaId,
@@ -722,7 +722,7 @@ enum PersonaWorkExperience {
 }
 
 #[derive(DeriveIden)]
-enum PersonaHealth {
+pub enum PersonaHealth {
     Table,
     Id,
     PersonaId,
@@ -734,7 +734,7 @@ enum PersonaHealth {
 }
 
 #[derive(DeriveIden)]
-enum PersonaOperational {
+pub enum PersonaOperational {
     Table,
     Id,
     PersonaId,
@@ -748,7 +748,7 @@ enum PersonaOperational {
 }
 
 #[derive(DeriveIden)]
-enum PersonaRecord {
+pub enum PersonaRecord {
     Table,
     Id,
     PersonaId,

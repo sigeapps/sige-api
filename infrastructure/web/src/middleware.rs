@@ -6,10 +6,11 @@ use axum::{
     response::Response,
 };
 use domain::auth::permissions::Permission;
+use tracing::debug;
 
 use crate::error::WebError;
 
-pub async fn authenticate(request: Request, next: Next) -> Result<Response> {
+pub async fn authenticate(mut request: Request, next: Next) -> Result<Response> {
     let auth_header = request
         .headers()
         .get(AUTHORIZATION)
@@ -28,9 +29,11 @@ pub async fn authenticate(request: Request, next: Next) -> Result<Response> {
         return Err(WebError::Unauthorized);
     }
 
-    if AuthClaims::from_jwt(token.to_string()).is_err() {
-        return Err(WebError::Unauthorized);
-    };
+    let claims = AuthClaims::from_jwt(token.to_string()).map_err(|_| WebError::Unauthorized)?;
+
+    debug!("Authenticated user: {:?}", claims.user);
+
+    request.extensions_mut().insert(claims);
 
     Ok(next.run(request).await)
 }

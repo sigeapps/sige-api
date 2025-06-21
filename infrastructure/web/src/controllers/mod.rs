@@ -4,3 +4,10 @@ pub mod personal;
 pub mod prevention;
 pub mod user;
 
+pub fn get_modules() -> Vec<String> {
+    vec![
+        "module:personal".to_string(),
+        "module:prevention".to_string(),
+        "module:users".to_string(),
+    ]
+}

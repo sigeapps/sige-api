@@ -25,6 +25,18 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
+                    .col(
+                        ColumnDef::new(User::PersonaId)
+                            .integer()
+                            .null()
+                            .unique_key(),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk-user-persona_id")
+                            .from(User::Table, User::PersonaId)
+                            .to(Persona::Table, Persona::Id),
+                    )
                     .col(ColumnDef::new(User::Name).string().not_null())
                     .col(ColumnDef::new(User::PasswordHash).string().not_null())
                     .col(ColumnDef::new(User::RoleId).integer().default(1).not_null())
@@ -62,7 +74,14 @@ impl MigrationTrait for Migration {
 pub enum User {
     Table,
     Id,
+    PersonaId,
     Name,
     PasswordHash,
     RoleId,
+}
+
+#[derive(Iden)]
+pub enum Persona {
+    Table,
+    Id,
 }

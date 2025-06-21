@@ -17,13 +17,11 @@ impl MigrationTrait for Migration {
                     .table(Permission::Table)
                     .col(
                         ColumnDef::new(Permission::Id)
-                            .integer()
+                            .string()
                             .not_null()
-                            .auto_increment()
                             .primary_key(),
                     )
                     .col(ColumnDef::new(Permission::Name).string().not_null())
-                    .col(ColumnDef::new(Permission::Description).string())
                     .to_owned(),
             )
             .await?;
@@ -31,14 +29,13 @@ impl MigrationTrait for Migration {
         // Sembrar la tabla con todos los permisos disponibles
         use domain::auth::permissions::Permission as DomainPermission;
 
-        for (index, permission) in DomainPermission::all().iter().enumerate() {
+        for permission in DomainPermission::all().iter() {
             manager
                 .exec_stmt(
                     Query::insert()
                         .into_table(Permission::Table)
-                        .columns([Permission::Id, Permission::Name, Permission::Description])
+                        .columns([Permission::Id, Permission::Name])
                         .values_panic([
-                            (index as i32 + 1).into(),
                             permission.as_str().into(),
                             format!("Permiso para {}", permission.as_str()).into(),
                         ])
@@ -62,5 +59,4 @@ pub enum Permission {
     Table,
     Id,
     Name,
-    Description,
 }
