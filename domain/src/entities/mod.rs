@@ -37,6 +37,7 @@ pub mod persona_health;
 pub mod persona_operational;
 pub mod persona_record;
 pub mod persona_relative;
+pub mod persona_situation;
 pub mod persona_traits;
 pub mod persona_work_experience;
 pub mod profession;

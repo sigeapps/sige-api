@@ -49,11 +49,11 @@ impl MigratorTrait for Migrator {
             Box::new(m20250523_094807_create_seclusion_table::Migration),
             Box::new(m20250602_011258_create_part_table::Migration),
             Box::new(m20250607_152359_create_lookup_tables::Migration),
+            Box::new(m20250618_113709_create_base_tables::Migration),
             Box::new(m20250611_094810_create_persona_table::Migration),
             Box::new(m20250612_114832_create_country_tables::Migration),
             Box::new(m20250419_000002_create_user_table::Migration),
             Box::new(m20250615_144231_seed_users::Migration),
-            Box::new(m20250618_113709_create_base_tables::Migration),
             Box::new(m20250620_000001_seed_persona_example::Migration),
         ]
     }

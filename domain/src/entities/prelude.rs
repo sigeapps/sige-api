@@ -35,6 +35,7 @@ pub use super::persona_health::Entity as PersonaHealth;
 pub use super::persona_operational::Entity as PersonaOperational;
 pub use super::persona_record::Entity as PersonaRecord;
 pub use super::persona_relative::Entity as PersonaRelative;
+pub use super::persona_situation::Entity as PersonaSituation;
 pub use super::persona_traits::Entity as PersonaTraits;
 pub use super::persona_work_experience::Entity as PersonaWorkExperience;
 pub use super::profession::Entity as Profession;

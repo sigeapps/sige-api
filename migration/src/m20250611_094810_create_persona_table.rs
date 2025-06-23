@@ -485,6 +485,153 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
+                    .table(PersonaSituation::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(PersonaSituation::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaSituation::PersonaId)
+                            .integer()
+                            .not_null(),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_persona_situation_persona")
+                            .from(PersonaSituation::Table, PersonaSituation::PersonaId)
+                            .to(Persona::Table, Persona::Id),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaSituation::SituationType)
+                            .string()
+                            .not_null(),
+                    )
+                    .col(ColumnDef::new(PersonaSituation::EntryType).string().null())
+                    .col(
+                        ColumnDef::new(PersonaSituation::DivisionId)
+                            .integer()
+                            .null(),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_persona_situation_division")
+                            .from(PersonaSituation::Table, PersonaSituation::DivisionId)
+                            .to(Division::Table, Division::Id),
+                    )
+                    .col(ColumnDef::new(PersonaSituation::StateId).integer().null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_persona_situation_state")
+                            .from(PersonaSituation::Table, PersonaSituation::StateId)
+                            .to(State::Table, State::Id),
+                    )
+                    .col(ColumnDef::new(PersonaSituation::BaseId).integer().null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_persona_situation_base")
+                            .from(PersonaSituation::Table, PersonaSituation::BaseId)
+                            .to(Base::Table, Base::Id),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaSituation::HierarchyId)
+                            .integer()
+                            .null(),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_persona_situation_hierarchy")
+                            .from(PersonaSituation::Table, PersonaSituation::HierarchyId)
+                            .to(Hierarchy::Table, Hierarchy::Id),
+                    )
+                    .col(ColumnDef::new(PersonaSituation::ChargeId).integer().null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_persona_situation_charge")
+                            .from(PersonaSituation::Table, PersonaSituation::ChargeId)
+                            .to(Charge::Table, Charge::Id),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaSituation::DivisionOriginId)
+                            .integer()
+                            .null(),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_persona_situation_division_origin")
+                            .from(PersonaSituation::Table, PersonaSituation::DivisionOriginId)
+                            .to(Division::Table, Division::Id),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaSituation::StateOriginId)
+                            .integer()
+                            .null(),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_persona_situation_state_origin")
+                            .from(PersonaSituation::Table, PersonaSituation::StateOriginId)
+                            .to(State::Table, State::Id),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaSituation::BaseOriginId)
+                            .integer()
+                            .null(),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_persona_situation_base_origin")
+                            .from(PersonaSituation::Table, PersonaSituation::BaseOriginId)
+                            .to(Base::Table, Base::Id),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaSituation::HierarchyOriginId)
+                            .integer()
+                            .null(),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_persona_situation_hierarchy_origin")
+                            .from(PersonaSituation::Table, PersonaSituation::HierarchyOriginId)
+                            .to(Hierarchy::Table, Hierarchy::Id),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaSituation::ChargeOriginId)
+                            .integer()
+                            .null(),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_persona_situation_charge_origin")
+                            .from(PersonaSituation::Table, PersonaSituation::ChargeOriginId)
+                            .to(Charge::Table, Charge::Id),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaSituation::OrganismOriginId)
+                            .integer()
+                            .null(),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_persona_situation_organism_origin")
+                            .from(PersonaSituation::Table, PersonaSituation::OrganismOriginId)
+                            .to(Organism::Table, Organism::Id),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaSituation::CreatedAt)
+                            .timestamp()
+                            .default(Expr::current_timestamp()),
+                    )
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_table(
+                Table::create()
                     .table(PersonaRecord::Table)
                     .if_not_exists()
                     .col(
@@ -784,4 +931,43 @@ enum Profession {
 enum Hierarchy {
     Table,
     Id,
+}
+
+#[derive(DeriveIden)]
+enum Division {
+    Table,
+    Id,
+}
+
+#[derive(DeriveIden)]
+enum State {
+    Table,
+    Id,
+}
+
+#[derive(DeriveIden)]
+enum Base {
+    Table,
+    Id,
+}
+
+#[derive(DeriveIden)]
+enum PersonaSituation {
+    Table,
+    Id,
+    PersonaId,
+    SituationType,
+    EntryType,
+    DivisionId,
+    StateId,
+    BaseId,
+    HierarchyId,
+    ChargeId,
+    DivisionOriginId,
+    StateOriginId,
+    BaseOriginId,
+    HierarchyOriginId,
+    ChargeOriginId,
+    OrganismOriginId,
+    CreatedAt,
 }

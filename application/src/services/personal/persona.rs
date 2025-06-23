@@ -43,6 +43,12 @@ impl PersonaService {
 
         dto.health.into_active_model().insert(&transaction).await?;
 
+        dto.situations.persona_id = persona_id;
+        dto.situations
+            .into_active_model()
+            .insert(&transaction)
+            .await?;
+
         async {
             for mut operational in dto.operational {
                 operational.persona_id = persona_id;
