@@ -1,7 +1,10 @@
 use crate::Result;
-use application::dtos::user::{CreateRoleDTO, CreateUserDTO, GetRoleDTO};
+use application::dtos::{
+    user::{CreateRoleDTO, CreateUserDTO, GetRoleDTO, GetUserDTO},
+    CommonQueryFilterDTO,
+};
 use axum::{
-    extract::State,
+    extract::{Query, State},
     response::{IntoResponse, Response},
     Json,
 };
@@ -12,6 +15,11 @@ use crate::state::AppState;
 #[derive(Serialize, Deserialize)]
 pub struct UserBody {
     id: i32,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ManyUsersBody {
+    users: Vec<GetUserDTO>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -26,6 +34,15 @@ pub async fn create_user(
     let id = app_state.user_service.create(user).await?;
 
     Ok(Json(UserBody { id }).into_response())
+}
+
+pub async fn get_users(
+    State(app_state): State<AppState>,
+    Query(query): Query<CommonQueryFilterDTO>,
+) -> Result<Response> {
+    let users = app_state.user_service.find(query).await?;
+
+    Ok(Json(ManyUsersBody { users }).into_response())
 }
 
 pub async fn create_role(

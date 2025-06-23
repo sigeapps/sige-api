@@ -7,7 +7,10 @@ use domain::{
 use password_auth::generate_hash;
 use sea_orm::*;
 
-use crate::dtos::user::{CreateRoleDTO, CreateUserDTO, GetRoleDTO, GetUserDTO};
+use crate::dtos::{
+    user::{CreateRoleDTO, CreateUserDTO, GetRoleDTO, GetUserDTO},
+    CommonQueryFilterDTO,
+};
 
 #[derive(Debug, Clone)]
 pub struct UserService {
@@ -17,6 +20,21 @@ pub struct UserService {
 impl UserService {
     pub fn new(db: Arc<DatabaseConnection>) -> Self {
         UserService { db }
+    }
+
+    pub async fn find(&self, params: CommonQueryFilterDTO) -> Result<Vec<GetUserDTO>, DbErr> {
+        let mut query = user::Entity::find();
+
+        if let Some(search) = params.search {
+            query = query.filter(user::Column::Name.contains(search));
+        }
+
+        query = query.left_join(role::Entity);
+
+        query
+            .into_partial_model::<GetUserDTO>()
+            .all(&*self.db)
+            .await
     }
 
     pub async fn find_by_username(&self, username: String) -> Result<Option<GetUserDTO>, DbErr> {
@@ -42,7 +60,6 @@ impl UserService {
             let active_permission = role_permission::ActiveModel {
                 role_id: Set(id),
                 permission_id: Set(permission),
-                ..Default::default()
             };
 
             active_permission.insert(&*self.db).await?;
