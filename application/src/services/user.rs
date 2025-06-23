@@ -40,6 +40,8 @@ impl UserService {
     pub async fn update_user(&self, mut dto: UpdateUserDTO, id: i32) -> Result<i32, DbErr> {
         dto.id = id;
 
+        dto.password_hash = generate_hash(dto.password_hash);
+
         Ok(dto.into_active_model().update(&*self.db).await?.id)
     }
 
