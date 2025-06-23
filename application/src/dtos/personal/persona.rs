@@ -22,7 +22,7 @@ pub struct CreatePersonaDTO {
     pub health: Health,
     pub operational: Vec<Operational>,
     pub records: Vec<Record>,
-    pub situations: situation::Situation,
+    pub situation: situation::Situation,
     pub others: Others,
 }
 
@@ -56,7 +56,6 @@ pub mod course {
 }
 
 pub mod situation {
-    use chrono::NaiveDateTime;
     use domain::entities::persona_situation::ActiveModel;
     use sea_orm::DeriveIntoActiveModel;
     use serde::{Deserialize, Serialize};
@@ -79,7 +78,6 @@ pub mod situation {
         pub hierarchy_origin_id: Option<i32>,
         pub charge_origin_id: Option<i32>,
         pub organism_origin_id: Option<i32>,
-        pub created_at: NaiveDateTime,
     }
 }
 

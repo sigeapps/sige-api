@@ -43,8 +43,8 @@ impl PersonaService {
 
         dto.health.into_active_model().insert(&transaction).await?;
 
-        dto.situations.persona_id = persona_id;
-        dto.situations
+        dto.situation.persona_id = persona_id;
+        dto.situation
             .into_active_model()
             .insert(&transaction)
             .await?;
