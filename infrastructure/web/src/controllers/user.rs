@@ -1,10 +1,10 @@
 use crate::Result;
 use application::dtos::{
-    user::{CreateRoleDTO, CreateUserDTO, GetRoleDTO, GetUserDTO},
+    user::{CreateRoleDTO, CreateUserDTO, GetRoleDTO, GetUserDTO, UpdateUserDTO},
     CommonQueryFilterDTO,
 };
 use axum::{
-    extract::{Query, State},
+    extract::{Path, Query, State},
     response::{IntoResponse, Response},
     Json,
 };
@@ -20,6 +20,11 @@ pub struct UserBody {
 #[derive(Serialize, Deserialize)]
 pub struct ManyUsersBody {
     users: Vec<GetUserDTO>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct UserResponse {
+    user: Option<GetUserDTO>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -43,6 +48,25 @@ pub async fn get_users(
     let users = app_state.user_service.find(query).await?;
 
     Ok(Json(ManyUsersBody { users }).into_response())
+}
+
+pub async fn get_user_by_id(
+    State(app_state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<Response> {
+    let user = app_state.user_service.find_by_id(id).await?;
+
+    Ok(Json(UserResponse { user }).into_response())
+}
+
+pub async fn update_user(
+    State(app_state): State<AppState>,
+    Path(id): Path<i32>,
+    Json(user): Json<UpdateUserDTO>,
+) -> Result<Response> {
+    let updated_id = app_state.user_service.update_user(user, id).await?;
+
+    Ok(Json(UserBody { id: updated_id }).into_response())
 }
 
 pub async fn create_role(

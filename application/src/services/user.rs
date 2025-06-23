@@ -8,7 +8,7 @@ use password_auth::generate_hash;
 use sea_orm::*;
 
 use crate::dtos::{
-    user::{CreateRoleDTO, CreateUserDTO, GetRoleDTO, GetUserDTO},
+    user::{CreateRoleDTO, CreateUserDTO, GetRoleDTO, GetUserDTO, UpdateUserDTO},
     CommonQueryFilterDTO,
 };
 
@@ -35,6 +35,12 @@ impl UserService {
             .into_partial_model::<GetUserDTO>()
             .all(&*self.db)
             .await
+    }
+
+    pub async fn update_user(&self, mut dto: UpdateUserDTO, id: i32) -> Result<i32, DbErr> {
+        dto.id = id;
+
+        Ok(dto.into_active_model().update(&*self.db).await?.id)
     }
 
     pub async fn find_by_username(&self, username: String) -> Result<Option<GetUserDTO>, DbErr> {

@@ -43,3 +43,12 @@ pub struct CreateUserDTO {
     pub password_hash: String,
     pub role_id: i32,
 }
+
+#[derive(DeriveIntoActiveModel, Deserialize, Serialize)]
+pub struct UpdateUserDTO {
+    #[serde(skip_deserializing)]
+    pub id: i32,
+    pub name: String,
+    pub password_hash: String,
+    pub role_id: i32,
+}
