@@ -27,6 +27,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Persona::Name).string().not_null())
                     .col(ColumnDef::new(Persona::LastName).string().not_null())
                     .col(ColumnDef::new(Persona::Birthdate).string().not_null())
+                    .col(ColumnDef::new(Persona::Email).string().not_null())
                     .col(ColumnDef::new(Persona::Age).integer().not_null())
                     .col(ColumnDef::new(Persona::Birthplace).string().not_null())
                     .col(ColumnDef::new(Persona::Address).string().not_null())
@@ -761,6 +762,7 @@ pub enum Persona {
     Birthplace,
     Address,
     Phone,
+    Email,
     Coordinates,
     Genre,
     StatusCivil,
@@ -952,7 +954,7 @@ enum Base {
 }
 
 #[derive(DeriveIden)]
-enum PersonaSituation {
+pub enum PersonaSituation {
     Table,
     Id,
     PersonaId,

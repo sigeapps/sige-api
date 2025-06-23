@@ -17,6 +17,7 @@ pub struct Model {
     pub name: String,
     pub last_name: String,
     pub birthdate: String,
+    pub email: String,
     pub age: i32,
     pub birthplace: String,
     pub address: String,
@@ -38,6 +39,10 @@ pub enum Relation {
     PersonaChildren,
     #[sea_orm(has_many = "super::persona_conyuge::Entity")]
     PersonaConyuge,
+    #[sea_orm(has_many = "super::persona_course::Entity")]
+    PersonaCourse,
+    #[sea_orm(has_many = "super::persona_education::Entity")]
+    PersonaEducation,
     #[sea_orm(has_many = "super::persona_health::Entity")]
     PersonaHealth,
     #[sea_orm(has_many = "super::persona_operational::Entity")]
@@ -71,6 +76,18 @@ impl Related<super::persona_children::Entity> for Entity {
 impl Related<super::persona_conyuge::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PersonaConyuge.def()
+    }
+}
+
+impl Related<super::persona_course::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PersonaCourse.def()
+    }
+}
+
+impl Related<super::persona_education::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PersonaEducation.def()
     }
 }
 

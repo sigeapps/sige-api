@@ -1,6 +1,9 @@
 use sea_orm_migration::{prelude::*, sea_orm::Statement};
 
-use crate::m20250419_000002_create_user_table::User;
+use crate::{
+    m20250419_000002_create_user_table::User,
+    m20250611_094810_create_persona_table::PersonaSituation,
+};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -37,6 +40,7 @@ impl MigrationTrait for Migration {
                             Persona::Birthplace,
                             Persona::Address,
                             Persona::Phone,
+                            Persona::Email,
                             Persona::Genre,
                             Persona::StatusCivil,
                             Persona::BankAccount,
@@ -52,6 +56,7 @@ impl MigrationTrait for Migration {
                             "Caracas, Distrito Capital".into(),
                             "Av. Libertador, Urb. Los Palos Grandes, Casa 25".into(),
                             "0414-1234567".into(),
+                            "juan.perez@gmail.com".into(),
                             "Masculino".into(),
                             "Soltero".into(),
                             "0102-3456-78901234567890".into(),
@@ -192,6 +197,15 @@ impl MigrationTrait for Migration {
         if let Some(row) = persona_row {
             let persona_id = row.try_get::<i32>("", "id")?;
 
+            manager
+                .exec_stmt(
+                    Query::delete()
+                        .from_table(PersonaTraits::Table)
+                        .and_where(Expr::col(PersonaTraits::PersonaId).eq(persona_id))
+                        .to_owned(),
+                )
+                .await?;
+
             // Eliminar registros relacionados primero
             // Eliminar PersonaRecord
             manager
@@ -213,22 +227,22 @@ impl MigrationTrait for Migration {
                 )
                 .await?;
 
-            // Eliminar PersonaTraits
-            manager
-                .exec_stmt(
-                    Query::delete()
-                        .from_table(PersonaTraits::Table)
-                        .and_where(Expr::col(PersonaTraits::PersonaId).eq(persona_id))
-                        .to_owned(),
-                )
-                .await?;
-
             // Eliminar usuarios que referencian esta persona
             manager
                 .exec_stmt(
                     Query::delete()
                         .from_table(User::Table)
                         .and_where(Expr::col(User::PersonaId).eq(persona_id))
+                        .to_owned(),
+                )
+                .await?;
+
+            // Eliminar PersonaSituation
+            manager
+                .exec_stmt(
+                    Query::delete()
+                        .from_table(PersonaSituation::Table)
+                        .and_where(Expr::col(PersonaSituation::PersonaId).eq(persona_id))
                         .to_owned(),
                 )
                 .await?;
