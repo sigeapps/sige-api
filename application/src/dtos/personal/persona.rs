@@ -446,7 +446,8 @@ pub mod child {
         from_query_result
     )]
     pub struct Child {
-        #[serde(skip_deserializing)]
+        #[sea_orm(primary_key)]
+        #[serde(skip_deserializing)] // Skip deserializing
         pub id: i32,
         pub name: String,
         pub last_name: String,

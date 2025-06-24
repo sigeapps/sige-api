@@ -147,25 +147,37 @@ impl PersonaService {
         if let Some(mut traits) = dto.traits {
             traits.persona_id = id;
 
-            traits.into_active_model().save(&transaction).await?;
+            persona_traits::Entity::update(traits.into_active_model())
+                .filter(persona_traits::Column::PersonaId.eq(id))
+                .exec(&transaction)
+                .await?;
         }
 
         if let Some(mut conyuge) = dto.conyuge {
             conyuge.persona_id = id;
 
-            conyuge.into_active_model().save(&transaction).await?;
+            persona_conyuge::Entity::update(conyuge.into_active_model())
+                .filter(persona_conyuge::Column::PersonaId.eq(id))
+                .exec(&transaction)
+                .await?;
         }
 
         if let Some(mut health) = dto.health {
             health.persona_id = id;
 
-            health.into_active_model().save(&transaction).await?;
+            persona_health::Entity::update(health.into_active_model())
+                .filter(persona_health::Column::PersonaId.eq(id))
+                .exec(&transaction)
+                .await?;
         }
 
         if let Some(mut situation) = dto.situation {
             situation.persona_id = id;
 
-            situation.into_active_model().save(&transaction).await?;
+            persona_situation::Entity::update(situation.into_active_model())
+                .filter(persona_situation::Column::PersonaId.eq(id))
+                .exec(&transaction)
+                .await?;
         }
 
         async {
@@ -232,7 +244,13 @@ impl PersonaService {
             for mut children in dto.childrens {
                 children.persona_id = id;
 
-                children.into_active_model().save(&transaction).await?;
+                let child = children.into_active_model();
+
+                if child.id.is_set() {
+                    child.update(&transaction).await?;
+                } else {
+                    child.insert(&transaction).await?;
+                }
             }
             Ok::<(), DbErr>(())
         }
