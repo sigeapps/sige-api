@@ -22,6 +22,13 @@ pub struct GetBaseDTO {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::institution::Entity", from_query_result)]
+pub struct GetInstitutionDTO {
+    pub id: i32,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
 #[sea_orm(entity = "domain::entities::organism::Entity", from_query_result)]
 pub struct GetOrganismDTO {
     pub id: i32,

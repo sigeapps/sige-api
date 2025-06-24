@@ -23,7 +23,7 @@ pub struct CreatePersonaDTO {
     pub childrens: Vec<child::Child>,
     pub education: Vec<Educational>,
     pub conyuge: Option<conyuge::Conyuge>,
-    pub courses: Vec<Course>,
+    pub courses: Vec<course::Course>,
     pub work_experiencies: Vec<labor::Labor>,
     pub health: Health,
     pub operational: Vec<Operational>,
@@ -86,6 +86,8 @@ pub mod course {
     #[derive(Serialize, Deserialize, DeriveIntoActiveModel, DerivePartialModel)]
     #[sea_orm(entity = "domain::entities::persona_course::Entity", from_query_result)]
     pub struct Course {
+        #[serde(skip_deserializing)]
+        pub id: i32,
         #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub name: String,
@@ -375,6 +377,8 @@ pub mod record {
     #[sea_orm(entity = "domain::entities::persona_record::Entity", from_query_result)]
     pub struct Record {
         #[serde(skip_deserializing)]
+        pub id: i32,
+        #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub name: String,
         pub r#type: String,
@@ -417,6 +421,8 @@ pub mod relative {
     )]
     pub struct Relative {
         #[serde(skip_deserializing)]
+        pub id: i32,
+        #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub name: String,
         pub last_name: String,
@@ -440,6 +446,8 @@ pub mod child {
         from_query_result
     )]
     pub struct Child {
+        #[serde(skip_deserializing)]
+        pub id: i32,
         pub name: String,
         pub last_name: String,
         pub age: i32,
@@ -488,6 +496,8 @@ pub mod labor {
         from_query_result
     )]
     pub struct Labor {
+        #[serde(skip_deserializing)]
+        pub id: i32,
         #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub boss_phone: String,
