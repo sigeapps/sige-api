@@ -45,7 +45,7 @@ pub struct UpdatePersonaDTO {
     pub operational: Vec<Operational>,
     pub records: Vec<Record>,
     pub situation: Option<situation::Situation>,
-    pub others: Others,
+    pub others: Option<Others>,
 }
 
 #[derive(Serialize, Deserialize)]

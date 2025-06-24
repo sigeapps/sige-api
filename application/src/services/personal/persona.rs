@@ -136,7 +136,10 @@ impl PersonaService {
     pub async fn update(self, id: i32, mut dto: UpdatePersonaDTO) -> Result<i32, DbErr> {
         let transaction = self.db.begin().await?;
 
-        dto.personal.others = dto.others.others;
+        if let Some(others) = dto.others {
+            dto.personal.others = others.others;
+        }
+
         dto.personal.id = id;
 
         dto.personal.into_active_model().save(&transaction).await?;
