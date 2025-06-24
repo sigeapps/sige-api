@@ -15,6 +15,20 @@ pub struct GetStateDTO {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::base::Entity", from_query_result)]
+pub struct GetBaseDTO {
+    pub id: i32,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::organism::Entity", from_query_result)]
+pub struct GetOrganismDTO {
+    pub id: i32,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
 #[sea_orm(entity = "domain::entities::brand::Entity", from_query_result)]
 pub struct GetBrandDTO {
     pub id: i32,

@@ -4,8 +4,14 @@ use serde::{Deserialize, Serialize};
 use crate::dtos::personal::{
     country::GetVerificationDTO,
     persona::{
-        course::Course, educational::Educational, health::Health, operational::Operational,
-        others::Others, personal::Personal, record::Record,
+        course::Course,
+        educational::Educational,
+        health::Health,
+        operational::Operational,
+        others::Others,
+        personal::{GetPersonalDTO, Personal, UpdatePersonal},
+        record::Record,
+        situation::GetSituationDTO,
     },
 };
 
@@ -25,6 +31,39 @@ pub struct CreatePersonaDTO {
     pub situation: situation::Situation,
     pub others: Others,
 }
+#[derive(Serialize, Deserialize)]
+pub struct UpdatePersonaDTO {
+    pub personal: UpdatePersonal,
+    pub traits: Option<traits::Traits>,
+    pub relatives: Vec<relative::Relative>,
+    pub childrens: Vec<child::Child>,
+    pub education: Vec<Educational>,
+    pub conyuge: Option<conyuge::Conyuge>,
+    pub courses: Vec<Course>,
+    pub work_experiencies: Vec<labor::Labor>,
+    pub health: Option<Health>,
+    pub operational: Vec<Operational>,
+    pub records: Vec<Record>,
+    pub situation: Option<situation::Situation>,
+    pub others: Others,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct GetPersonaDTO {
+    pub personal: GetPersonalDTO,
+    pub traits: Option<traits::Traits>,
+    pub relatives: Vec<relative::Relative>,
+    pub childrens: Vec<child::Child>,
+    pub education: Vec<Educational>,
+    pub conyuge: Option<conyuge::Conyuge>,
+    pub courses: Vec<Course>,
+    pub work_experiencies: Vec<labor::Labor>,
+    pub health: Option<Health>,
+    pub operational: Vec<Operational>,
+    pub records: Vec<Record>,
+    pub situation: Option<GetSituationDTO>,
+    pub others: Option<Others>,
+}
 
 #[derive(Serialize, Deserialize, DerivePartialModel)]
 #[sea_orm(entity = "domain::entities::persona::Entity", from_query_result)]
@@ -41,10 +80,11 @@ pub struct GetPersonaSummaryDTO {
 pub mod course {
     use chrono::NaiveDate;
     use domain::entities::persona_course::ActiveModel;
-    use sea_orm::DeriveIntoActiveModel;
+    use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
 
-    #[derive(Serialize, Deserialize, DeriveIntoActiveModel)]
+    #[derive(Serialize, Deserialize, DeriveIntoActiveModel, DerivePartialModel)]
+    #[sea_orm(entity = "domain::entities::persona_course::Entity", from_query_result)]
     pub struct Course {
         #[serde(skip_deserializing)]
         pub persona_id: i32,
@@ -57,10 +97,14 @@ pub mod course {
 
 pub mod situation {
     use domain::entities::persona_situation::ActiveModel;
-    use sea_orm::DeriveIntoActiveModel;
+    use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
 
-    #[derive(Serialize, Deserialize, DeriveIntoActiveModel)]
+    #[derive(Serialize, Deserialize, DeriveIntoActiveModel, DerivePartialModel)]
+    #[sea_orm(
+        entity = "domain::entities::persona_situation::Entity",
+        from_query_result
+    )]
     pub struct Situation {
         #[serde(skip_deserializing)]
         pub persona_id: i32,
@@ -79,15 +123,99 @@ pub mod situation {
         pub charge_origin_id: Option<i32>,
         pub organism_origin_id: Option<i32>,
     }
+
+    // DTOs simplificados para evitar conflictos de alias
+    #[derive(Serialize, Deserialize, DerivePartialModel)]
+    #[sea_orm(entity = "domain::entities::division::Entity", from_query_result)]
+    pub struct SimpleDivisionDTO {
+        pub id: i32,
+        pub name: String,
+    }
+
+    #[derive(Serialize, Deserialize, DerivePartialModel)]
+    #[sea_orm(entity = "domain::entities::state::Entity", from_query_result)]
+    pub struct SimpleStateDTO {
+        pub id: i32,
+        pub name: String,
+    }
+
+    #[derive(Serialize, Deserialize, DerivePartialModel)]
+    #[sea_orm(entity = "domain::entities::base::Entity", from_query_result)]
+    pub struct SimpleBaseDTO {
+        pub id: i32,
+        pub name: String,
+    }
+
+    #[derive(Serialize, Deserialize, DerivePartialModel)]
+    #[sea_orm(entity = "domain::entities::hierarchy::Entity", from_query_result)]
+    pub struct SimpleHierarchyDTO {
+        pub id: i32,
+        pub name: String,
+    }
+
+    #[derive(Serialize, Deserialize, DerivePartialModel)]
+    #[sea_orm(entity = "domain::entities::charge::Entity", from_query_result)]
+    pub struct SimpleChargeDTO {
+        pub id: i32,
+        pub name: String,
+    }
+
+    #[derive(Serialize, Deserialize, DerivePartialModel)]
+    #[sea_orm(
+        entity = "domain::entities::organism::Entity",
+        alias = "organism_origin",
+        from_query_result
+    )]
+    pub struct SimpleOrganismDTO {
+        pub id: i32,
+        pub name: String,
+    }
+
+    #[derive(Serialize, Deserialize, DerivePartialModel)]
+    #[sea_orm(
+        entity = "domain::entities::persona_situation::Entity",
+        from_query_result
+    )]
+    pub struct GetSituationDTO {
+        pub id: i32,
+        pub situation_type: String,
+        pub entry_type: Option<String>,
+        #[sea_orm(nested)]
+        pub division: Option<SimpleDivisionDTO>,
+        #[sea_orm(nested)]
+        pub state: Option<SimpleStateDTO>,
+        #[sea_orm(nested)]
+        pub base: Option<SimpleBaseDTO>,
+        #[sea_orm(nested)]
+        pub hierarchy: Option<SimpleHierarchyDTO>,
+        #[sea_orm(nested)]
+        pub charge: Option<SimpleChargeDTO>,
+        #[sea_orm(nested)]
+        pub division_origin: Option<SimpleDivisionDTO>,
+        #[sea_orm(nested)]
+        pub state_origin: Option<SimpleStateDTO>,
+        #[sea_orm(nested)]
+        pub base_origin: Option<SimpleBaseDTO>,
+        #[sea_orm(nested)]
+        pub hierarchy_origin: Option<SimpleHierarchyDTO>,
+        #[sea_orm(nested)]
+        pub charge_origin: Option<SimpleChargeDTO>,
+        #[sea_orm(nested)]
+        pub organism_origin: Option<SimpleOrganismDTO>,
+    }
 }
 
 pub mod educational {
     use chrono::NaiveDate;
     use domain::entities::persona_education::ActiveModel;
-    use sea_orm::DeriveIntoActiveModel;
+    use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
 
-    #[derive(Serialize, Deserialize, DeriveIntoActiveModel)]
+    #[derive(Serialize, Deserialize, DeriveIntoActiveModel, DerivePartialModel)]
+    #[sea_orm(
+        entity = "domain::entities::persona_education::Entity",
+        from_query_result
+    )]
     pub struct Educational {
         #[serde(skip_deserializing)]
         pub persona_id: i32,
@@ -101,10 +229,11 @@ pub mod educational {
 
 pub mod health {
     use domain::entities::persona_health::ActiveModel;
-    use sea_orm::DeriveIntoActiveModel;
+    use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
 
-    #[derive(Serialize, Deserialize, DeriveIntoActiveModel)]
+    #[derive(Serialize, Deserialize, DeriveIntoActiveModel, DerivePartialModel)]
+    #[sea_orm(entity = "domain::entities::persona_health::Entity", from_query_result)]
     pub struct Health {
         #[serde(skip_deserializing)]
         pub persona_id: i32,
@@ -119,10 +248,14 @@ pub mod health {
 pub mod operational {
     use chrono::NaiveDate;
     use domain::entities::persona_operational::ActiveModel;
-    use sea_orm::DeriveIntoActiveModel;
+    use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
 
-    #[derive(Serialize, Deserialize, DeriveIntoActiveModel)]
+    #[derive(Serialize, Deserialize, DeriveIntoActiveModel, DerivePartialModel)]
+    #[sea_orm(
+        entity = "domain::entities::persona_operational::Entity",
+        from_query_result
+    )]
     pub struct Operational {
         #[serde(skip_deserializing)]
         pub persona_id: i32,
@@ -149,10 +282,38 @@ pub mod others {
 
 pub mod personal {
     use domain::entities::persona::ActiveModel;
-    use sea_orm::DeriveIntoActiveModel;
+    use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
 
-    #[derive(Serialize, Deserialize, DeriveIntoActiveModel)]
+    #[derive(Serialize, Deserialize, DerivePartialModel)]
+    #[sea_orm(entity = "domain::entities::persona::Entity", from_query_result)]
+    pub struct GetPersonalDTO {
+        pub id: i32,
+        pub ci: String,
+        pub front_photo: Option<String>,
+        pub back_photo: Option<String>,
+        pub passport_number: Option<String>,
+        pub passport_expiration: Option<String>,
+        pub passport_years_valid: Option<i32>,
+        pub name: String,
+        pub last_name: String,
+        pub birthdate: String,
+        pub email: String,
+        pub age: i32,
+        pub birthplace: String,
+        pub address: String,
+        pub phone: String,
+        pub coordinates: Option<String>,
+        pub genre: String,
+        pub status_civil: String,
+        pub bank_account: String,
+        pub homeland_ci: String,
+        pub vehicle_license: String,
+        pub others: Option<String>,
+    }
+
+    #[derive(Serialize, Deserialize, DeriveIntoActiveModel, DerivePartialModel)]
+    #[sea_orm(entity = "domain::entities::persona::Entity", from_query_result)]
     pub struct Personal {
         pub passport_number: Option<String>,
         pub passport_expiration: Option<String>,
@@ -177,14 +338,41 @@ pub mod personal {
         #[serde(skip_deserializing)]
         pub others: String,
     }
+
+    #[derive(Serialize, Deserialize, DeriveIntoActiveModel, DerivePartialModel)]
+    #[sea_orm(entity = "domain::entities::persona::Entity", from_query_result)]
+    pub struct UpdatePersonal {
+        #[serde(skip_deserializing)]
+        pub id: i32,
+        pub passport_number: Option<String>,
+        pub passport_expiration: Option<String>,
+        pub passport_years_valid: Option<i32>,
+        pub birthdate: String,
+        pub birthplace: String,
+        pub address: String,
+        pub phone: String,
+        pub email: String,
+        pub coordinates: Option<String>,
+        pub homeland_ci: String,
+        pub bank_account: String,
+        pub front_photo: String,
+        pub back_photo: String,
+        pub genre: String,
+        pub status_civil: String,
+        pub vehicle_license: String,
+        pub age: i32,
+        #[serde(skip_deserializing)]
+        pub others: String,
+    }
 }
 
 pub mod record {
     use domain::entities::persona_record::ActiveModel;
-    use sea_orm::DeriveIntoActiveModel;
+    use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
 
-    #[derive(Serialize, Deserialize, DeriveIntoActiveModel)]
+    #[derive(Serialize, Deserialize, DeriveIntoActiveModel, DerivePartialModel)]
+    #[sea_orm(entity = "domain::entities::persona_record::Entity", from_query_result)]
     pub struct Record {
         #[serde(skip_deserializing)]
         pub persona_id: i32,
@@ -196,10 +384,14 @@ pub mod record {
 pub mod conyuge {
     use chrono::NaiveDate;
     use domain::entities::persona_conyuge::ActiveModel;
-    use sea_orm::DeriveIntoActiveModel;
+    use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
 
-    #[derive(Serialize, Deserialize, DeriveIntoActiveModel)]
+    #[derive(Serialize, Deserialize, DeriveIntoActiveModel, DerivePartialModel)]
+    #[sea_orm(
+        entity = "domain::entities::persona_conyuge::Entity",
+        from_query_result
+    )]
     pub struct Conyuge {
         #[serde(skip_deserializing)]
         pub persona_id: i32,

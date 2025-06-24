@@ -1,8 +1,11 @@
 use crate::state::AppState;
 use crate::Result;
 use application::dtos::personal::persona::CreatePersonaDTO;
+use application::dtos::personal::persona::GetPersonaDTO;
 use application::dtos::personal::persona::GetPersonaSummaryDTO;
+use application::dtos::personal::persona::UpdatePersonaDTO;
 use application::dtos::CommonQueryFilterDTO;
+use axum::extract::Path;
 use axum::extract::Query;
 use axum::extract::State;
 use axum::http::StatusCode;
@@ -26,6 +29,29 @@ pub async fn create_persona(
         Json(PersonaBody::<i32> {
             persona: persona_id,
         }),
+    )
+        .into_response())
+}
+
+pub async fn update_persona(
+    State(app_state): State<AppState>,
+    Path(id): Path<i32>,
+    Json(persona): Json<UpdatePersonaDTO>,
+) -> Result<Response> {
+    let persona_id = app_state.persona_service.update(id, persona).await?;
+
+    Ok((StatusCode::OK, Json(persona_id)).into_response())
+}
+
+pub async fn get_persona(
+    State(app_state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<Response> {
+    let persona = app_state.persona_service.find_by_id(id).await?;
+
+    Ok((
+        StatusCode::OK,
+        Json(PersonaBody::<GetPersonaDTO> { persona }),
     )
         .into_response())
 }

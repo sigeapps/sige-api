@@ -5,8 +5,8 @@ POST {{baseURL}}/register
 Content-Type: application/json
 
 {
-    "username": "tallers",
-    "password": "taller"
+    "username": "sigar",
+    "password": "sigar"
 }
 
 ### LOGIN AN USER
@@ -14,6 +14,6 @@ POST {{baseURL}}/login
 Content-Type: application/json
 
 {
-    "username": "taller",
-    "password": "taller"
+  "password": "taller",
+  "username": "taller"
 }
