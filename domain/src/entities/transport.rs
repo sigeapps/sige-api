@@ -30,8 +30,6 @@ pub enum Relation {
         on_delete = "Restrict"
     )]
     Brand,
-    #[sea_orm(has_many = "super::commission_seized_transport::Entity")]
-    CommissionSeizedTransport,
     #[sea_orm(has_many = "super::commission_transport::Entity")]
     CommissionTransport,
     #[sea_orm(
@@ -63,12 +61,6 @@ pub enum Relation {
 impl Related<super::brand::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Brand.def()
-    }
-}
-
-impl Related<super::commission_seized_transport::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::CommissionSeizedTransport.def()
     }
 }
 

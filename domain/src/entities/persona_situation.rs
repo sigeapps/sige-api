@@ -9,6 +9,7 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub persona_id: i32,
+    pub requested_by_id: i32,
     pub situation_type: String,
     pub entry_type: Option<String>,
     pub division_id: Option<i32>,
@@ -106,7 +107,15 @@ pub enum Relation {
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    Persona,
+    Persona2,
+    #[sea_orm(
+        belongs_to = "super::persona::Entity",
+        from = "Column::RequestedById",
+        to = "super::persona::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Persona1,
     #[sea_orm(
         belongs_to = "super::state::Entity",
         from = "Column::StateId",
@@ -128,12 +137,6 @@ pub enum Relation {
 impl Related<super::organism::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Organism.def()
-    }
-}
-
-impl Related<super::persona::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Persona.def()
     }
 }
 

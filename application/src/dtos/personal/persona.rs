@@ -126,6 +126,7 @@ pub mod situation {
         pub hierarchy_origin_id: Option<i32>,
         pub charge_origin_id: Option<i32>,
         pub organism_origin_id: Option<i32>,
+        pub requested_by_id: i32,
     }
 
     // DTOs simplificados para evitar conflictos de alias
@@ -206,6 +207,9 @@ pub mod situation {
         pub charge_origin: Option<SimpleChargeDTO>,
         #[sea_orm(nested)]
         pub organism_origin: Option<SimpleOrganismDTO>,
+
+        // TODO: Verificar si es necesario
+        pub requested_by_id: i32,
     }
 }
 

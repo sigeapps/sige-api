@@ -35,8 +35,6 @@ pub enum Relation {
     CommissionOfficial,
     #[sea_orm(has_many = "super::commission_reason::Entity")]
     CommissionReason,
-    #[sea_orm(has_many = "super::commission_seized_transport::Entity")]
-    CommissionSeizedTransport,
     #[sea_orm(has_many = "super::commission_transport::Entity")]
     CommissionTransport,
     #[sea_orm(
@@ -80,12 +78,6 @@ impl Related<super::commission_official::Entity> for Entity {
 impl Related<super::commission_reason::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::CommissionReason.def()
-    }
-}
-
-impl Related<super::commission_seized_transport::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::CommissionSeizedTransport.def()
     }
 }
 

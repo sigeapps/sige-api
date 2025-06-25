@@ -27,14 +27,6 @@ pub enum Relation {
     )]
     Institution,
     #[sea_orm(
-        belongs_to = "super::persona::Entity",
-        from = "Column::PersonaId",
-        to = "super::persona::Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    Persona,
-    #[sea_orm(
         belongs_to = "super::profession::Entity",
         from = "Column::ProfessionId",
         to = "super::profession::Column::Id",
@@ -47,12 +39,6 @@ pub enum Relation {
 impl Related<super::institution::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Institution.def()
-    }
-}
-
-impl Related<super::persona::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Persona.def()
     }
 }
 

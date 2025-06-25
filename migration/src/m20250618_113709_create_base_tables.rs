@@ -20,8 +20,12 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Base::Table).to_owned())
-            .await
+            .drop_table(Table::drop().table(Base::Table).cascade().to_owned())
+            .await?;
+
+        println!("Base table dropped");
+
+        Ok(())
     }
 }
 

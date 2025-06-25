@@ -39,10 +39,6 @@ pub enum Relation {
     PersonaChildren,
     #[sea_orm(has_many = "super::persona_conyuge::Entity")]
     PersonaConyuge,
-    #[sea_orm(has_many = "super::persona_course::Entity")]
-    PersonaCourse,
-    #[sea_orm(has_many = "super::persona_education::Entity")]
-    PersonaEducation,
     #[sea_orm(has_many = "super::persona_health::Entity")]
     PersonaHealth,
     #[sea_orm(has_many = "super::persona_operational::Entity")]
@@ -51,9 +47,7 @@ pub enum Relation {
     PersonaRecord,
     #[sea_orm(has_many = "super::persona_relative::Entity")]
     PersonaRelative,
-    #[sea_orm(has_many = "super::persona_situation::Entity")]
-    PersonaSituation,
-    #[sea_orm(has_many = "super::persona_traits::Entity")]
+    #[sea_orm(has_one = "super::persona_traits::Entity")]
     PersonaTraits,
     #[sea_orm(has_many = "super::persona_work_experience::Entity")]
     PersonaWorkExperience,
@@ -79,18 +73,6 @@ impl Related<super::persona_conyuge::Entity> for Entity {
     }
 }
 
-impl Related<super::persona_course::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::PersonaCourse.def()
-    }
-}
-
-impl Related<super::persona_education::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::PersonaEducation.def()
-    }
-}
-
 impl Related<super::persona_health::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PersonaHealth.def()
@@ -112,12 +94,6 @@ impl Related<super::persona_record::Entity> for Entity {
 impl Related<super::persona_relative::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PersonaRelative.def()
-    }
-}
-
-impl Related<super::persona_situation::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::PersonaSituation.def()
     }
 }
 

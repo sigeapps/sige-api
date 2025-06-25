@@ -147,25 +147,45 @@ impl PersonaService {
         if let Some(mut traits) = dto.traits {
             traits.persona_id = id;
 
-            traits.into_active_model().save(&transaction).await?;
+            persona_traits::Entity::update_many()
+                .set(traits.into_active_model())
+                .filter(persona_traits::Column::PersonaId.eq(id))
+                .exec(&transaction)
+                .await?;
         }
 
         if let Some(mut conyuge) = dto.conyuge {
             conyuge.persona_id = id;
 
-            conyuge.into_active_model().save(&transaction).await?;
+            if conyuge.id == 0 {
+                conyuge.into_active_model().insert(&transaction).await?;
+            } else {
+                persona_conyuge::Entity::update_many()
+                    .set(conyuge.into_active_model())
+                    .filter(persona_conyuge::Column::PersonaId.eq(id))
+                    .exec(&transaction)
+                    .await?;
+            }
         }
 
         if let Some(mut health) = dto.health {
             health.persona_id = id;
 
-            health.into_active_model().save(&transaction).await?;
+            persona_health::Entity::update_many()
+                .set(health.into_active_model())
+                .filter(persona_health::Column::PersonaId.eq(id))
+                .exec(&transaction)
+                .await?;
         }
 
         if let Some(mut situation) = dto.situation {
             situation.persona_id = id;
 
-            situation.into_active_model().save(&transaction).await?;
+            persona_situation::Entity::update_many()
+                .set(situation.into_active_model())
+                .filter(persona_situation::Column::PersonaId.eq(id))
+                .exec(&transaction)
+                .await?;
         }
 
         async {

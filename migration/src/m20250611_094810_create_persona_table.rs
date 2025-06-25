@@ -508,6 +508,17 @@ impl MigrationTrait for Migration {
                             .to(Persona::Table, Persona::Id),
                     )
                     .col(
+                        ColumnDef::new(PersonaSituation::RequestedById)
+                            .integer()
+                            .not_null(),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_persona_situation_requested_by")
+                            .from(PersonaSituation::Table, PersonaSituation::RequestedById)
+                            .to(Persona::Table, Persona::Id),
+                    )
+                    .col(
                         ColumnDef::new(PersonaSituation::SituationType)
                             .string()
                             .not_null(),
@@ -729,6 +740,15 @@ impl MigrationTrait for Migration {
             .drop_table(
                 Table::drop()
                     .table(PersonaHealth::Table)
+                    .cascade()
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .drop_table(
+                Table::drop()
+                    .table(PersonaSituation::Table)
                     .cascade()
                     .to_owned(),
             )
@@ -972,5 +992,6 @@ pub enum PersonaSituation {
     HierarchyOriginId,
     ChargeOriginId,
     OrganismOriginId,
+    RequestedById,
     CreatedAt,
 }
