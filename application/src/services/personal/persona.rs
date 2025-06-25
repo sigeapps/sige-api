@@ -148,7 +148,6 @@ impl PersonaService {
             traits.persona_id = id;
 
             persona_traits::Entity::update(traits.into_active_model())
-                .filter(persona_traits::Column::PersonaId.eq(id))
                 .exec(&transaction)
                 .await?;
         }
@@ -157,7 +156,6 @@ impl PersonaService {
             conyuge.persona_id = id;
 
             persona_conyuge::Entity::update(conyuge.into_active_model())
-                .filter(persona_conyuge::Column::PersonaId.eq(id))
                 .exec(&transaction)
                 .await?;
         }
@@ -166,7 +164,6 @@ impl PersonaService {
             health.persona_id = id;
 
             persona_health::Entity::update(health.into_active_model())
-                .filter(persona_health::Column::PersonaId.eq(id))
                 .exec(&transaction)
                 .await?;
         }
@@ -175,7 +172,6 @@ impl PersonaService {
             situation.persona_id = id;
 
             persona_situation::Entity::update(situation.into_active_model())
-                .filter(persona_situation::Column::PersonaId.eq(id))
                 .exec(&transaction)
                 .await?;
         }
