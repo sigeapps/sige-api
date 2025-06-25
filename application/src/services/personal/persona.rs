@@ -147,33 +147,25 @@ impl PersonaService {
         if let Some(mut traits) = dto.traits {
             traits.persona_id = id;
 
-            persona_traits::Entity::update(traits.into_active_model())
-                .exec(&transaction)
-                .await?;
+            traits.into_active_model().save(&transaction).await?;
         }
 
         if let Some(mut conyuge) = dto.conyuge {
             conyuge.persona_id = id;
 
-            persona_conyuge::Entity::update(conyuge.into_active_model())
-                .exec(&transaction)
-                .await?;
+            conyuge.into_active_model().save(&transaction).await?;
         }
 
         if let Some(mut health) = dto.health {
             health.persona_id = id;
 
-            persona_health::Entity::update(health.into_active_model())
-                .exec(&transaction)
-                .await?;
+            health.into_active_model().save(&transaction).await?;
         }
 
         if let Some(mut situation) = dto.situation {
             situation.persona_id = id;
 
-            persona_situation::Entity::update(situation.into_active_model())
-                .exec(&transaction)
-                .await?;
+            situation.into_active_model().save(&transaction).await?;
         }
 
         async {
