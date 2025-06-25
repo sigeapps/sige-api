@@ -109,6 +109,8 @@ pub mod situation {
     )]
     pub struct Situation {
         #[serde(skip_deserializing)]
+        pub id: i32,
+        #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub situation_type: String,
 
@@ -220,6 +222,8 @@ pub mod educational {
     )]
     pub struct Educational {
         #[serde(skip_deserializing)]
+        pub id: i32,
+        #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub end_date: NaiveDate,
         pub grade: String,
@@ -237,6 +241,8 @@ pub mod health {
     #[derive(Serialize, Deserialize, DeriveIntoActiveModel, DerivePartialModel)]
     #[sea_orm(entity = "domain::entities::persona_health::Entity", from_query_result)]
     pub struct Health {
+        #[serde(skip_deserializing)]
+        pub id: i32,
         #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub allergies: Option<String>,
@@ -259,6 +265,8 @@ pub mod operational {
         from_query_result
     )]
     pub struct Operational {
+        #[serde(skip_deserializing)]
+        pub id: i32,
         #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub phone: String,
@@ -398,6 +406,8 @@ pub mod conyuge {
     )]
     pub struct Conyuge {
         #[serde(skip_deserializing)]
+        pub id: i32,
+        #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub ci: String,
         pub name: String,
@@ -467,6 +477,8 @@ pub mod traits {
     #[derive(Serialize, Deserialize, DerivePartialModel, DeriveIntoActiveModel)]
     #[sea_orm(entity = "domain::entities::persona_traits::Entity", from_query_result)]
     pub struct Traits {
+        #[serde(skip_deserializing)]
+        pub id: i32,
         #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub height: i32,
