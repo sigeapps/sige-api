@@ -154,17 +154,27 @@ impl PersonaService {
                 .await?;
         }
 
+        // TODO: Verificar si es necesario
+
         if let Some(mut conyuge) = dto.conyuge {
             conyuge.persona_id = id;
 
-            if conyuge.id == 0 {
-                conyuge.into_active_model().insert(&transaction).await?;
-            } else {
+            // Verificar si existe un cónyuge para esta persona
+            let existing_conyuge = persona_conyuge::Entity::find()
+                .filter(persona_conyuge::Column::PersonaId.eq(id))
+                .one(&transaction)
+                .await?;
+
+            if let Some(_) = existing_conyuge {
+                // Si existe, actualizar
                 persona_conyuge::Entity::update_many()
                     .set(conyuge.into_active_model())
                     .filter(persona_conyuge::Column::PersonaId.eq(id))
                     .exec(&transaction)
                     .await?;
+            } else {
+                // Si no existe, insertar uno nuevo
+                conyuge.into_active_model().insert(&transaction).await?;
             }
         }
 
