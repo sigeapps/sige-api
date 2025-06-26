@@ -9,6 +9,35 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
+                    .table(PersonaStatus::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(PersonaStatus::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(ColumnDef::new(PersonaStatus::Name).string().not_null())
+                    .to_owned(),
+            )
+            .await?;
+
+        let statuses = ["active", "vacation", "sick", "missing"];
+
+        for status in statuses {
+            let insert = Query::insert()
+                .into_table(PersonaStatus::Table)
+                .columns([PersonaStatus::Name])
+                .values_panic([status.into()])
+                .to_owned();
+
+            manager.exec_stmt(insert).await?;
+        }
+
+        manager
+            .create_table(
+                Table::create()
                     .table(Persona::Table)
                     .if_not_exists()
                     .col(
@@ -38,6 +67,17 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Persona::BankAccount).string().not_null())
                     .col(ColumnDef::new(Persona::HomelandCi).string().not_null())
                     .col(ColumnDef::new(Persona::VehicleLicense).string().not_null())
+                    .col(
+                        ColumnDef::new(Persona::StatusId)
+                            .integer()
+                            .null()
+                            .default(1),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .from(Persona::Table, Persona::StatusId)
+                            .to(PersonaStatus::Table, PersonaStatus::Id),
+                    )
                     .col(ColumnDef::new(Persona::Others).string().null())
                     .to_owned(),
             )
@@ -790,6 +830,7 @@ pub enum Persona {
     BankAccount,
     HomelandCi,
     VehicleLicense,
+    StatusId,
     Others,
 }
 
@@ -994,4 +1035,11 @@ pub enum PersonaSituation {
     OrganismOriginId,
     RequestedById,
     CreatedAt,
+}
+
+#[derive(DeriveIden)]
+enum PersonaStatus {
+    Table,
+    Id,
+    Name,
 }
