@@ -11,27 +11,45 @@ use tracing::debug;
 use crate::error::WebError;
 
 pub async fn authenticate(mut request: Request, next: Next) -> Result<Response> {
+    debug!("🔐 Iniciando proceso de autenticación");
+    
     let auth_header = request
         .headers()
         .get(AUTHORIZATION)
-        .ok_or(WebError::Unauthorized)?
+        .ok_or_else(|| {
+            debug!("❌ Header Authorization no encontrado");
+            WebError::Unauthorized
+        })?
         .to_str()
-        .map_err(|_| WebError::Unauthorized)?;
+        .map_err(|e| {
+            debug!("❌ Error al convertir header Authorization: {:?}", e);
+            WebError::Unauthorized
+        })?;
+
+    debug!("📝 Header Authorization recibido: {}", auth_header);
 
     // Esperamos formato: "Bearer <token>" o solo "<token>"
     let token = if auth_header.starts_with("Bearer ") {
-        auth_header.strip_prefix("Bearer ").unwrap()
+        let extracted_token = auth_header.strip_prefix("Bearer ").unwrap();
+        debug!("🎫 Token extraído con prefijo Bearer: {}", &extracted_token[..50.min(extracted_token.len())]);
+        extracted_token
     } else {
+        debug!("🎫 Token extraído sin prefijo: {}", &auth_header[..50.min(auth_header.len())]);
         auth_header
     };
 
     if token.is_empty() {
+        debug!("❌ Token está vacío");
         return Err(WebError::Unauthorized);
     }
 
-    let claims = AuthClaims::from_jwt(token.to_string()).map_err(|_| WebError::Unauthorized)?;
+    debug!("🔍 Validando JWT token...");
+    let claims = AuthClaims::from_jwt(token.to_string()).map_err(|e| {
+        debug!("❌ Error al validar JWT: {:?}", e);
+        WebError::Unauthorized
+    })?;
 
-    debug!("Authenticated user: {:?}", claims.user);
+    debug!("✅ Authenticated user: {:?}", claims.user);
 
     request.extensions_mut().insert(claims);
 
