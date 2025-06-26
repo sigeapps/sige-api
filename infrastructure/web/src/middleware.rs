@@ -1,7 +1,7 @@
 use crate::{auth::AuthClaims, Result};
 use axum::{
     extract::{Request, State},
-    http::header::AUTHORIZATION,
+    http::{header::AUTHORIZATION, Method, StatusCode},
     middleware::Next,
     response::Response,
 };
@@ -69,5 +69,21 @@ pub async fn authorize(
         return Err(WebError::Forbidden);
     };
 
+    Ok(next.run(request).await)
+}
+
+// Agregar handler para OPTIONS
+pub async fn handle_preflight(request: Request, next: Next) -> Result<Response> {
+    if request.method() == Method::OPTIONS {
+        return Ok(Response::builder()
+            .status(StatusCode::OK)
+            .header("Access-Control-Allow-Origin", "*")
+            .header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+            .header("Access-Control-Allow-Headers", "*")
+            .header("Access-Control-Max-Age", "86400")
+            .body(axum::body::Body::empty())
+            .unwrap());
+    }
+    
     Ok(next.run(request).await)
 }

@@ -8,7 +8,7 @@ GET {{baseURL}}/commission?from_date=2019-06-03&to_date=2028-06-03&limit=1&page=
 GET {{baseURL}}/official
 
 ### GET REGISTER 
-GET {{baseURL}}/register?ci=V33071696
+GET {{baseURL}}/register?ci=V00000000
 
 ### CREATE COMMISSION
 
@@ -175,7 +175,7 @@ GET {{baseURL}}/part
 POST {{baseURL}}/part
 Content-Type: application/json
 
-{ "part": { "date": "15/06/2025 07:08" }, "developments": [ { "date": "15/6/2023, 7:17", "data": "Revisado a las ______ en _____a", "type_id": 1 } ], "officials": [ { "id": 1, "official_id": 1, "type": "nightly" } ], "responsability": { "local_save": true, "official_service_ci": "V33071696", "official_receive_ci": "V33071696", "official_block_ci": "V33071696", "official_writer_ci": "V33071696", "official_deliver_ci": "V33071696", "official_receive_custody_ci": "V33071696", "official_hr_ci": "V33071696", "official_supervisor_ci": "V33071696", "official_director_ci": "V33071696", "official_dae_ci": "V33071696", "official_die_ci": "V33071696" }, "actions": {} }
+{ "part": { "date": "15/06/2025 07:08" }, "developments": [ { "date": "15/6/2023, 7:17", "data": "Revisado a las ______ en _____a", "type_id": 1 } ], "officials": [ { "id": 1, "official_id": 1, "type": "nightly" } ], "responsability": { "local_save": true, "official_service_ci": "V00000000", "official_receive_ci": "V00000000", "official_block_ci": "V00000000", "official_writer_ci": "V00000000", "official_deliver_ci": "V00000000", "official_receive_custody_ci": "V00000000", "official_hr_ci": "V00000000", "official_supervisor_ci": "V00000000", "official_director_ci": "V00000000", "official_dae_ci": "V00000000", "official_die_ci": "V00000000" }, "actions": {} }
 
 ### GET PART BY ID
 GET {{baseURL}}/part/3

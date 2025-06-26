@@ -12,6 +12,7 @@ use axum::{routing::get, Router};
 use error::WebError;
 use state::AppState;
 use tower_http::cors::CorsLayer;
+use axum::http::{Method, HeaderValue, HeaderName};
 
 pub type Result<T, E = WebError> = std::result::Result<T, E>;
 
@@ -21,7 +22,40 @@ pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<
 
     let address = format!("{}:{}", host, port);
 
-    let cors = CorsLayer::very_permissive();
+    // Configuración específica de CORS - Corregida para evitar el error
+    let cors = CorsLayer::new()
+        .allow_origin([
+            "http://localhost:1420".parse::<HeaderValue>().unwrap(),
+            "http://localhost:3000".parse::<HeaderValue>().unwrap(),
+            "http://localhost:5173".parse::<HeaderValue>().unwrap(),
+            "https://localhost:1420".parse::<HeaderValue>().unwrap(),
+            "http://app.tecnoelectronics.com.ve".parse::<HeaderValue>().unwrap(),
+            "https://app.tecnoelectronics.com.ve".parse::<HeaderValue>().unwrap(),
+        ])
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::PUT,
+            Method::PATCH,
+            Method::DELETE,
+            Method::OPTIONS,
+        ])
+        .allow_headers([
+            "accept".parse::<HeaderName>().unwrap(),
+            "accept-language".parse::<HeaderName>().unwrap(),
+            "authorization".parse::<HeaderName>().unwrap(),
+            "content-type".parse::<HeaderName>().unwrap(),
+            "dnt".parse::<HeaderName>().unwrap(),
+            "origin".parse::<HeaderName>().unwrap(),
+            "user-agent".parse::<HeaderName>().unwrap(),
+            "x-csrftoken".parse::<HeaderName>().unwrap(),
+            "x-requested-with".parse::<HeaderName>().unwrap(),
+        ])
+        .allow_credentials(true)
+        .expose_headers([
+            "content-length".parse::<HeaderName>().unwrap(),
+            "content-range".parse::<HeaderName>().unwrap(),
+        ]);
 
     let app = Router::new()
         .route("/", get(root))

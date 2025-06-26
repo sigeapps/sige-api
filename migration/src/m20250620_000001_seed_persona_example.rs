@@ -48,20 +48,20 @@ impl MigrationTrait for Migration {
                             Persona::VehicleLicense,
                         ])
                         .values_panic([
-                            "V33071696".into(),
-                            "Juan Carlos".into(),
-                            "Pérez González".into(),
+                            "V00000000".into(),
+                            "Solicitud".into(),
+                            "Propia".into(),
                             "1985-03-15".into(),
                             38.into(),
                             "Caracas, Distrito Capital".into(),
-                            "Av. Libertador, Urb. Los Palos Grandes, Casa 25".into(),
+                            "Helicoide".into(),
                             "0414-1234567".into(),
                             "juan.perez@gmail.com".into(),
                             "Masculino".into(),
                             "Soltero".into(),
                             "0102-3456-78901234567890".into(),
-                            "V33071696".into(),
-                            "G12345678".into(),
+                            "000000000".into(),
+                            "0000000000000000000".into(),
                         ])
                         .to_owned(),
                 )

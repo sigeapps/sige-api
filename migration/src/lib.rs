@@ -64,8 +64,8 @@ impl MigratorTrait for Migrator {
 pub async fn migrate(db_url: &str) -> Result<(), DbErr> {
     let db = Database::connect(db_url).await?;
 
-    Migrator::refresh(&db).await?;
+    Migrator::up(&db, None).await?;
 
     Ok(())
 }
-/////código para usar Migrator::up() en lugar de Migrator::refresh()
+/////código para actualizar o poner nuevo la base de datos usar Migrator::up() en lugar de Migrator::refresh()
