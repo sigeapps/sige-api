@@ -14,6 +14,8 @@ pub enum Permission {
     ModulePrevention,
     #[sea_orm(string_value = "module:users")]
     ModuleUsers,
+    #[sea_orm(string_value = "module:park")]
+    ModulePark,
 
     // User permissions
     #[sea_orm(string_value = "users:read")]
