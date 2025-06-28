@@ -7,11 +7,11 @@ use crate::{
     controllers::lookup::{
         create_band, create_base, create_brand, create_brigade, create_charge, create_division,
         create_family_relationships, create_hierarchy, create_institution, create_municipality,
-        create_novelty, create_organism, create_parish, create_profession,
+        create_novelty, create_organism, create_parish, create_persona_state, create_profession,
         create_seclusion_statuses, create_state, create_transport_status, create_transport_type,
         create_vehicle_model, get_bands, get_bases, get_brands, get_brigades, get_charges,
-        get_divisions, get_family_relationships, get_hierarchies, get_institutions,
-        get_municipalities, get_novelties, get_organisms, get_parish, get_professions, get_roles,
+        get_divisions, get_family_relationships, get_hierarchies, get_institutions, get_municipalities,
+        get_novelties, get_organisms, get_parish, get_persona_states, get_professions, get_roles,
         get_seclusion_statuses, get_states, get_status_conditions, get_transport_statuses,
         get_transport_types, get_vehicle_models,
     },
@@ -68,6 +68,8 @@ pub fn lookup_routes(app_state: &Arc<AppState>) -> Router {
         .route("/lookup/base", get(get_bases))
         .route("/lookup/role", get(get_roles))
         .route("/lookup/base", post(create_base))
+        .route("/lookup/persona-state", get(get_persona_states))
+        .route("/lookup/persona-state", post(create_persona_state))
         .layer(axum::middleware::from_fn(authenticate))
         .with_state(app_state.as_ref().clone())
 }

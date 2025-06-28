@@ -1,6 +1,8 @@
 use sea_orm::DerivePartialModel;
 use serde::{Deserialize, Serialize};
 
+// TODO: Encontrar forma de evitar duplicación de código
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct LookupItemDto {
     pub id: i32,
@@ -146,6 +148,13 @@ pub struct GetDivisionDTO {
     from_query_result
 )]
 pub struct GetStatusConditionDTO {
+    pub id: i32,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::persona_state::Entity", from_query_result)]
+pub struct GetPersonaStateDTO {
     pub id: i32,
     pub name: String,
 }

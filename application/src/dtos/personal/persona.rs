@@ -1,18 +1,22 @@
+use domain::entities::persona_state;
 use sea_orm::DerivePartialModel;
 use serde::{Deserialize, Serialize};
 
-use crate::dtos::personal::{
-    country::GetVerificationDTO,
-    persona::{
-        course::Course,
-        educational::Educational,
-        health::Health,
-        operational::Operational,
-        others::Others,
-        personal::{GetPersonalDTO, Personal, UpdatePersonal},
-        record::Record,
-        situation::GetSituationDTO,
+use crate::dtos::{
+    personal::{
+        country::GetVerificationDTO,
+        persona::{
+            course::Course,
+            educational::Educational,
+            health::Health,
+            operational::Operational,
+            others::Others,
+            personal::{GetPersonalDTO, Personal, UpdatePersonal},
+            record::Record,
+            situation::GetSituationDTO,
+        },
     },
+    prevention::lookup::GetPersonaStateDTO,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -75,6 +79,8 @@ pub struct GetPersonaSummaryDTO {
     pub genre: String,
     #[sea_orm(nested)]
     pub verification: Option<GetVerificationDTO>,
+    #[sea_orm(nested)]
+    pub state: GetPersonaStateDTO,
 }
 
 pub mod course {

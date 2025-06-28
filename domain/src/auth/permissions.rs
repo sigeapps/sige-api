@@ -123,6 +123,7 @@ impl Permission {
             Self::ModulePersonal => "module:personal",
             Self::ModulePrevention => "module:prevention",
             Self::ModuleUsers => "module:users",
+            Self::ModulePark => "module:park",
 
             Self::UsersRead => "users:read",
             Self::UsersCreate => "users:create",
@@ -181,6 +182,7 @@ impl Permission {
             "module:personal" => Some(Self::ModulePersonal),
             "module:prevention" => Some(Self::ModulePrevention),
             "module:users" => Some(Self::ModuleUsers),
+            "module:park" => Some(Self::ModulePark),
 
             "users:read" => Some(Self::UsersRead),
             "users:create" => Some(Self::UsersCreate),

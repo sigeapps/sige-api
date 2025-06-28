@@ -8,12 +8,14 @@ use axum::{
 };
 use domain::entities::{
     band, base, brand, brigade, charge, division, family_relationship, hierarchy, institution,
-    municipality, novelty, organism, parish, profession, role, seclusion_statuses, state,
-    status_condition, transport_statuses, transport_type, vehicle_model,
+    municipality, novelty, organism, parish, persona_state, profession, role, seclusion_statuses,
+    state, status_condition, transport_statuses, transport_type, vehicle_model,
 };
 use tracing::debug;
 
 use crate::state::AppState;
+
+// TODO: Refactorizar para que no se repita el codigo
 
 pub async fn get_brigades(State(app_state): State<AppState>) -> Result<Response> {
     let brigades = app_state
@@ -557,4 +559,33 @@ pub async fn get_roles(State(app_state): State<AppState>) -> Result<Response> {
 
     debug!("{:?}", Json(&bases));
     Ok((StatusCode::OK, Json(bases)).into_response())
+}
+
+pub async fn get_persona_states(State(app_state): State<AppState>) -> Result<Response> {
+    let persona_states = app_state
+        .lookup_service
+        .find::<persona_state::Entity, persona_state::Model, persona_state::ActiveModel>()
+        .await?;
+
+    debug!("persona_states: {:?}", Json(&persona_states));
+    Ok((StatusCode::OK, Json(persona_states)).into_response())
+}
+
+pub async fn create_persona_state(
+    State(app_state): State<AppState>,
+    Json(persona_state): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    let active_model = persona_state::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(persona_state.name),
+    };
+
+    app_state
+        .lookup_service
+        .create::<persona_state::Entity, persona_state::Model, persona_state::ActiveModel>(
+            active_model,
+        )
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
 }

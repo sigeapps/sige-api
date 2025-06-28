@@ -38,6 +38,8 @@ pub mod persona_operational;
 pub mod persona_record;
 pub mod persona_relative;
 pub mod persona_situation;
+pub mod persona_state;
+pub mod persona_status;
 pub mod persona_traits;
 pub mod persona_work_experience;
 pub mod profession;

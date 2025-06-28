@@ -13,7 +13,7 @@ use crate::dtos::{
 use domain::entities::{
     country_verification, persona, persona_children, persona_conyuge, persona_course,
     persona_education, persona_health, persona_operational, persona_record, persona_relative,
-    persona_situation, persona_traits, persona_work_experience,
+    persona_situation, persona_state, persona_traits, persona_work_experience,
 };
 
 #[derive(Debug, Clone)]
@@ -433,7 +433,9 @@ impl PersonaService {
         &self,
         filter: CommonQueryFilterDTO,
     ) -> Result<Vec<GetPersonaSummaryDTO>, DbErr> {
-        let mut query = persona::Entity::find().left_join(country_verification::Entity);
+        let mut query = persona::Entity::find()
+            .left_join(country_verification::Entity)
+            .left_join(persona_state::Entity);
 
         if let Some(search) = &filter.search {
             query = query.filter(

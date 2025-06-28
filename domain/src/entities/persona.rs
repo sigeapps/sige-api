@@ -28,6 +28,7 @@ pub struct Model {
     pub bank_account: String,
     pub homeland_ci: String,
     pub vehicle_license: String,
+    pub state_id: Option<i32>,
     pub others: Option<String>,
 }
 
@@ -47,6 +48,14 @@ pub enum Relation {
     PersonaRecord,
     #[sea_orm(has_many = "super::persona_relative::Entity")]
     PersonaRelative,
+    #[sea_orm(
+        belongs_to = "super::persona_state::Entity",
+        from = "Column::StateId",
+        to = "super::persona_state::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    PersonaState,
     #[sea_orm(has_one = "super::persona_traits::Entity")]
     PersonaTraits,
     #[sea_orm(has_many = "super::persona_work_experience::Entity")]
@@ -94,6 +103,12 @@ impl Related<super::persona_record::Entity> for Entity {
 impl Related<super::persona_relative::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PersonaRelative.def()
+    }
+}
+
+impl Related<super::persona_state::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PersonaState.def()
     }
 }
 

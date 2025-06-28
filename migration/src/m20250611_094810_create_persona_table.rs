@@ -9,16 +9,16 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(PersonaStatus::Table)
+                    .table(PersonaState::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(PersonaStatus::Id)
+                        ColumnDef::new(PersonaState::Id)
                             .integer()
                             .not_null()
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(PersonaStatus::Name).string().not_null())
+                    .col(ColumnDef::new(PersonaState::Name).string().not_null())
                     .to_owned(),
             )
             .await?;
@@ -27,8 +27,8 @@ impl MigrationTrait for Migration {
 
         for status in statuses {
             let insert = Query::insert()
-                .into_table(PersonaStatus::Table)
-                .columns([PersonaStatus::Name])
+                .into_table(PersonaState::Table)
+                .columns([PersonaState::Name])
                 .values_panic([status.into()])
                 .to_owned();
 
@@ -67,16 +67,11 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Persona::BankAccount).string().not_null())
                     .col(ColumnDef::new(Persona::HomelandCi).string().not_null())
                     .col(ColumnDef::new(Persona::VehicleLicense).string().not_null())
-                    .col(
-                        ColumnDef::new(Persona::StatusId)
-                            .integer()
-                            .null()
-                            .default(1),
-                    )
+                    .col(ColumnDef::new(Persona::StateId).integer().null().default(1))
                     .foreign_key(
                         ForeignKey::create()
-                            .from(Persona::Table, Persona::StatusId)
-                            .to(PersonaStatus::Table, PersonaStatus::Id),
+                            .from(Persona::Table, Persona::StateId)
+                            .to(PersonaState::Table, PersonaState::Id),
                     )
                     .col(ColumnDef::new(Persona::Others).string().null())
                     .to_owned(),
@@ -830,7 +825,7 @@ pub enum Persona {
     BankAccount,
     HomelandCi,
     VehicleLicense,
-    StatusId,
+    StateId,
     Others,
 }
 
@@ -1038,7 +1033,7 @@ pub enum PersonaSituation {
 }
 
 #[derive(DeriveIden)]
-enum PersonaStatus {
+enum PersonaState {
     Table,
     Id,
     Name,

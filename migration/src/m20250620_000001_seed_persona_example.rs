@@ -8,6 +8,8 @@ use crate::{
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
+// TODO: Añadir constantes para esta migración
+
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
@@ -15,13 +17,13 @@ impl MigrationTrait for Migration {
 
         let db = manager.get_connection();
 
-        println!("Seeding persona example with CI: V33071696");
+        println!("Seeding persona example with CI: V00000000");
 
         // Verificar si la persona ya existe
         let persona_exists = db
             .query_one(Statement::from_string(
                 manager.get_database_backend(),
-                "SELECT COUNT(*) as count FROM persona WHERE ci = 'V33071696'".to_string(),
+                "SELECT COUNT(*) as count FROM persona WHERE ci = 'V00000000'".to_string(),
             ))
             .await?;
 
@@ -67,13 +69,13 @@ impl MigrationTrait for Migration {
                 )
                 .await?;
 
-            println!("Persona with CI V33071696 created successfully");
+            println!("Persona with CI V00000000 created successfully");
 
             // Obtener el ID de la persona recién creada para insertar datos relacionados
             let persona_row = db
                 .query_one(Statement::from_string(
                     manager.get_database_backend(),
-                    "SELECT id FROM persona WHERE ci = 'V33071696'".to_string(),
+                    "SELECT id FROM persona WHERE ci = 'V00000000'".to_string(),
                 ))
                 .await?;
 
@@ -128,7 +130,7 @@ impl MigrationTrait for Migration {
                 )
                 .await?;
 
-            println!("PersonaTraits created for persona with CI V33071696");
+            println!("PersonaTraits created for persona with CI V00000000");
 
             // Insertar información de salud
             use crate::m20250611_094810_create_persona_table::PersonaHealth;
@@ -147,7 +149,7 @@ impl MigrationTrait for Migration {
                 )
                 .await?;
 
-            println!("PersonaHealth created for persona with CI V33071696");
+            println!("PersonaHealth created for persona with CI V00000000");
 
             // Insertar un registro básico
             use crate::m20250611_094810_create_persona_table::PersonaRecord;
@@ -170,9 +172,9 @@ impl MigrationTrait for Migration {
                 )
                 .await?;
 
-            println!("PersonaRecord created for persona with CI V33071696");
+            println!("PersonaRecord created for persona with CI V00000000");
         } else {
-            println!("Persona with CI V33071696 already exists, skipping...");
+            println!("Persona with CI V00000000 already exists, skipping...");
         }
 
         Ok(())
@@ -190,7 +192,7 @@ impl MigrationTrait for Migration {
         let persona_row = db
             .query_one(Statement::from_string(
                 manager.get_database_backend(),
-                "SELECT id FROM persona WHERE ci = 'V33071696'".to_string(),
+                "SELECT id FROM persona WHERE ci = 'V00000000'".to_string(),
             ))
             .await?;
 
@@ -265,14 +267,14 @@ impl MigrationTrait for Migration {
                 .exec_stmt(
                     Query::delete()
                         .from_table(Persona::Table)
-                        .and_where(Expr::col(Persona::Ci).eq("V33071696"))
+                        .and_where(Expr::col(Persona::Ci).eq("V00000000"))
                         .to_owned(),
                 )
                 .await?;
 
-            println!("Persona with CI V33071696 and all related data removed");
+            println!("Persona with CI V00000000 and all related data removed");
         } else {
-            println!("Persona with CI V33071696 not found, nothing to remove");
+            println!("Persona with CI V00000000 not found, nothing to remove");
         }
 
         Ok(())
