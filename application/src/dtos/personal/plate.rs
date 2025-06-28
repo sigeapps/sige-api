@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PlateRequestDTO {
     pub modified_personas: Vec<persona::ModifyPersonaDTO>,
+    #[serde(flatten)]
     pub plate: CreatePlateDTO,
 }
 
@@ -39,6 +40,7 @@ pub mod persona {
         fn into_persona(self) -> Result<persona::ActiveModel, sea_orm::DbErr> {
             let model = persona::ActiveModel {
                 state_id: self.new_state_id.into(),
+                id: self.persona_id,
                 ..Default::default()
             };
 
