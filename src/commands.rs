@@ -1,3 +1,5 @@
+use application::cli::MigrateCommand;
+use migration::Migrator;
 use tracing::{info, Level};
 
 use crate::settings::Settings;
@@ -15,6 +17,12 @@ pub fn start(settings: &Settings, log_level: Level) -> anyhow::Result<()> {
         settings.address.port,
         &settings.database.url,
     )?;
+
+    Ok(())
+}
+
+pub fn migrate(db_url: &str, command: MigrateCommand) -> anyhow::Result<()> {
+    Migrator::from_cli_command(db_url, command)?;
 
     Ok(())
 }

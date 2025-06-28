@@ -247,6 +247,19 @@ impl MigrationTrait for Migration {
                 )
                 .await?;
 
+            // Necesitamos eliminar las situaciones asociadas a la persona
+
+            manager
+                .exec_stmt(
+                    Query::delete()
+                        .from_table(PersonaSituation::Table)
+                        .and_where(Expr::col(PersonaSituation::RequestedById).eq(persona_id))
+                        .to_owned(),
+                )
+                .await?;
+
+            println!("Deleting main persona table");
+
             // Finalmente eliminar la persona
             manager
                 .exec_stmt(
