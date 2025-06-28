@@ -30,7 +30,7 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(DeriveIden)]
-enum Base {
+pub enum Base {
     Table,
     Id,
     Name,

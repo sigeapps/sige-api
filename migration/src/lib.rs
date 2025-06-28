@@ -25,6 +25,7 @@ mod m20250612_114832_create_country_tables;
 mod m20250615_144231_seed_users;
 mod m20250618_113709_create_base_tables;
 mod m20250620_000001_seed_persona_example;
+mod m20250628_164625_create_plate_table;
 
 pub struct Migrator;
 
@@ -32,7 +33,6 @@ pub struct Migrator;
 impl MigratorTrait for Migrator {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
         vec![
-            // USER SHOULD BE AFTER PERSONA
             Box::new(m20250419_000008_create_state_table::Migration),
             Box::new(m20250419_000001_create_role_table::Migration),
             Box::new(m20250419_000003_create_permission_table::Migration),
@@ -56,6 +56,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20250419_000002_create_user_table::Migration),
             Box::new(m20250615_144231_seed_users::Migration),
             Box::new(m20250620_000001_seed_persona_example::Migration),
+            Box::new(m20250628_164625_create_plate_table::Migration),
         ]
     }
 }

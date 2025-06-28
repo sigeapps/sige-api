@@ -18,6 +18,8 @@ pub enum Relation {
     Division,
     #[sea_orm(has_many = "super::municipality::Entity")]
     Municipality,
+    #[sea_orm(has_many = "super::plate::Entity")]
+    Plate,
 }
 
 impl Related<super::division::Entity> for Entity {
@@ -29,6 +31,12 @@ impl Related<super::division::Entity> for Entity {
 impl Related<super::municipality::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Municipality.def()
+    }
+}
+
+impl Related<super::plate::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Plate.def()
     }
 }
 

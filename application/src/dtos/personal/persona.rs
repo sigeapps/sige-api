@@ -1,4 +1,3 @@
-use domain::entities::persona_state;
 use sea_orm::DerivePartialModel;
 use serde::{Deserialize, Serialize};
 

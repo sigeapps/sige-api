@@ -40,6 +40,8 @@ pub use super::persona_state::Entity as PersonaState;
 pub use super::persona_status::Entity as PersonaStatus;
 pub use super::persona_traits::Entity as PersonaTraits;
 pub use super::persona_work_experience::Entity as PersonaWorkExperience;
+pub use super::plate::Entity as Plate;
+pub use super::plate_persona::Entity as PlatePersona;
 pub use super::profession::Entity as Profession;
 pub use super::register::Entity as Register;
 pub use super::role::Entity as Role;

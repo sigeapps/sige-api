@@ -42,6 +42,8 @@ pub mod persona_state;
 pub mod persona_status;
 pub mod persona_traits;
 pub mod persona_work_experience;
+pub mod plate;
+pub mod plate_persona;
 pub mod profession;
 pub mod register;
 pub mod role;

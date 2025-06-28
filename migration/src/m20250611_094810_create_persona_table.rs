@@ -23,7 +23,7 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        let statuses = ["active", "vacation", "sick", "missing"];
+        let statuses = ["Activo", "De vacaciones", "De reposo", "Faltando"];
 
         for status in statuses {
             let insert = Query::insert()
