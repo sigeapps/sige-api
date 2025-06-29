@@ -1,6 +1,7 @@
 use crate::{state::AppState, Result};
-use application::dtos::personal::plate::{PlateRequestDTO, PlateResponseDTO};
-use axum::extract::Path;
+use application::dtos::personal::plate::{GetPlateDTO, PlateRequestDTO, PlateResponseDTO};
+use application::dtos::CommonQueryFilterDTO;
+use axum::extract::{Path, Query};
 use axum::response::IntoResponse;
 use axum::Json;
 use axum::{extract::State, response::Response};
@@ -14,6 +15,11 @@ struct CreatePlateResponse {
 #[derive(Serialize, Deserialize)]
 struct PlateBody {
     plate: Option<PlateResponseDTO>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct MultiplePlatesBody {
+    plates: Vec<GetPlateDTO>,
 }
 
 pub async fn create_plate(
@@ -34,4 +40,13 @@ pub async fn get_plate_by_id(
     let plate = app_state.plate_service.find_by_id(id).await?;
 
     Ok(Json(PlateBody { plate }).into_response())
+}
+
+pub async fn get_plates(
+    State(app_state): State<AppState>,
+    Query(filter): Query<CommonQueryFilterDTO>,
+) -> Result<Response> {
+    let plates = app_state.plate_service.find(filter).await?;
+
+    Ok(Json(MultiplePlatesBody { plates }).into_response())
 }

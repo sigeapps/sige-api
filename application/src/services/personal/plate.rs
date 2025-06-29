@@ -1,10 +1,13 @@
-use domain::entities::{base, division, persona_state, plate_persona, state};
+use domain::entities::{base, division, persona_state, state};
 use sea_orm::*;
 use std::sync::Arc;
 
-use crate::dtos::personal::plate::{
-    persona::{ModifyPersonaResponse, PlatePersona},
-    GetPlateDTO, PlateRequestDTO, PlateResponseDTO,
+use crate::dtos::{
+    personal::plate::{
+        persona::{ModifyPersonaResponse, PlatePersona},
+        GetPlateDTO, PlateRequestDTO, PlateResponseDTO,
+    },
+    CommonQueryFilterDTO,
 };
 
 #[derive(Debug, Clone)]
@@ -83,9 +86,9 @@ impl PlateService {
                 .ok_or(DbErr::RecordNotFound("record not found".to_string()))?;
 
             personas.push(ModifyPersonaResponse {
-                new_state: new_state,
-                old_state: old_state,
-                persona: persona,
+                new_state,
+                old_state,
+                persona,
             });
         }
 
@@ -96,5 +99,29 @@ impl PlateService {
             })),
             None => Ok(None),
         }
+    }
+
+    pub async fn find(self, filter: CommonQueryFilterDTO) -> Result<Vec<GetPlateDTO>, DbErr> {
+        let mut query = domain::entities::plate::Entity::find()
+            .left_join(base::Entity)
+            .left_join(state::Entity)
+            .left_join(division::Entity);
+
+        if let Some(search) = filter.search {
+            query = query.filter(
+                domain::entities::plate::Column::Id
+                    .contains(&search)
+                    .or(domain::entities::base::Column::Name.contains(&search))
+                    .or(domain::entities::state::Column::Name.contains(&search))
+                    .or(domain::entities::division::Column::Name.contains(&search)),
+            );
+        }
+
+        let plates = query
+            .into_partial_model::<GetPlateDTO>()
+            .all(&*self.db)
+            .await?;
+
+        Ok(plates)
     }
 }

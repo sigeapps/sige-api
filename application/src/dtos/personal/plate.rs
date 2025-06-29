@@ -30,6 +30,7 @@ pub struct CreatePlateDTO {
 #[derive(Serialize, Deserialize, Debug, Clone, DerivePartialModel)]
 #[sea_orm(entity = "domain::entities::plate::Entity", from_query_result)]
 pub struct GetPlateDTO {
+    id: i32,
     #[sea_orm(nested)]
     base: GetBaseDTO,
     #[sea_orm(nested)]

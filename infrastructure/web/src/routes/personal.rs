@@ -9,7 +9,7 @@ use crate::{
     controllers::personal::{
         country::add_verification,
         persona::{create_persona, get_persona, get_personas, update_persona},
-        plate::{create_plate, get_plate_by_id},
+        plate::{create_plate, get_plate_by_id, get_plates},
     },
     middleware::authenticate,
     state::AppState,
@@ -21,7 +21,7 @@ pub fn personal_routes(app_state: &Arc<AppState>) -> Router {
         .route("/personal/persona", get(get_personas))
         .route("/personal/persona/{id}", get(get_persona))
         .route("/personal/persona/{id}", patch(update_persona))
-        .route("/personal/plate", post(create_plate))
+        .route("/personal/plate", post(create_plate).get(get_plates))
         .route("/personal/plate/{id}", get(get_plate_by_id))
         .route("/personal/country/verification", post(add_verification))
         .layer(axum::middleware::from_fn(authenticate))
