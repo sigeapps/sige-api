@@ -135,6 +135,13 @@ pub struct GetNoveltyDTO {
 
 #[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
 #[sea_orm(entity = "domain::entities::division::Entity", from_query_result)]
+pub struct GetSimpleDivisionDTO {
+    pub id: i32,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::division::Entity", from_query_result)]
 pub struct GetDivisionDTO {
     pub id: i32,
     pub name: String,

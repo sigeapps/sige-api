@@ -1,5 +1,6 @@
 use sea_orm::DerivePartialModel;
 use serde::{Deserialize, Serialize};
+use situation::SimpleDivisionDTO;
 
 use crate::dtos::{
     personal::{
@@ -15,7 +16,7 @@ use crate::dtos::{
             situation::GetSituationDTO,
         },
     },
-    prevention::lookup::GetPersonaStateDTO,
+    prevention::lookup::{GetBaseDTO, GetHierarchyDTO, GetPersonaStateDTO, GetStateDTO},
 };
 
 #[derive(Serialize, Deserialize)]
@@ -70,6 +71,15 @@ pub struct GetPersonaDTO {
 
 #[derive(Serialize, Deserialize, DerivePartialModel)]
 #[sea_orm(entity = "domain::entities::persona::Entity", from_query_result)]
+pub struct SimplePersonaResponseDTO {
+    pub id: i32,
+    pub ci: String,
+    pub name: String,
+    pub last_name: String,
+}
+
+#[derive(Serialize, Deserialize, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::persona::Entity", from_query_result)]
 pub struct GetPersonaSummaryDTO {
     pub id: i32,
     pub ci: String,
@@ -79,7 +89,15 @@ pub struct GetPersonaSummaryDTO {
     #[sea_orm(nested)]
     pub verification: Option<GetVerificationDTO>,
     #[sea_orm(nested)]
-    pub state: GetPersonaStateDTO,
+    pub work_state: GetPersonaStateDTO,
+    #[sea_orm(nested)]
+    pub division: Option<SimpleDivisionDTO>,
+    #[sea_orm(nested)]
+    pub state: Option<GetStateDTO>,
+    #[sea_orm(nested)]
+    pub base: Option<GetBaseDTO>,
+    #[sea_orm(nested)]
+    pub hierarchy: Option<GetHierarchyDTO>,
 }
 
 pub mod course {

@@ -30,6 +30,7 @@ pub struct Model {
     pub vehicle_license: String,
     pub state_id: Option<i32>,
     pub others: Option<String>,
+    pub created_at: DateTime,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -48,6 +49,8 @@ pub enum Relation {
     PersonaRecord,
     #[sea_orm(has_many = "super::persona_relative::Entity")]
     PersonaRelative,
+    #[sea_orm(has_one = "super::persona_situation::Entity")]
+    PersonaSituation,
     #[sea_orm(
         belongs_to = "super::persona_state::Entity",
         from = "Column::StateId",
@@ -105,6 +108,12 @@ impl Related<super::persona_record::Entity> for Entity {
 impl Related<super::persona_relative::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PersonaRelative.def()
+    }
+}
+
+impl Related<super::persona_situation::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PersonaSituation.def()
     }
 }
 

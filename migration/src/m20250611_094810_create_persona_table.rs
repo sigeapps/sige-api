@@ -74,6 +74,12 @@ impl MigrationTrait for Migration {
                             .to(PersonaState::Table, PersonaState::Id),
                     )
                     .col(ColumnDef::new(Persona::Others).string().null())
+                    .col(
+                        ColumnDef::new(Persona::CreatedAt)
+                            .timestamp()
+                            .not_null()
+                            .default(Expr::current_timestamp()),
+                    )
                     .to_owned(),
             )
             .await?;
@@ -534,6 +540,7 @@ impl MigrationTrait for Migration {
                     .col(
                         ColumnDef::new(PersonaSituation::PersonaId)
                             .integer()
+                            .unique_key()
                             .not_null(),
                     )
                     .foreign_key(
@@ -545,14 +552,16 @@ impl MigrationTrait for Migration {
                     .col(
                         ColumnDef::new(PersonaSituation::RequestedById)
                             .integer()
-                            .not_null(),
+                            .not_null()
+                            .unique_key(),
                     )
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("fk_persona_situation_requested_by")
-                            .from(PersonaSituation::Table, PersonaSituation::RequestedById)
-                            .to(Persona::Table, Persona::Id),
-                    )
+                    // FIXME: Cuando se crean dos foreign keys con el mismo nombre, se debe usar el id de una tabla para hacer los joins, por lo que al usar dos las entidades no se generan correctamente
+                    // .foreign_key(
+                    //     ForeignKey::create()
+                    //         .name("fk_persona_situation_requested_by")
+                    //         .from(PersonaSituation::Table, PersonaSituation::RequestedById)
+                    //         .to(Persona::Table, Persona::Id),
+                    // )
                     .col(
                         ColumnDef::new(PersonaSituation::SituationType)
                             .string()
@@ -827,6 +836,7 @@ pub enum Persona {
     VehicleLicense,
     StateId,
     Others,
+    CreatedAt,
 }
 
 #[derive(DeriveIden)]

@@ -8,12 +8,12 @@ use crate::dtos::{
         relative::Relative, situation::GetSituationDTO, traits::Traits, CreatePersonaDTO,
         GetPersonaDTO, GetPersonaSummaryDTO, UpdatePersonaDTO,
     },
-    CommonQueryFilterDTO,
+    CommonQueryFilterDTO, PaginationDTO,
 };
 use domain::entities::{
     country_verification, persona, persona_children, persona_conyuge, persona_course,
     persona_education, persona_health, persona_operational, persona_record, persona_relative,
-    persona_situation, persona_state, persona_traits, persona_work_experience,
+    persona_situation, persona_traits, persona_work_experience,
 };
 
 #[derive(Debug, Clone)]
@@ -435,7 +435,37 @@ impl PersonaService {
     ) -> Result<Vec<GetPersonaSummaryDTO>, DbErr> {
         let mut query = persona::Entity::find()
             .left_join(country_verification::Entity)
-            .left_join(persona_state::Entity);
+            .join_as(
+                JoinType::LeftJoin,
+                persona::Relation::PersonaState.def(),
+                Alias::new("persona_state"),
+            )
+            .left_join(persona_situation::Entity)
+            .join_as(
+                JoinType::LeftJoin,
+                persona_situation::Relation::State2.def(),
+                Alias::new("state"),
+            )
+            .join_as(
+                JoinType::LeftJoin,
+                persona_situation::Relation::Division2.def(),
+                Alias::new("division"),
+            )
+            .join_as(
+                JoinType::LeftJoin,
+                persona_situation::Relation::Base2.def(),
+                Alias::new("base"),
+            )
+            .join_as(
+                JoinType::LeftJoin,
+                persona_situation::Relation::Organism.def(),
+                Alias::new("organism"),
+            )
+            .join_as(
+                JoinType::LeftJoin,
+                persona_situation::Relation::Hierarchy2.def(),
+                Alias::new("hierarchy"),
+            );
 
         if let Some(search) = &filter.search {
             query = query.filter(
@@ -447,7 +477,39 @@ impl PersonaService {
         }
 
         if let Some(ci) = &filter.ci {
-            query = query.filter(persona::Column::Ci.eq(ci))
+            query = query.filter(persona::Column::Ci.eq(ci));
+        }
+
+        if let Some(from_date) = &filter.from_date {
+            query = query.filter(persona::Column::CreatedAt.gte(*from_date));
+        }
+
+        if let Some(to_date) = &filter.to_date {
+            query = query.filter(persona::Column::CreatedAt.lte(*to_date));
+        }
+
+        if let Some(sort) = &filter.sort {
+            // Ejemplo simple: sort = "name:asc" o "created_at:desc"
+            let parts: Vec<&str> = sort.split(':').collect();
+            if parts.len() == 2 {
+                let column = parts[0];
+                let direction = parts[1];
+                match (column, direction) {
+                    ("name", "asc") => {
+                        query = query.order_by_asc(persona::Column::Name);
+                    }
+                    ("name", "desc") => {
+                        query = query.order_by_desc(persona::Column::Name);
+                    }
+                    ("created_at", "asc") => {
+                        query = query.order_by_asc(persona::Column::CreatedAt);
+                    }
+                    ("created_at", "desc") => {
+                        query = query.order_by_desc(persona::Column::CreatedAt);
+                    }
+                    _ => {}
+                }
+            }
         }
 
         let pagination = &filter.into_pagination();
@@ -460,5 +522,46 @@ impl PersonaService {
             .await?;
 
         Ok(personas)
+    }
+
+    pub async fn get_pagination(
+        &self,
+        filter: CommonQueryFilterDTO,
+    ) -> Result<PaginationDTO, DbErr> {
+        let mut query = persona::Entity::find();
+
+        if let Some(search) = &filter.search {
+            query = query.filter(
+                persona::Column::Name
+                    .contains(search)
+                    .or(persona::Column::LastName.contains(search))
+                    .or(persona::Column::Ci.contains(search)),
+            );
+        }
+
+        if let Some(ci) = &filter.ci {
+            query = query.filter(persona::Column::Ci.eq(ci));
+        }
+
+        if let Some(from_date) = &filter.from_date {
+            query = query.filter(persona::Column::CreatedAt.gte(*from_date));
+        }
+
+        if let Some(to_date) = &filter.to_date {
+            query = query.filter(persona::Column::CreatedAt.lte(*to_date));
+        }
+
+        let pagination = filter.into_pagination();
+        let paginator = query.paginate(&*self.db, pagination.limit);
+        let total_count = paginator.num_items().await?;
+        let page_count = paginator.num_pages().await?;
+
+        Ok(PaginationDTO {
+            page: pagination.page,
+            limit: pagination.limit,
+            page_count,
+            total_count,
+            offset: pagination.offset,
+        })
     }
 }

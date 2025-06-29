@@ -5,6 +5,7 @@ use application::dtos::personal::persona::GetPersonaDTO;
 use application::dtos::personal::persona::GetPersonaSummaryDTO;
 use application::dtos::personal::persona::UpdatePersonaDTO;
 use application::dtos::CommonQueryFilterDTO;
+use application::dtos::PaginationDTO;
 use axum::extract::Path;
 use axum::extract::Query;
 use axum::extract::State;
@@ -16,6 +17,12 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize)]
 pub struct PersonaBody<T> {
     persona: T,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct MultiplePersonasBody {
+    pub personas: Vec<GetPersonaSummaryDTO>,
+    pub pagination: PaginationDTO,
 }
 
 pub async fn create_persona(
@@ -60,7 +67,15 @@ pub async fn get_personas(
     State(app_state): State<AppState>,
     Query(query): Query<CommonQueryFilterDTO>,
 ) -> Result<Response> {
-    let personas: Vec<GetPersonaSummaryDTO> = app_state.persona_service.find_summary(query).await?;
+    let personas: Vec<GetPersonaSummaryDTO> = app_state
+        .persona_service
+        .find_summary(query.clone())
+        .await?;
+    let pagination = app_state.persona_service.get_pagination(query).await?;
 
-    Ok((StatusCode::OK, Json(personas)).into_response())
+    Ok(Json(MultiplePersonasBody {
+        personas,
+        pagination,
+    })
+    .into_response())
 }
