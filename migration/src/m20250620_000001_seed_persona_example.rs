@@ -3,6 +3,7 @@ use sea_orm_migration::{prelude::*, sea_orm::Statement};
 use crate::{
     m20250419_000002_create_user_table::User,
     m20250611_094810_create_persona_table::PersonaSituation,
+    m20250612_114832_create_country_tables::CountryVerification,
 };
 
 #[derive(DeriveMigrationName)]
@@ -256,6 +257,17 @@ impl MigrationTrait for Migration {
                     Query::delete()
                         .from_table(PersonaSituation::Table)
                         .and_where(Expr::col(PersonaSituation::RequestedById).eq(persona_id))
+                        .to_owned(),
+                )
+                .await?;
+
+            // Tambien las verificaciones de país asociadas a la persona
+            //
+            manager
+                .exec_stmt(
+                    Query::delete()
+                        .from_table(CountryVerification::Table)
+                        .and_where(Expr::col(CountryVerification::PersonaId).eq(persona_id))
                         .to_owned(),
                 )
                 .await?;

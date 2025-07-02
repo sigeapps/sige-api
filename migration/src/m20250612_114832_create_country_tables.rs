@@ -23,10 +23,14 @@ impl MigrationTrait for Migration {
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_country_verification_condition")
-                            .from(CountryVerification::Table, CountryVerification::PersonaId)
+                            .from(CountryVerification::Table, CountryVerification::ConditionId)
                             .to(StatusCondition::Table, StatusCondition::Id),
                     )
                     .col(boolean_null(CountryVerification::Reported))
+                    .col(
+                        timestamp_with_time_zone(CountryVerification::CreatedAt)
+                            .default(Expr::current_timestamp()),
+                    )
                     .to_owned(),
             )
             .await
@@ -58,10 +62,11 @@ enum StatusCondition {
 }
 
 #[derive(DeriveIden)]
-enum CountryVerification {
+pub enum CountryVerification {
     Table,
     Id,
     PersonaId,
     ConditionId,
     Reported,
+    CreatedAt,
 }
