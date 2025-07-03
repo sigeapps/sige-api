@@ -8,11 +8,11 @@ pub mod types;
 
 use std::sync::Arc;
 
+use axum::http::{HeaderName, HeaderValue, Method};
 use axum::{routing::get, Router};
 use error::WebError;
 use state::AppState;
 use tower_http::cors::CorsLayer;
-use axum::http::{Method, HeaderValue, HeaderName};
 
 pub type Result<T, E = WebError> = std::result::Result<T, E>;
 
@@ -26,11 +26,16 @@ pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<
     let cors = CorsLayer::new()
         .allow_origin([
             "http://localhost:1420".parse::<HeaderValue>().unwrap(),
+            "http://localhost:1421".parse::<HeaderValue>().unwrap(),
             "http://localhost:3000".parse::<HeaderValue>().unwrap(),
             "http://localhost:5173".parse::<HeaderValue>().unwrap(),
             "https://localhost:1420".parse::<HeaderValue>().unwrap(),
-            "http://app.tecnoelectronics.com.ve".parse::<HeaderValue>().unwrap(),
-            "https://app.tecnoelectronics.com.ve".parse::<HeaderValue>().unwrap(),
+            "http://app.tecnoelectronics.com.ve"
+                .parse::<HeaderValue>()
+                .unwrap(),
+            "https://app.tecnoelectronics.com.ve"
+                .parse::<HeaderValue>()
+                .unwrap(),
         ])
         .allow_methods([
             Method::GET,
