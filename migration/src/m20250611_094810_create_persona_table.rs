@@ -552,8 +552,7 @@ impl MigrationTrait for Migration {
                     .col(
                         ColumnDef::new(PersonaSituation::RequestedById)
                             .integer()
-                            .not_null()
-                            .unique_key(),
+                            .not_null(),
                     )
                     // FIXME: Cuando se crean dos foreign keys con el mismo nombre, se debe usar el id de una tabla para hacer los joins, por lo que al usar dos las entidades no se generan correctamente
                     // .foreign_key(
