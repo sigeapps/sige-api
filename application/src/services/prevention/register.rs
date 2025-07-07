@@ -26,6 +26,8 @@ impl HasBaseId for register::ActiveModel {
 
 impl_filter_by_base_id!(register, BaseId);
 
+// Safety: Uso de unwrap en servicio ya que si el usuario es None sera manejado por el extension de Axum
+
 #[derive(Debug, Clone)]
 pub struct RegisterService {}
 
@@ -35,7 +37,7 @@ impl RegisterService {
         register_id: i32,
     ) -> Result<Option<GetRegisterDTO>, DbErr> {
         let register = register::Entity::find_by_id(register_id)
-            .filter_by_claims(ctx.claims)
+            .filter_by_claims(ctx.claims.unwrap())
             .find_also_related(organism::Entity)
             .find_also_related(division::Entity)
             .one(&ctx.db)
@@ -63,7 +65,7 @@ impl RegisterService {
         ctx: ApiContext,
         filter: CommonQueryFilterDTO,
     ) -> Result<Vec<GetRegisterDTO>, DbErr> {
-        let mut query = register::Entity::find().filter_by_claims(ctx.clone().claims);
+        let mut query = register::Entity::find().filter_by_claims(ctx.clone().claims.unwrap());
 
         if let Some(from_date) = &filter.from_date {
             query = query.filter(Column::EntryDate.gte(*from_date));
@@ -130,7 +132,7 @@ impl RegisterService {
         let pagination = &filter.into_pagination();
 
         let registers = query
-            .filter(register::Column::BaseId.eq(ctx.claims.user.base.id))
+            .filter(register::Column::BaseId.eq(ctx.claims.unwrap().user.base.id))
             .limit(pagination.limit)
             .offset(pagination.offset)
             .find_also_related(organism::Entity)
@@ -145,7 +147,7 @@ impl RegisterService {
         ctx: ApiContext,
         filter: CommonQueryFilterDTO,
     ) -> Result<PaginationDTO, DbErr> {
-        let mut query = register::Entity::find().filter_by_claims(ctx.claims);
+        let mut query = register::Entity::find().filter_by_claims(ctx.claims.unwrap());
 
         if let Some(from_date) = &filter.from_date {
             query = query.filter(Column::EntryDate.gte(*from_date));
@@ -186,7 +188,7 @@ impl RegisterService {
     }
 
     pub async fn create(ctx: ApiContext, register: CreateRegisterDTO) -> Result<(), DbErr> {
-        let register = register.into_active_model().stamp_user(ctx.claims);
+        let register = register.into_active_model().stamp_user(ctx.claims.unwrap());
 
         register::Entity::insert(register).exec(&ctx.db).await?;
 

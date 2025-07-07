@@ -5,5 +5,5 @@ use crate::auth::UserClaims;
 #[derive(Debug, Clone)]
 pub struct ApiContext {
     pub db: DatabaseConnection,
-    pub claims: UserClaims,
+    pub claims: Option<UserClaims>,
 }
