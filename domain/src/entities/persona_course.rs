@@ -25,11 +25,25 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Institution,
+    #[sea_orm(
+        belongs_to = "super::persona::Entity",
+        from = "Column::PersonaId",
+        to = "super::persona::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Persona,
 }
 
 impl Related<super::institution::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Institution.def()
+    }
+}
+
+impl Related<super::persona::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Persona.def()
     }
 }
 

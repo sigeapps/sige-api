@@ -1,4 +1,5 @@
-use crate::{auth::AuthClaims, Result};
+use crate::{auth::JwtTrait, Result};
+use application::auth::UserClaims;
 use axum::{
     extract::{Request, State},
     http::{header::AUTHORIZATION, Method, StatusCode},
@@ -12,7 +13,7 @@ use crate::error::WebError;
 
 pub async fn authenticate(mut request: Request, next: Next) -> Result<Response> {
     debug!("🔐 Iniciando proceso de autenticación");
-    
+
     let auth_header = request
         .headers()
         .get(AUTHORIZATION)
@@ -31,10 +32,16 @@ pub async fn authenticate(mut request: Request, next: Next) -> Result<Response> 
     // Esperamos formato: "Bearer <token>" o solo "<token>"
     let token = if auth_header.starts_with("Bearer ") {
         let extracted_token = auth_header.strip_prefix("Bearer ").unwrap();
-        debug!("🎫 Token extraído con prefijo Bearer: {}", &extracted_token[..50.min(extracted_token.len())]);
+        debug!(
+            "🎫 Token extraído con prefijo Bearer: {}",
+            &extracted_token[..50.min(extracted_token.len())]
+        );
         extracted_token
     } else {
-        debug!("🎫 Token extraído sin prefijo: {}", &auth_header[..50.min(auth_header.len())]);
+        debug!(
+            "🎫 Token extraído sin prefijo: {}",
+            &auth_header[..50.min(auth_header.len())]
+        );
         auth_header
     };
 
@@ -44,7 +51,7 @@ pub async fn authenticate(mut request: Request, next: Next) -> Result<Response> 
     }
 
     debug!("🔍 Validando JWT token...");
-    let claims = AuthClaims::from_jwt(token.to_string()).map_err(|e| {
+    let claims = UserClaims::from_jwt(token.to_string()).map_err(|e| {
         debug!("❌ Error al validar JWT: {:?}", e);
         WebError::Unauthorized
     })?;
@@ -79,7 +86,7 @@ pub async fn authorize(
         return Err(WebError::Unauthorized);
     }
 
-    let claims = AuthClaims::from_jwt(token.to_string()).map_err(|_| WebError::Unauthorized)?;
+    let claims = UserClaims::from_jwt(token.to_string()).map_err(|_| WebError::Unauthorized)?;
 
     println!("permissions: {:?}", claims.permissions);
 
@@ -96,12 +103,15 @@ pub async fn handle_preflight(request: Request, next: Next) -> Result<Response> 
         return Ok(Response::builder()
             .status(StatusCode::OK)
             .header("Access-Control-Allow-Origin", "*")
-            .header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+            .header(
+                "Access-Control-Allow-Methods",
+                "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+            )
             .header("Access-Control-Allow-Headers", "*")
             .header("Access-Control-Max-Age", "86400")
             .body(axum::body::Body::empty())
             .unwrap());
     }
-    
+
     Ok(next.run(request).await)
 }

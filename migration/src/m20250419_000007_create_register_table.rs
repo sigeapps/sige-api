@@ -2,7 +2,7 @@ use sea_orm_migration::prelude::*;
 
 use crate::{
     m20250419_000005_create_organism_table::Organism,
-    m20250419_000006_create_division_table::Division,
+    m20250419_000006_create_division_table::Division, m20250618_113709_create_base_tables::Base,
 };
 
 pub struct Migration;
@@ -16,6 +16,8 @@ impl MigrationName for Migration {
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        println!("Creating register table");
+
         manager
             .create_table(
                 Table::create()
@@ -60,6 +62,13 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Register::ExitDate).timestamp().null())
                     .col(ColumnDef::new(Register::VisitReason).string().not_null())
                     .col(ColumnDef::new(Register::Observations).string().null())
+                    .col(ColumnDef::new(Register::BaseId).integer().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk-register-base")
+                            .from(Register::Table, Register::BaseId)
+                            .to(Base::Table, Base::Id),
+                    )
                     .to_owned(),
             )
             .await
@@ -87,4 +96,5 @@ pub enum Register {
     ExitDate,
     VisitReason,
     Observations,
+    BaseId,
 }

@@ -12,6 +12,7 @@ pub struct Model {
     pub persona_id: i32,
     pub condition_id: i32,
     pub reported: Option<bool>,
+    pub created_at: DateTimeWithTimeZone,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -26,7 +27,7 @@ pub enum Relation {
     Persona,
     #[sea_orm(
         belongs_to = "super::status_condition::Entity",
-        from = "Column::PersonaId",
+        from = "Column::ConditionId",
         to = "super::status_condition::Column::Id",
         on_update = "NoAction",
         on_delete = "NoAction"

@@ -13,6 +13,35 @@ pub struct Model {
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::commission::Entity",
+        from = "Column::CommissionId",
+        to = "super::commission::Column::Id",
+        on_update = "NoAction",
+        on_delete = "Cascade"
+    )]
+    Commission,
+    #[sea_orm(
+        belongs_to = "super::transport::Entity",
+        from = "Column::TransportId",
+        to = "super::transport::Column::Id",
+        on_update = "NoAction",
+        on_delete = "Restrict"
+    )]
+    Transport,
+}
+
+impl Related<super::commission::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Commission.def()
+    }
+}
+
+impl Related<super::transport::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Transport.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}

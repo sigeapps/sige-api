@@ -10,7 +10,6 @@ pub struct Model {
     pub id: i32,
     #[sea_orm(unique)]
     pub persona_id: i32,
-    #[sea_orm(unique)]
     pub requested_by_id: i32,
     pub situation_type: String,
     pub entry_type: Option<String>,

@@ -1,6 +1,7 @@
-use crate::auth::AuthClaims;
+use crate::auth::JwtTrait;
 use crate::state::AppState;
 use crate::Result;
+use application::auth::UserClaims;
 use application::dtos::auth::LoginRequest;
 use axum::body::Body;
 use axum::extract::State;
@@ -49,12 +50,12 @@ pub async fn login(
         .find_permissions_by_role_id(user.role.id)
         .await?;
 
-    let token = AuthClaims { user, permissions }.to_jwt()?;
+    let token = UserClaims { user, permissions }.to_jwt()?;
 
     Ok((Json(UserBody { token })).into_response())
 }
 
-pub async fn get_current_user(Extension(claims): Extension<AuthClaims>) -> Result<Response> {
+pub async fn get_current_user(Extension(claims): Extension<UserClaims>) -> Result<Response> {
     debug!("Getting current user: {:?}", claims.user);
 
     Ok(Json(claims).into_response())

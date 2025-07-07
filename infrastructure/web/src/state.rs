@@ -6,8 +6,7 @@ use application::{
         personal::{country::CountryService, persona::PersonaService, plate::PlateService},
         prevention::{
             commission::CommissionService, lookup::LookupService, official::OfficialService,
-            part::PartService, register::RegisterService, seclusion::SeclusionService,
-            transport::TransportService,
+            part::PartService, seclusion::SeclusionService, transport::TransportService,
         },
         user::UserService,
     },
@@ -17,7 +16,6 @@ use tracing::debug;
 #[derive(Debug, Clone)]
 pub struct AppState {
     pub user_service: UserService,
-    pub register_service: RegisterService,
     pub lookup_service: LookupService,
     pub transport_service: TransportService,
     pub official_service: OfficialService,
@@ -38,7 +36,6 @@ impl AppState {
 
         Ok(Self {
             user_service: UserService::new(db.clone()),
-            register_service: RegisterService::new(db.clone()),
             official_service: OfficialService::new(db.clone()),
             lookup_service: LookupService::new(db.clone()),
             transport_service: TransportService::new(db.clone()),

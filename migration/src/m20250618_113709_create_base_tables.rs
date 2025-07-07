@@ -15,7 +15,17 @@ impl MigrationTrait for Migration {
                     .col(string(Base::Name))
                     .to_owned(),
             )
-            .await
+            .await?;
+
+        println!("Seeding base tables");
+
+        let insert = Query::insert()
+            .into_table(Base::Table)
+            .columns([Base::Name])
+            .values_panic(["Creación".into()])
+            .to_owned();
+
+        manager.exec_stmt(insert).await
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {

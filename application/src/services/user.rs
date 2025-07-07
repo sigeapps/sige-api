@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use domain::{
     auth::permissions::Permission,
-    entities::{permission, role, role_permission, user},
+    entities::{base, permission, role, role_permission, user},
 };
 use password_auth::generate_hash;
 use sea_orm::*;
@@ -49,6 +49,7 @@ impl UserService {
         let user = user::Entity::find()
             .filter(user::Column::Name.eq(username))
             .left_join(role::Entity)
+            .left_join(base::Entity)
             .into_partial_model::<GetUserDTO>()
             .one(&*self.db)
             .await?;

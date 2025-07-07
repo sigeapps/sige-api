@@ -1,5 +1,4 @@
-use std::sync::Arc;
-
+use crate::auth::{FilterByClaims, UserClaims};
 use chrono::Local;
 use domain::entities::{
     division, organism,
@@ -7,26 +6,39 @@ use domain::entities::{
 };
 use sea_orm::*;
 
-use crate::dtos::{
-    prevention::register::{CreateRegisterDTO, GetRegisterDTO, UpdateRegisterExitDTO},
-    CommonQueryFilterDTO, PaginationDTO,
+use crate::{
+    api::ApiContext,
+    auth::{HasBaseId, UserStamp},
+    dtos::{
+        prevention::register::{CreateRegisterDTO, GetRegisterDTO, UpdateRegisterExitDTO},
+        CommonQueryFilterDTO, PaginationDTO,
+    },
+    impl_filter_by_base_id,
 };
 
-#[derive(Debug, Clone)]
-pub struct RegisterService {
-    db: Arc<DatabaseConnection>,
+impl HasBaseId for register::ActiveModel {
+    fn set_base_id(mut self, id: i32) -> Self {
+        self.base_id = Set(id);
+
+        self
+    }
 }
 
-impl RegisterService {
-    pub fn new(db: Arc<DatabaseConnection>) -> Self {
-        RegisterService { db }
-    }
+impl_filter_by_base_id!(register, BaseId);
 
-    pub async fn find_by_id(&self, register_id: i32) -> Result<Option<GetRegisterDTO>, DbErr> {
+#[derive(Debug, Clone)]
+pub struct RegisterService {}
+
+impl RegisterService {
+    pub async fn find_by_id(
+        ctx: ApiContext,
+        register_id: i32,
+    ) -> Result<Option<GetRegisterDTO>, DbErr> {
         let register = register::Entity::find_by_id(register_id)
+            .filter_by_claims(ctx.claims)
             .find_also_related(organism::Entity)
             .find_also_related(division::Entity)
-            .one(&*self.db)
+            .one(&ctx.db)
             .await?;
 
         let register = register.map(GetRegisterDTO::from);
@@ -34,12 +46,12 @@ impl RegisterService {
         Ok(register)
     }
 
-    pub async fn find_by_ci(&self, ci: String) -> Result<Option<GetRegisterDTO>, DbErr> {
+    pub async fn find_by_ci(ctx: ApiContext, ci: String) -> Result<Option<GetRegisterDTO>, DbErr> {
         let register = register::Entity::find()
             .filter(register::Column::Ci.eq(ci))
             .find_also_related(organism::Entity)
             .find_also_related(division::Entity)
-            .one(&*self.db)
+            .one(&ctx.db)
             .await?;
 
         let register = register.map(GetRegisterDTO::from);
@@ -47,8 +59,11 @@ impl RegisterService {
         Ok(register)
     }
 
-    pub async fn find(&self, filter: CommonQueryFilterDTO) -> Result<Vec<GetRegisterDTO>, DbErr> {
-        let mut query = register::Entity::find();
+    pub async fn find(
+        ctx: ApiContext,
+        filter: CommonQueryFilterDTO,
+    ) -> Result<Vec<GetRegisterDTO>, DbErr> {
+        let mut query = register::Entity::find().filter_by_claims(ctx.clone().claims);
 
         if let Some(from_date) = &filter.from_date {
             query = query.filter(Column::EntryDate.gte(*from_date));
@@ -115,21 +130,22 @@ impl RegisterService {
         let pagination = &filter.into_pagination();
 
         let registers = query
+            .filter(register::Column::BaseId.eq(ctx.claims.user.base.id))
             .limit(pagination.limit)
             .offset(pagination.offset)
             .find_also_related(organism::Entity)
             .find_also_related(division::Entity)
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         Ok(registers.into_iter().map(GetRegisterDTO::from).collect())
     }
 
     pub async fn get_pagination(
-        &self,
+        ctx: ApiContext,
         filter: CommonQueryFilterDTO,
     ) -> Result<PaginationDTO, DbErr> {
-        let mut query = register::Entity::find();
+        let mut query = register::Entity::find().filter_by_claims(ctx.claims);
 
         if let Some(from_date) = &filter.from_date {
             query = query.filter(Column::EntryDate.gte(*from_date));
@@ -155,7 +171,7 @@ impl RegisterService {
 
         let pagination = filter.into_pagination();
 
-        let paginator = query.paginate(&*self.db, pagination.limit);
+        let paginator = query.paginate(&ctx.db, pagination.limit);
 
         let total_count = paginator.num_items().await?;
         let page_count = paginator.num_pages().await?;
@@ -169,16 +185,16 @@ impl RegisterService {
         })
     }
 
-    pub async fn create(&self, register: CreateRegisterDTO) -> Result<(), DbErr> {
-        let register = register.into_active_model();
+    pub async fn create(ctx: ApiContext, register: CreateRegisterDTO) -> Result<(), DbErr> {
+        let register = register.into_active_model().stamp_user(ctx.claims);
 
-        register::Entity::insert(register).exec(&*self.db).await?;
+        register::Entity::insert(register).exec(&ctx.db).await?;
 
         Ok(())
     }
 
     pub async fn update_exit(
-        &self,
+        ctx: ApiContext,
         register: UpdateRegisterExitDTO,
         register_id: i32,
     ) -> Result<(), DbErr> {
@@ -187,7 +203,7 @@ impl RegisterService {
         register.id = Set(register_id);
         register.exit_date = Set(Some(Local::now().naive_local()));
 
-        register::Entity::update(register).exec(&*self.db).await?;
+        register::Entity::update(register).exec(&ctx.db).await?;
 
         Ok(())
     }

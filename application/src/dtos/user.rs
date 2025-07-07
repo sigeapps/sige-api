@@ -2,12 +2,16 @@ use domain::entities::user::ActiveModel;
 use sea_orm::{ActiveValue::Set, DeriveIntoActiveModel, DerivePartialModel};
 use serde::{Deserialize, Serialize};
 
+use crate::dtos::prevention::lookup::GetBaseDTO;
+
 #[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
 #[sea_orm(entity = "domain::entities::user::Entity", from_query_result)]
 pub struct GetUserDTO {
     pub id: i32,
     pub name: String,
     pub password_hash: String,
+    #[sea_orm(nested)]
+    pub base: GetBaseDTO,
     #[sea_orm(nested)]
     pub role: GetRoleDTO,
 }
