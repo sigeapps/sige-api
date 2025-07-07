@@ -108,11 +108,12 @@ impl MigrationTrait for Migration {
                 .exec_stmt(
                     Query::insert()
                         .into_table(User::Table)
-                        .columns([User::Name, User::PasswordHash, User::RoleId])
+                        .columns([User::Name, User::PasswordHash, User::RoleId, User::PersonaId])
                         .values_panic([
                             "sigar".into(),
                             "$argon2id$v=19$m=19456,t=2,p=1$iFyKwovvE6HrcG5KmoE+Gw$KVjkvuGGoN1J+vRxFFDGLIBZOWc45lnDjFFTMG4NKTY".into(),
                             sudo_role_id.into(),
+                            1.into()
                         ])
                         .to_owned(),
                 )

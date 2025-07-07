@@ -10,6 +10,7 @@ use crate::{
 pub struct Migration;
 
 // TODO: Añadir constantes para esta migración
+// Creo que es mejor mover todos los seeds a un solo archivo, ya que realmente todos se complementan entre sí
 
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
@@ -151,6 +152,23 @@ impl MigrationTrait for Migration {
                 .await?;
 
             println!("PersonaHealth created for persona with CI V00000000");
+
+            use crate::m20250611_094810_create_persona_table::PersonaSituation;
+
+            manager
+                .exec_stmt(
+                    Query::insert()
+                        .into_table(PersonaSituation::Table)
+                        .columns([
+                            PersonaSituation::PersonaId,
+                            PersonaSituation::BaseId,
+                            PersonaSituation::RequestedById,
+                            PersonaSituation::SituationType,
+                        ])
+                        .values_panic([persona_id.into(), 1.into(), 1.into(), "sudo".into()])
+                        .to_owned(),
+                )
+                .await?;
 
             // Insertar un registro básico
             use crate::m20250611_094810_create_persona_table::PersonaRecord;

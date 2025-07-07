@@ -54,8 +54,8 @@ impl MigratorTrait for Migrator {
             Box::new(m20250611_094810_create_persona_table::Migration),
             Box::new(m20250612_114832_create_country_tables::Migration),
             Box::new(m20250419_000002_create_user_table::Migration),
-            Box::new(m20250615_144231_seed_users::Migration),
             Box::new(m20250620_000001_seed_persona_example::Migration),
+            Box::new(m20250615_144231_seed_users::Migration),
             Box::new(m20250628_164625_create_plate_table::Migration),
         ]
     }
