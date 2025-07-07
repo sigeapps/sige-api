@@ -13,19 +13,10 @@ pub struct Model {
     pub name: String,
     pub password_hash: String,
     pub role_id: i32,
-    pub base_id: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(
-        belongs_to = "super::base::Entity",
-        from = "Column::BaseId",
-        to = "super::base::Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    Base,
     #[sea_orm(
         belongs_to = "super::persona::Entity",
         from = "Column::PersonaId",
@@ -42,12 +33,6 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Role,
-}
-
-impl Related<super::base::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Base.def()
-    }
 }
 
 impl Related<super::persona::Entity> for Entity {
