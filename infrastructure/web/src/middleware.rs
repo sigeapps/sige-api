@@ -58,15 +58,8 @@ pub async fn authenticate(mut request: Request, next: Next) -> Result<Response> 
 
     debug!("✅ Authenticated user: {:?}", claims.user);
 
-    // TODO: revisar si esto es eficiente en memoria, estamos clonando y volviendo a insertar la pool de la db
-
     if let Some(ext) = request.extensions_mut().get_mut::<ApiContext>() {
         ext.claims = Some(claims);
-        let ext_cloned = ext.clone();
-
-        debug!("extension {:?}", ext_cloned);
-
-        request.extensions_mut().insert(ext_cloned);
     }
 
     Ok(next.run(request).await)
