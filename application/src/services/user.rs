@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use domain::{
     auth::permissions::Permission,
-    entities::{permission, role, role_permission, user},
+    entities::{permission, persona, persona_situation, role, role_permission, user},
 };
 use password_auth::generate_hash;
 use sea_orm::*;
@@ -23,13 +23,17 @@ impl UserService {
     }
 
     pub async fn find(&self, params: CommonQueryFilterDTO) -> Result<Vec<GetUserDTO>, DbErr> {
-        let mut query = user::Entity::find();
+        let mut query = persona::Entity::find();
+
+        query = query
+            .left_join(user::Entity)
+            .join(JoinType::LeftJoin, user::Relation::Role.def())
+            .left_join(persona_situation::Entity)
+            .join(JoinType::LeftJoin, persona_situation::Relation::Base2.def());
 
         if let Some(search) = params.search {
             query = query.filter(user::Column::Name.contains(search));
         }
-
-        query = query.left_join(role::Entity);
 
         query
             .into_partial_model::<GetUserDTO>()
@@ -46,9 +50,16 @@ impl UserService {
     }
 
     pub async fn find_by_username(&self, username: String) -> Result<Option<GetUserDTO>, DbErr> {
-        let user = user::Entity::find()
-            .filter(user::Column::Name.eq(username))
-            .left_join(role::Entity)
+        /*
+        Buscamos usando la relación de persona, por que en seaORM no se puede hacer un join de 4 tablas,
+        por lo que es más fácil encontrar la base del usuario haciendo el select en persona
+        */
+        let user = persona::Entity::find()
+            .left_join(user::Entity)
+            .join(JoinType::LeftJoin, user::Relation::Role.def())
+            .left_join(persona_situation::Entity)
+            .join(JoinType::LeftJoin, persona_situation::Relation::Base2.def())
+            .filter(Condition::any().add(user::Column::Name.eq(username)))
             .into_partial_model::<GetUserDTO>()
             .one(&*self.db)
             .await?;

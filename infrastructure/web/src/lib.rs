@@ -8,7 +8,10 @@ pub mod types;
 
 use std::sync::Arc;
 
+use application::api::ApiContext;
+use application::connection::connect;
 use axum::http::{HeaderName, HeaderValue, Method};
+use axum::Extension;
 use axum::{routing::get, Router};
 use error::WebError;
 use state::AppState;
@@ -17,8 +20,9 @@ use tower_http::cors::CorsLayer;
 pub type Result<T, E = WebError> = std::result::Result<T, E>;
 
 #[tokio::main]
-pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<()> {
-    let app_state = Arc::new(AppState::new(database_url).await?);
+pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
+    let app_state = Arc::new(AppState::new(db_url).await?);
+    let db = connect(db_url).await?;
 
     let address = format!("{}:{}", host, port);
 
@@ -71,6 +75,7 @@ pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<
         .merge(routes::prevention::prevention_routes(&app_state))
         .merge(routes::personal::personal_routes(&app_state))
         .merge(routes::lookup::lookup_routes(&app_state))
+        .layer(Extension(ApiContext { db, claims: None }))
         .layer(cors);
 
     let listener = tokio::net::TcpListener::bind(address).await?;
