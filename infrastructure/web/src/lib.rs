@@ -30,6 +30,7 @@ pub async fn start(host: &str, port: u16, database_url: &str) -> anyhow::Result<
             "http://localhost:3000".parse::<HeaderValue>().unwrap(),
             "http://localhost:5173".parse::<HeaderValue>().unwrap(),
             "https://localhost:1420".parse::<HeaderValue>().unwrap(),
+            "http://tauri.localhost".parse::<HeaderValue>().unwrap(),
             "http://app.tecnoelectronics.com.ve"
                 .parse::<HeaderValue>()
                 .unwrap(),
