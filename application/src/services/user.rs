@@ -59,6 +59,10 @@ impl UserService {
             .join(JoinType::LeftJoin, user::Relation::Role.def())
             .left_join(persona_situation::Entity)
             .join(JoinType::LeftJoin, persona_situation::Relation::Base2.def())
+            .join(
+                JoinType::LeftJoin,
+                persona_situation::Relation::Hierarchy2.def(),
+            )
             .filter(Condition::any().add(user::Column::Name.eq(username)))
             .into_partial_model::<GetUserDTO>()
             .one(&*self.db)

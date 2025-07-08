@@ -9,7 +9,7 @@ pub struct AddVerificationDTO {
     pub reported: bool,
 }
 
-#[derive(Serialize, Deserialize, DerivePartialModel)]
+#[derive(Serialize, Deserialize, DerivePartialModel, Clone, Debug)]
 #[sea_orm(
     entity = "domain::entities::country_verification::Entity",
     from_query_result

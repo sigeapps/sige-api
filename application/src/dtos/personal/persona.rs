@@ -69,7 +69,7 @@ pub struct GetPersonaDTO {
     pub others: Option<Others>,
 }
 
-#[derive(Serialize, Deserialize, DerivePartialModel)]
+#[derive(Serialize, Deserialize, DerivePartialModel, Debug, Clone)]
 #[sea_orm(entity = "domain::entities::persona::Entity", from_query_result)]
 pub struct SimplePersonaResponseDTO {
     pub id: i32,
@@ -78,7 +78,7 @@ pub struct SimplePersonaResponseDTO {
     pub last_name: String,
 }
 
-#[derive(Serialize, Deserialize, DerivePartialModel)]
+#[derive(Serialize, Deserialize, DerivePartialModel, Clone, Debug)]
 #[sea_orm(entity = "domain::entities::persona::Entity", from_query_result)]
 pub struct GetPersonaSummaryDTO {
     pub id: i32,
@@ -153,7 +153,7 @@ pub mod situation {
     }
 
     // DTOs simplificados para evitar conflictos de alias
-    #[derive(Serialize, Deserialize, DerivePartialModel)]
+    #[derive(Serialize, Deserialize, DerivePartialModel, Clone, Debug)]
     #[sea_orm(entity = "domain::entities::division::Entity", from_query_result)]
     pub struct SimpleDivisionDTO {
         pub id: i32,

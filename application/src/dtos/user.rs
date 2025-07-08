@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::dtos::prevention::lookup::GetBaseDTO;
 
+use super::{personal::persona::SimplePersonaResponseDTO, prevention::lookup::GetHierarchyDTO};
+
 #[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
 #[sea_orm(entity = "domain::entities::user::Entity", from_query_result)]
 pub struct GetUserDTO {
@@ -12,6 +14,10 @@ pub struct GetUserDTO {
     pub password_hash: String,
     #[sea_orm(nested)]
     pub base: GetBaseDTO,
+    #[sea_orm(nested)]
+    pub hierarchy: GetHierarchyDTO,
+    #[sea_orm(nested)]
+    pub persona: SimplePersonaResponseDTO,
     #[sea_orm(nested)]
     pub role: GetRoleDTO,
 }
