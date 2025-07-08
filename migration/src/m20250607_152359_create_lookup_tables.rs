@@ -50,6 +50,17 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
+        manager
+            .create_table(
+                Table::create()
+                    .table(DocumentType::Table)
+                    .if_not_exists()
+                    .col(pk_auto(DocumentType::Id))
+                    .col(string(DocumentType::Name).unique_key())
+                    .to_owned(),
+            )
+            .await?;
+
         let statuses = ["Activo", "Vacaciones", "Reposo", "Civil"];
 
         for status in statuses {
@@ -100,6 +111,13 @@ enum Institution {
 
 #[derive(DeriveIden)]
 enum Profession {
+    Table,
+    Id,
+    Name,
+}
+
+#[derive(DeriveIden)]
+enum DocumentType {
     Table,
     Id,
     Name,

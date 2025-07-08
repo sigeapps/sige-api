@@ -7,9 +7,9 @@ use axum::{
     Json,
 };
 use domain::entities::{
-    band, base, brand, brigade, charge, division, family_relationship, hierarchy, institution,
-    municipality, novelty, organism, parish, persona_state, profession, role, seclusion_statuses,
-    state, status_condition, transport_statuses, transport_type, vehicle_model,
+    band, base, brand, brigade, charge, division, document_type, family_relationship, hierarchy,
+    institution, municipality, novelty, organism, parish, persona_state, profession, role,
+    seclusion_statuses, state, status_condition, transport_statuses, transport_type, vehicle_model,
 };
 use tracing::debug;
 
@@ -583,6 +583,35 @@ pub async fn create_persona_state(
     app_state
         .lookup_service
         .create::<persona_state::Entity, persona_state::Model, persona_state::ActiveModel>(
+            active_model,
+        )
+        .await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+pub async fn get_document_types(State(app_state): State<AppState>) -> Result<Response> {
+    let persona_states = app_state
+        .lookup_service
+        .find::<document_type::Entity, document_type::Model, document_type::ActiveModel>()
+        .await?;
+
+    debug!("persona_states: {:?}", Json(&persona_states));
+    Ok((StatusCode::OK, Json(persona_states)).into_response())
+}
+
+pub async fn create_document_type(
+    State(app_state): State<AppState>,
+    Json(persona_state): Json<CreateBasicLookUpDTO>,
+) -> Result<Response> {
+    let active_model = document_type::ActiveModel {
+        id: Default::default(),
+        name: sea_orm::Set(persona_state.name),
+    };
+
+    app_state
+        .lookup_service
+        .create::<document_type::Entity, document_type::Model, document_type::ActiveModel>(
             active_model,
         )
         .await?;

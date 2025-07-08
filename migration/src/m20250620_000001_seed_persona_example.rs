@@ -162,10 +162,17 @@ impl MigrationTrait for Migration {
                         .columns([
                             PersonaSituation::PersonaId,
                             PersonaSituation::BaseId,
+                            PersonaSituation::HierarchyId,
                             PersonaSituation::RequestedById,
                             PersonaSituation::SituationType,
                         ])
-                        .values_panic([persona_id.into(), 1.into(), 1.into(), "sudo".into()])
+                        .values_panic([
+                            persona_id.into(),
+                            1.into(),
+                            1.into(),
+                            1.into(),
+                            "sudo".into(),
+                        ])
                         .to_owned(),
                 )
                 .await?;

@@ -15,6 +15,7 @@ pub mod commission_seized_transport;
 pub mod commission_transport;
 pub mod country_verification;
 pub mod division;
+pub mod document_type;
 pub mod family_relationship;
 pub mod hierarchy;
 pub mod institution;

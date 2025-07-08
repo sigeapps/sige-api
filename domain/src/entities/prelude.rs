@@ -13,6 +13,7 @@ pub use super::commission_seized_transport::Entity as CommissionSeizedTransport;
 pub use super::commission_transport::Entity as CommissionTransport;
 pub use super::country_verification::Entity as CountryVerification;
 pub use super::division::Entity as Division;
+pub use super::document_type::Entity as DocumentType;
 pub use super::family_relationship::Entity as FamilyRelationship;
 pub use super::hierarchy::Entity as Hierarchy;
 pub use super::institution::Entity as Institution;

@@ -15,7 +15,7 @@ pub struct GetUserDTO {
     #[sea_orm(nested)]
     pub base: GetBaseDTO,
     #[sea_orm(nested)]
-    pub hierarchy: GetHierarchyDTO,
+    pub hierarchy: Option<GetHierarchyDTO>,
     #[sea_orm(nested)]
     pub persona: SimplePersonaResponseDTO,
     #[sea_orm(nested)]
