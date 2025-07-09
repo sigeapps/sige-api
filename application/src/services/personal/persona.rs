@@ -62,7 +62,7 @@ impl PersonaService {
             for mut operational in dto.operational {
                 operational.persona_id = persona_id;
 
-                operational.into_active_model().save(&transaction).await?;
+                operational.into_active_model().insert(&transaction).await?;
             }
             Ok::<(), DbErr>(())
         }
@@ -72,7 +72,7 @@ impl PersonaService {
             for mut relative in dto.relatives {
                 relative.persona_id = persona_id;
 
-                relative.into_active_model().save(&transaction).await?;
+                relative.into_active_model().insert(&transaction).await?;
             }
             Ok::<(), DbErr>(())
         }
@@ -82,7 +82,7 @@ impl PersonaService {
             for mut course in dto.courses {
                 course.persona_id = persona_id;
 
-                course.into_active_model().save(&transaction).await?;
+                course.into_active_model().insert(&transaction).await?;
             }
             Ok::<(), DbErr>(())
         }
@@ -92,7 +92,7 @@ impl PersonaService {
             for mut record in dto.records {
                 record.persona_id = persona_id;
 
-                record.into_active_model().save(&transaction).await?;
+                record.into_active_model().insert(&transaction).await?;
             }
             Ok::<(), DbErr>(())
         }
@@ -102,7 +102,7 @@ impl PersonaService {
             for mut education in dto.education {
                 education.persona_id = persona_id;
 
-                education.into_active_model().save(&transaction).await?;
+                education.into_active_model().insert(&transaction).await?;
             }
             Ok::<(), DbErr>(())
         }
@@ -112,7 +112,7 @@ impl PersonaService {
             for mut labor in dto.work_experiencies {
                 labor.persona_id = persona_id;
 
-                labor.into_active_model().save(&transaction).await?;
+                labor.into_active_model().insert(&transaction).await?;
             }
             Ok::<(), DbErr>(())
         }

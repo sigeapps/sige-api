@@ -10,11 +10,16 @@ pub struct Model {
     pub id: i32,
     pub persona_id: i32,
     pub organism_id: i32,
+    pub withdrawal_type: String,
+    pub hierarchy_id: i32,
     pub charge_id: i32,
     pub start_at: Date,
     pub end_at: Date,
-    pub time: i32,
-    pub phone: String,
+    pub time: String,
+    pub boss_name: String,
+    pub boss_phone: String,
+    pub description: Option<String>,
+    pub is_active: bool,
     pub file: Option<String>,
 }
 
@@ -28,6 +33,14 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Charge,
+    #[sea_orm(
+        belongs_to = "super::hierarchy::Entity",
+        from = "Column::HierarchyId",
+        to = "super::hierarchy::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Hierarchy,
     #[sea_orm(
         belongs_to = "super::organism::Entity",
         from = "Column::OrganismId",
@@ -49,6 +62,12 @@ pub enum Relation {
 impl Related<super::charge::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Charge.def()
+    }
+}
+
+impl Related<super::hierarchy::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Hierarchy.def()
     }
 }
 

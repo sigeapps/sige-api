@@ -11,6 +11,9 @@ pub struct Model {
     pub persona_id: i32,
     pub name: String,
     pub r#type: String,
+    pub requested_by_id: i32,
+    pub date: Date,
+    pub description: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -289,6 +289,16 @@ impl MigrationTrait for Migration {
                             .to(Profession::Table, Profession::Id),
                     )
                     .col(ColumnDef::new(PersonaEducation::EndDate).date().not_null())
+                    .col(
+                        ColumnDef::new(PersonaEducation::DegreeNumber)
+                            .integer()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaEducation::RegisterNumber)
+                            .integer()
+                            .not_null(),
+                    )
                     .col(ColumnDef::new(PersonaEducation::Photo).string().null())
                     .to_owned(),
             )
@@ -348,32 +358,14 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(
-                        ColumnDef::new(PersonaWorkExperience::OrganismId)
-                            .integer()
+                        ColumnDef::new(PersonaWorkExperience::EnterpriseName)
+                            .string()
                             .not_null(),
-                    )
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("fk_persona_work_experience_organism")
-                            .from(
-                                PersonaWorkExperience::Table,
-                                PersonaWorkExperience::OrganismId,
-                            )
-                            .to(Organism::Table, Organism::Id),
                     )
                     .col(
-                        ColumnDef::new(PersonaWorkExperience::ChargeId)
-                            .integer()
+                        ColumnDef::new(PersonaWorkExperience::Charge)
+                            .string()
                             .not_null(),
-                    )
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("fk_persona_work_experience_charge")
-                            .from(
-                                PersonaWorkExperience::Table,
-                                PersonaWorkExperience::ChargeId,
-                            )
-                            .to(Charge::Table, Charge::Id),
                     )
                     .col(
                         ColumnDef::new(PersonaWorkExperience::PersonaId)
@@ -390,18 +382,9 @@ impl MigrationTrait for Migration {
                             .to(Persona::Table, Persona::Id),
                     )
                     .col(
-                        ColumnDef::new(PersonaWorkExperience::HierarchyId)
-                            .integer()
+                        ColumnDef::new(PersonaWorkExperience::BossName)
+                            .string()
                             .not_null(),
-                    )
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("fk_persona_work_experience_hierarchy")
-                            .from(
-                                PersonaWorkExperience::Table,
-                                PersonaWorkExperience::HierarchyId,
-                            )
-                            .to(Hierarchy::Table, Hierarchy::Id),
                     )
                     .col(
                         ColumnDef::new(PersonaWorkExperience::BossPhone)
@@ -411,10 +394,26 @@ impl MigrationTrait for Migration {
                     .col(
                         ColumnDef::new(PersonaWorkExperience::IsActive)
                             .boolean()
-                            .not_null(),
+                            .default(false)
+                            .null(),
                     )
                     .col(
                         ColumnDef::new(PersonaWorkExperience::Description)
+                            .string()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaWorkExperience::StartAt)
+                            .date()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaWorkExperience::EndAt)
+                            .date()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaWorkExperience::Time)
                             .string()
                             .not_null(),
                     )
@@ -494,6 +493,22 @@ impl MigrationTrait for Migration {
                             .to(Organism::Table, Organism::Id),
                     )
                     .col(
+                        ColumnDef::new(PersonaOperational::WithdrawalType)
+                            .string()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaOperational::HierarchyId)
+                            .integer()
+                            .not_null(),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_persona_operational_hierarchy")
+                            .from(PersonaOperational::Table, PersonaOperational::HierarchyId)
+                            .to(Hierarchy::Table, Hierarchy::Id),
+                    )
+                    .col(
                         ColumnDef::new(PersonaOperational::ChargeId)
                             .integer()
                             .not_null(),
@@ -510,14 +525,26 @@ impl MigrationTrait for Migration {
                             .not_null(),
                     )
                     .col(ColumnDef::new(PersonaOperational::EndAt).date().not_null())
+                    .col(ColumnDef::new(PersonaOperational::Time).string().not_null())
                     .col(
-                        ColumnDef::new(PersonaOperational::Time)
-                            .integer()
+                        ColumnDef::new(PersonaOperational::BossName)
+                            .string()
                             .not_null(),
                     )
                     .col(
-                        ColumnDef::new(PersonaOperational::Phone)
+                        ColumnDef::new(PersonaOperational::BossPhone)
                             .string()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaOperational::Description)
+                            .string()
+                            .null(),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaOperational::IsActive)
+                            .boolean()
+                            .default(false)
                             .not_null(),
                     )
                     .col(ColumnDef::new(PersonaOperational::File).string().null())
@@ -710,6 +737,17 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(PersonaRecord::Name).string().not_null())
                     .col(ColumnDef::new(PersonaRecord::Type).string().not_null())
+                    .col(
+                        ColumnDef::new(PersonaRecord::RequestedById)
+                            .integer()
+                            .not_null(),
+                    )
+                    .col(ColumnDef::new(PersonaRecord::Date).date().not_null())
+                    .col(
+                        ColumnDef::new(PersonaRecord::Description)
+                            .string()
+                            .not_null(),
+                    )
                     .to_owned(),
             )
             .await
@@ -720,6 +758,15 @@ impl MigrationTrait for Migration {
             .drop_table(
                 Table::drop()
                     .table(PersonaRecord::Table)
+                    .cascade()
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .drop_table(
+                Table::drop()
+                    .table(PersonaEducation::Table)
                     .cascade()
                     .to_owned(),
             )
@@ -908,6 +955,8 @@ enum PersonaEducation {
     InstitutionId,
     ProfessionId,
     EndDate,
+    DegreeNumber,
+    RegisterNumber,
     Photo,
 }
 
@@ -927,12 +976,15 @@ pub enum PersonaWorkExperience {
     Table,
     Id,
     PersonaId,
-    OrganismId,
-    ChargeId,
-    HierarchyId,
+    EnterpriseName,
+    Charge,
     BossPhone,
+    BossName,
     IsActive,
     Description,
+    StartAt,
+    EndAt,
+    Time,
     Photo,
 }
 
@@ -954,11 +1006,16 @@ pub enum PersonaOperational {
     Id,
     PersonaId,
     OrganismId,
+    HierarchyId,
+    WithdrawalType,
     ChargeId,
     StartAt,
     EndAt,
     Time,
-    Phone,
+    BossName,
+    BossPhone,
+    IsActive,
+    Description,
     File,
 }
 
@@ -969,6 +1026,9 @@ pub enum PersonaRecord {
     PersonaId,
     Name,
     Type,
+    RequestedById,
+    Date,
+    Description,
 }
 
 #[derive(DeriveIden)]

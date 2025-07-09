@@ -296,13 +296,18 @@ pub mod operational {
         pub id: i32,
         #[serde(skip_deserializing)]
         pub persona_id: i32,
-        pub phone: String,
         pub organism_id: i32,
+        pub withdrawal_type: String,
+        pub hierarchy_id: i32,
         pub charge_id: i32,
-        pub file: String,
-        pub time: i32,
         pub start_at: NaiveDate,
         pub end_at: NaiveDate,
+        pub time: String,
+        pub boss_name: String,
+        pub boss_phone: String,
+        pub description: Option<String>,
+        pub is_active: bool,
+        pub file: Option<String>,
     }
 }
 
@@ -404,6 +409,7 @@ pub mod personal {
 }
 
 pub mod record {
+    use chrono::NaiveDate;
     use domain::entities::persona_record::ActiveModel;
     use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
@@ -417,6 +423,9 @@ pub mod record {
         pub persona_id: i32,
         pub name: String,
         pub r#type: String,
+        pub requested_by_id: i32,
+        pub date: NaiveDate,
+        pub description: String,
     }
 }
 
@@ -526,6 +535,7 @@ pub mod traits {
 }
 
 pub mod labor {
+    use chrono::NaiveDate;
     use domain::entities::persona_work_experience::ActiveModel;
     use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
@@ -540,12 +550,15 @@ pub mod labor {
         pub id: i32,
         #[serde(skip_deserializing)]
         pub persona_id: i32,
+        pub enterprise_name: String,
+        pub charge: String,
+        pub boss_name: String,
         pub boss_phone: String,
+        pub is_active: Option<bool>,
         pub description: String,
-        pub organism_id: i32,
-        pub charge_id: i32,
-        pub hierarchy_id: i32,
-        pub photo: String,
-        pub is_active: bool,
+        pub start_at: NaiveDate,
+        pub end_at: NaiveDate,
+        pub time: String,
+        pub photo: Option<String>,
     }
 }

@@ -17,8 +17,6 @@ pub enum Relation {
     Official,
     #[sea_orm(has_many = "super::persona_operational::Entity")]
     PersonaOperational,
-    #[sea_orm(has_many = "super::persona_work_experience::Entity")]
-    PersonaWorkExperience,
 }
 
 impl Related<super::official::Entity> for Entity {
@@ -30,12 +28,6 @@ impl Related<super::official::Entity> for Entity {
 impl Related<super::persona_operational::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PersonaOperational.def()
-    }
-}
-
-impl Related<super::persona_work_experience::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::PersonaWorkExperience.def()
     }
 }
 

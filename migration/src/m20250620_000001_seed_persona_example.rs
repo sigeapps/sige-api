@@ -176,31 +176,6 @@ impl MigrationTrait for Migration {
                         .to_owned(),
                 )
                 .await?;
-
-            // Insertar un registro básico
-            use crate::m20250611_094810_create_persona_table::PersonaRecord;
-
-            manager
-                .exec_stmt(
-                    Query::insert()
-                        .into_table(PersonaRecord::Table)
-                        .columns([
-                            PersonaRecord::PersonaId,
-                            PersonaRecord::Name,
-                            PersonaRecord::Type,
-                        ])
-                        .values_panic([
-                            persona_id.into(),
-                            "Antecedentes Penales".into(),
-                            "Judicial".into(),
-                        ])
-                        .to_owned(),
-                )
-                .await?;
-
-            println!("PersonaRecord created for persona with CI V00000000");
-        } else {
-            println!("Persona with CI V00000000 already exists, skipping...");
         }
 
         Ok(())
