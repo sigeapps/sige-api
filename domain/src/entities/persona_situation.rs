@@ -11,6 +11,8 @@ pub struct Model {
     #[sea_orm(unique)]
     pub persona_id: i32,
     pub requested_by_id: i32,
+    pub date: Date,
+    pub process_id: Option<i32>,
     pub situation_type: String,
     pub entry_type: Option<String>,
     pub division_id: Option<i32>,
@@ -19,10 +21,6 @@ pub struct Model {
     pub hierarchy_id: Option<i32>,
     pub charge_id: Option<i32>,
     pub division_origin_id: Option<i32>,
-    pub state_origin_id: Option<i32>,
-    pub base_origin_id: Option<i32>,
-    pub hierarchy_origin_id: Option<i32>,
-    pub charge_origin_id: Option<i32>,
     pub organism_origin_id: Option<i32>,
     pub created_at: Option<DateTime>,
 }
@@ -36,15 +34,7 @@ pub enum Relation {
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    Base2,
-    #[sea_orm(
-        belongs_to = "super::base::Entity",
-        from = "Column::BaseOriginId",
-        to = "super::base::Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    Base1,
+    Base,
     #[sea_orm(
         belongs_to = "super::charge::Entity",
         from = "Column::ChargeId",
@@ -52,15 +42,7 @@ pub enum Relation {
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    Charge2,
-    #[sea_orm(
-        belongs_to = "super::charge::Entity",
-        from = "Column::ChargeOriginId",
-        to = "super::charge::Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    Charge1,
+    Charge,
     #[sea_orm(
         belongs_to = "super::division::Entity",
         from = "Column::DivisionId",
@@ -84,15 +66,7 @@ pub enum Relation {
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    Hierarchy2,
-    #[sea_orm(
-        belongs_to = "super::hierarchy::Entity",
-        from = "Column::HierarchyOriginId",
-        to = "super::hierarchy::Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    Hierarchy1,
+    Hierarchy,
     #[sea_orm(
         belongs_to = "super::organism::Entity",
         from = "Column::OrganismOriginId",
@@ -116,15 +90,25 @@ pub enum Relation {
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    State2,
-    #[sea_orm(
-        belongs_to = "super::state::Entity",
-        from = "Column::StateOriginId",
-        to = "super::state::Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    State1,
+    State,
+}
+
+impl Related<super::base::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Base.def()
+    }
+}
+
+impl Related<super::charge::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Charge.def()
+    }
+}
+
+impl Related<super::hierarchy::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Hierarchy.def()
+    }
 }
 
 impl Related<super::organism::Entity> for Entity {
@@ -136,6 +120,12 @@ impl Related<super::organism::Entity> for Entity {
 impl Related<super::persona::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Persona.def()
+    }
+}
+
+impl Related<super::state::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::State.def()
     }
 }
 

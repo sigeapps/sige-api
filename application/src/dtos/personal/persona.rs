@@ -121,6 +121,7 @@ pub mod course {
 }
 
 pub mod situation {
+    use chrono::NaiveDate;
     use domain::entities::persona_situation::ActiveModel;
     use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
@@ -136,6 +137,8 @@ pub mod situation {
         #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub situation_type: String,
+        pub date: NaiveDate,
+        pub process_id: Option<i32>,
 
         pub entry_type: Option<String>,
         pub division_id: Option<i32>,
@@ -144,10 +147,6 @@ pub mod situation {
         pub hierarchy_id: Option<i32>,
         pub charge_id: Option<i32>,
         pub division_origin_id: Option<i32>,
-        pub state_origin_id: Option<i32>,
-        pub base_origin_id: Option<i32>,
-        pub hierarchy_origin_id: Option<i32>,
-        pub charge_origin_id: Option<i32>,
         pub organism_origin_id: Option<i32>,
         pub requested_by_id: i32,
     }
@@ -207,6 +206,8 @@ pub mod situation {
     pub struct GetSituationDTO {
         pub id: i32,
         pub situation_type: String,
+        pub date: NaiveDate,
+        pub process_id: i32,
         pub entry_type: Option<String>,
         #[sea_orm(nested)]
         pub division: Option<SimpleDivisionDTO>,
@@ -221,16 +222,7 @@ pub mod situation {
         #[sea_orm(nested)]
         pub division_origin: Option<SimpleDivisionDTO>,
         #[sea_orm(nested)]
-        pub state_origin: Option<SimpleStateDTO>,
-        #[sea_orm(nested)]
-        pub base_origin: Option<SimpleBaseDTO>,
-        #[sea_orm(nested)]
-        pub hierarchy_origin: Option<SimpleHierarchyDTO>,
-        #[sea_orm(nested)]
-        pub charge_origin: Option<SimpleChargeDTO>,
-        #[sea_orm(nested)]
         pub organism_origin: Option<SimpleOrganismDTO>,
-
         // TODO: Verificar si es necesario
         pub requested_by_id: i32,
     }
@@ -277,6 +269,8 @@ pub mod health {
         pub blood_group: String,
         pub has_fractures: Option<bool>,
         pub fractures: Option<String>,
+        pub known_conditions: Option<String>,
+        pub known_conditions_description: Option<String>,
     }
 }
 

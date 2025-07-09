@@ -14,6 +14,8 @@ pub struct Model {
     pub operations: Option<String>,
     pub has_fractures: Option<bool>,
     pub fractures: Option<String>,
+    pub known_conditions: Option<String>,
+    pub known_conditions_description: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

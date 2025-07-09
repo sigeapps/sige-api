@@ -363,48 +363,28 @@ impl PersonaService {
             )
             .join_as(
                 JoinType::LeftJoin,
-                persona_situation::Relation::State2.def(),
+                persona_situation::Relation::State.def(),
                 Alias::new("state"),
             )
             .join_as(
                 JoinType::LeftJoin,
-                persona_situation::Relation::Base2.def(),
+                persona_situation::Relation::Base.def(),
                 Alias::new("base"),
             )
             .join_as(
                 JoinType::LeftJoin,
-                persona_situation::Relation::Hierarchy2.def(),
+                persona_situation::Relation::Hierarchy.def(),
                 Alias::new("hierarchy"),
             )
             .join_as(
                 JoinType::LeftJoin,
-                persona_situation::Relation::Charge2.def(),
+                persona_situation::Relation::Charge.def(),
                 Alias::new("charge"),
             )
             .join_as(
                 JoinType::LeftJoin,
                 persona_situation::Relation::Division1.def(),
                 Alias::new("division_origin"),
-            )
-            .join_as(
-                JoinType::LeftJoin,
-                persona_situation::Relation::State1.def(),
-                Alias::new("state_origin"),
-            )
-            .join_as(
-                JoinType::LeftJoin,
-                persona_situation::Relation::Base1.def(),
-                Alias::new("base_origin"),
-            )
-            .join_as(
-                JoinType::LeftJoin,
-                persona_situation::Relation::Hierarchy1.def(),
-                Alias::new("hierarchy_origin"),
-            )
-            .join_as(
-                JoinType::LeftJoin,
-                persona_situation::Relation::Charge1.def(),
-                Alias::new("charge_origin"),
             )
             .into_partial_model::<GetSituationDTO>()
             .one(&*self.db)
@@ -443,7 +423,7 @@ impl PersonaService {
             .left_join(persona_situation::Entity)
             .join_as(
                 JoinType::LeftJoin,
-                persona_situation::Relation::State2.def(),
+                persona_situation::Relation::State.def(),
                 Alias::new("state"),
             )
             .join_as(
@@ -453,7 +433,7 @@ impl PersonaService {
             )
             .join_as(
                 JoinType::LeftJoin,
-                persona_situation::Relation::Base2.def(),
+                persona_situation::Relation::Base.def(),
                 Alias::new("base"),
             )
             .join_as(
@@ -463,7 +443,7 @@ impl PersonaService {
             )
             .join_as(
                 JoinType::LeftJoin,
-                persona_situation::Relation::Hierarchy2.def(),
+                persona_situation::Relation::Hierarchy.def(),
                 Alias::new("hierarchy"),
             );
 

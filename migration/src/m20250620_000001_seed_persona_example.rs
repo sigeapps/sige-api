@@ -1,4 +1,7 @@
-use sea_orm_migration::{prelude::*, sea_orm::Statement};
+use sea_orm_migration::{
+    prelude::*,
+    sea_orm::{prelude::Date, Statement},
+};
 
 use crate::{
     m20250419_000002_create_user_table::User,
@@ -165,6 +168,7 @@ impl MigrationTrait for Migration {
                             PersonaSituation::HierarchyId,
                             PersonaSituation::RequestedById,
                             PersonaSituation::SituationType,
+                            PersonaSituation::Date,
                         ])
                         .values_panic([
                             persona_id.into(),
@@ -172,6 +176,7 @@ impl MigrationTrait for Migration {
                             1.into(),
                             1.into(),
                             "sudo".into(),
+                            Date::from_ymd_opt(2026, 6, 25).into(),
                         ])
                         .to_owned(),
                 )
