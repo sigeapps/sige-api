@@ -454,6 +454,16 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(PersonaHealth::Operations).string().null())
                     .col(ColumnDef::new(PersonaHealth::HasFractures).boolean().null())
                     .col(ColumnDef::new(PersonaHealth::Fractures).string().null())
+                    .col(
+                        ColumnDef::new(PersonaHealth::KnownConditions)
+                            .string()
+                            .null(),
+                    )
+                    .col(
+                        ColumnDef::new(PersonaHealth::KnownConditionsDescription)
+                            .string()
+                            .null(),
+                    )
                     .to_owned(),
             )
             .await?;
@@ -588,6 +598,9 @@ impl MigrationTrait for Migration {
                     //         .from(PersonaSituation::Table, PersonaSituation::RequestedById)
                     //         .to(Persona::Table, Persona::Id),
                     // )
+                    //
+                    .col(ColumnDef::new(PersonaSituation::Date).date().not_null())
+                    .col(ColumnDef::new(PersonaSituation::ProcessId).integer().null())
                     .col(
                         ColumnDef::new(PersonaSituation::SituationType)
                             .string()
@@ -647,50 +660,6 @@ impl MigrationTrait for Migration {
                             .name("fk_persona_situation_division_origin")
                             .from(PersonaSituation::Table, PersonaSituation::DivisionOriginId)
                             .to(Division::Table, Division::Id),
-                    )
-                    .col(
-                        ColumnDef::new(PersonaSituation::StateOriginId)
-                            .integer()
-                            .null(),
-                    )
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("fk_persona_situation_state_origin")
-                            .from(PersonaSituation::Table, PersonaSituation::StateOriginId)
-                            .to(State::Table, State::Id),
-                    )
-                    .col(
-                        ColumnDef::new(PersonaSituation::BaseOriginId)
-                            .integer()
-                            .null(),
-                    )
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("fk_persona_situation_base_origin")
-                            .from(PersonaSituation::Table, PersonaSituation::BaseOriginId)
-                            .to(Base::Table, Base::Id),
-                    )
-                    .col(
-                        ColumnDef::new(PersonaSituation::HierarchyOriginId)
-                            .integer()
-                            .null(),
-                    )
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("fk_persona_situation_hierarchy_origin")
-                            .from(PersonaSituation::Table, PersonaSituation::HierarchyOriginId)
-                            .to(Hierarchy::Table, Hierarchy::Id),
-                    )
-                    .col(
-                        ColumnDef::new(PersonaSituation::ChargeOriginId)
-                            .integer()
-                            .null(),
-                    )
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("fk_persona_situation_charge_origin")
-                            .from(PersonaSituation::Table, PersonaSituation::ChargeOriginId)
-                            .to(Charge::Table, Charge::Id),
                     )
                     .col(
                         ColumnDef::new(PersonaSituation::OrganismOriginId)
@@ -998,6 +967,8 @@ pub enum PersonaHealth {
     Operations,
     HasFractures,
     Fractures,
+    KnownConditions,
+    KnownConditionsDescription,
 }
 
 #[derive(DeriveIden)]
@@ -1085,6 +1056,8 @@ pub enum PersonaSituation {
     Id,
     PersonaId,
     SituationType,
+    Date,
+    ProcessId,
     EntryType,
     DivisionId,
     StateId,
@@ -1092,10 +1065,6 @@ pub enum PersonaSituation {
     HierarchyId,
     ChargeId,
     DivisionOriginId,
-    StateOriginId,
-    BaseOriginId,
-    HierarchyOriginId,
-    ChargeOriginId,
     OrganismOriginId,
     RequestedById,
     CreatedAt,
