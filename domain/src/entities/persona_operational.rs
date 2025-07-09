@@ -19,7 +19,7 @@ pub struct Model {
     pub boss_name: String,
     pub boss_phone: String,
     pub description: Option<String>,
-    pub is_active: bool,
+    pub is_active: Option<bool>,
     pub file: Option<String>,
 }
 

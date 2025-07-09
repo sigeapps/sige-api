@@ -26,6 +26,7 @@ mod m20250615_144231_seed_users;
 mod m20250618_113709_create_base_tables;
 mod m20250620_000001_seed_persona_example;
 mod m20250628_164625_create_plate_table;
+mod m20250709_180301_create_correspondence_table;
 
 pub struct Migrator;
 
@@ -57,6 +58,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20250620_000001_seed_persona_example::Migration),
             Box::new(m20250615_144231_seed_users::Migration),
             Box::new(m20250628_164625_create_plate_table::Migration),
+            Box::new(m20250709_180301_create_correspondence_table::Migration),
         ]
     }
 }

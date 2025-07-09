@@ -11,6 +11,8 @@ pub use super::commission_official::Entity as CommissionOfficial;
 pub use super::commission_reason::Entity as CommissionReason;
 pub use super::commission_seized_transport::Entity as CommissionSeizedTransport;
 pub use super::commission_transport::Entity as CommissionTransport;
+pub use super::correspondence::Entity as Correspondence;
+pub use super::correspondence_document::Entity as CorrespondenceDocument;
 pub use super::country_verification::Entity as CountryVerification;
 pub use super::division::Entity as Division;
 pub use super::document_type::Entity as DocumentType;

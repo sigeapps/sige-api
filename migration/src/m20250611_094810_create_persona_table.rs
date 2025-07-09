@@ -555,7 +555,7 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(PersonaOperational::IsActive)
                             .boolean()
                             .default(false)
-                            .not_null(),
+                            .null(),
                     )
                     .col(ColumnDef::new(PersonaOperational::File).string().null())
                     .to_owned(),

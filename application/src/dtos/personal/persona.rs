@@ -207,7 +207,7 @@ pub mod situation {
         pub id: i32,
         pub situation_type: String,
         pub date: NaiveDate,
-        pub process_id: i32,
+        pub process_id: Option<i32>,
         pub entry_type: Option<String>,
         #[sea_orm(nested)]
         pub division: Option<SimpleDivisionDTO>,
@@ -300,7 +300,7 @@ pub mod operational {
         pub boss_name: String,
         pub boss_phone: String,
         pub description: Option<String>,
-        pub is_active: bool,
+        pub is_active: Option<bool>,
         pub file: Option<String>,
     }
 }

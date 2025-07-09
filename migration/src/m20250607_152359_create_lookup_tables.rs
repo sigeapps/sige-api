@@ -117,7 +117,7 @@ enum Profession {
 }
 
 #[derive(DeriveIden)]
-enum DocumentType {
+pub enum DocumentType {
     Table,
     Id,
     Name,

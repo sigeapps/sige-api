@@ -29,7 +29,7 @@ impl UserService {
             .left_join(user::Entity)
             .join(JoinType::LeftJoin, user::Relation::Role.def())
             .left_join(persona_situation::Entity)
-            .join(JoinType::LeftJoin, persona_situation::Relation::Base2.def());
+            .join(JoinType::LeftJoin, persona_situation::Relation::Base.def());
 
         if let Some(search) = params.search {
             query = query.filter(user::Column::Name.contains(search));
@@ -58,10 +58,10 @@ impl UserService {
             .left_join(user::Entity)
             .join(JoinType::LeftJoin, user::Relation::Role.def())
             .left_join(persona_situation::Entity)
-            .join(JoinType::LeftJoin, persona_situation::Relation::Base2.def())
+            .join(JoinType::LeftJoin, persona_situation::Relation::Base.def())
             .join(
                 JoinType::LeftJoin,
-                persona_situation::Relation::Hierarchy2.def(),
+                persona_situation::Relation::Hierarchy.def(),
             )
             .filter(Condition::any().add(user::Column::Name.eq(username)))
             .into_partial_model::<GetUserDTO>()
