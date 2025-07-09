@@ -110,8 +110,6 @@ pub mod course {
     #[sea_orm(entity = "domain::entities::persona_course::Entity", from_query_result)]
     pub struct Course {
         #[serde(skip_deserializing)]
-        pub id: i32,
-        #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub name: String,
         pub date: NaiveDate,
@@ -132,8 +130,6 @@ pub mod situation {
         from_query_result
     )]
     pub struct Situation {
-        #[serde(skip_deserializing)]
-        pub id: i32,
         #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub situation_type: String,
@@ -260,8 +256,6 @@ pub mod health {
     #[derive(Serialize, Deserialize, DeriveIntoActiveModel, DerivePartialModel)]
     #[sea_orm(entity = "domain::entities::persona_health::Entity", from_query_result)]
     pub struct Health {
-        #[serde(skip_deserializing)]
-        pub id: i32,
         #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub allergies: Option<String>,
@@ -412,8 +406,6 @@ pub mod record {
     #[sea_orm(entity = "domain::entities::persona_record::Entity", from_query_result)]
     pub struct Record {
         #[serde(skip_deserializing)]
-        pub id: i32,
-        #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub name: String,
         pub r#type: String,
@@ -461,8 +453,6 @@ pub mod relative {
     )]
     pub struct Relative {
         #[serde(skip_deserializing)]
-        pub id: i32,
-        #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub name: String,
         pub last_name: String,
@@ -486,9 +476,6 @@ pub mod child {
         from_query_result
     )]
     pub struct Child {
-        #[sea_orm(primary_key)]
-        #[serde(skip_deserializing)] // Skip deserializing
-        pub id: i32,
         pub name: String,
         pub last_name: String,
         pub age: i32,
@@ -507,8 +494,6 @@ pub mod traits {
     #[derive(Serialize, Deserialize, DerivePartialModel, DeriveIntoActiveModel)]
     #[sea_orm(entity = "domain::entities::persona_traits::Entity", from_query_result)]
     pub struct Traits {
-        #[serde(skip_deserializing)]
-        pub id: i32,
         #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub height: i32,
@@ -540,8 +525,6 @@ pub mod labor {
         from_query_result
     )]
     pub struct Labor {
-        #[serde(skip_deserializing)]
-        pub id: i32,
         #[serde(skip_deserializing)]
         pub persona_id: i32,
         pub enterprise_name: String,

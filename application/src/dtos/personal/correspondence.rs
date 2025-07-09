@@ -1,16 +1,16 @@
 use chrono::NaiveDateTime;
 use domain::entities::correspondence::ActiveModel;
 use sea_orm::DeriveIntoActiveModel;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct CreateCorrespondenceRequest {
     #[serde(flatten)]
     pub dto: CreateCorrespondence,
     pub documents: Vec<document::CreateCorrespondenceDocument>,
 }
 
-#[derive(DeriveIntoActiveModel, Serialize)]
+#[derive(DeriveIntoActiveModel, Deserialize, Serialize)]
 pub struct CreateCorrespondence {
     pub r#type: String,
     pub date_time: NaiveDateTime,
@@ -20,11 +20,11 @@ pub struct CreateCorrespondence {
 pub mod document {
     use domain::entities::correspondence_document::ActiveModel;
     use sea_orm::DeriveIntoActiveModel;
-    use serde::Serialize;
+    use serde::{Deserialize, Serialize};
 
-    #[derive(DeriveIntoActiveModel, Serialize)]
+    #[derive(DeriveIntoActiveModel, Deserialize, Serialize)]
     pub struct CreateCorrespondenceDocument {
-        #[sea_orm(skip_deserializing)]
+        #[serde(skip_deserializing)]
         pub correspondence_id: i32,
         pub type_id: i32,
         pub name: String,

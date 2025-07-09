@@ -10,6 +10,7 @@ use crate::{
         country::add_verification,
         persona::{create_persona, get_persona, get_personas, update_persona},
         plate::{create_plate, get_plate_by_id, get_plates},
+        process::create_correspondence,
     },
     middleware::authenticate,
     state::AppState,
@@ -24,6 +25,7 @@ pub fn personal_routes(app_state: &Arc<AppState>) -> Router {
         .route("/personal/plate", post(create_plate).get(get_plates))
         .route("/personal/plate/{id}", get(get_plate_by_id))
         .route("/personal/country/verification", post(add_verification))
+        .route("/personal/correspondence", post(create_correspondence))
         .layer(axum::middleware::from_fn(authenticate))
         .with_state(app_state.as_ref().clone())
 }
