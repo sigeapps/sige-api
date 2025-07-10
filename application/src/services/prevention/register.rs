@@ -37,7 +37,7 @@ impl RegisterService {
         register_id: i32,
     ) -> Result<Option<GetRegisterDTO>, DbErr> {
         let register = register::Entity::find_by_id(register_id)
-            .filter_by_claims(ctx.claims.unwrap())
+            .filter_by_claims(ctx.claims)
             .find_also_related(organism::Entity)
             .find_also_related(division::Entity)
             .one(&ctx.db)
@@ -65,7 +65,7 @@ impl RegisterService {
         ctx: ApiContext,
         filter: CommonQueryFilterDTO,
     ) -> Result<Vec<GetRegisterDTO>, DbErr> {
-        let mut query = register::Entity::find().filter_by_claims(ctx.clone().claims.unwrap());
+        let mut query = register::Entity::find().filter_by_claims(ctx.clone().claims);
 
         if let Some(from_date) = &filter.from_date {
             query = query.filter(Column::EntryDate.gte(*from_date));
@@ -132,7 +132,7 @@ impl RegisterService {
         let pagination = &filter.into_pagination();
 
         let registers = query
-            .filter(register::Column::BaseId.eq(ctx.claims.unwrap().user.base.id))
+            .filter_by_claims(ctx.claims)
             .limit(pagination.limit)
             .offset(pagination.offset)
             .find_also_related(organism::Entity)
@@ -147,7 +147,7 @@ impl RegisterService {
         ctx: ApiContext,
         filter: CommonQueryFilterDTO,
     ) -> Result<PaginationDTO, DbErr> {
-        let mut query = register::Entity::find().filter_by_claims(ctx.claims.unwrap());
+        let mut query = register::Entity::find().filter_by_claims(ctx.claims);
 
         if let Some(from_date) = &filter.from_date {
             query = query.filter(Column::EntryDate.gte(*from_date));
@@ -188,7 +188,7 @@ impl RegisterService {
     }
 
     pub async fn create(ctx: ApiContext, register: CreateRegisterDTO) -> Result<(), DbErr> {
-        let register = register.into_active_model().stamp_user(ctx.claims.unwrap());
+        let register = register.into_active_model().stamp_user(ctx.claims);
 
         register::Entity::insert(register).exec(&ctx.db).await?;
 
