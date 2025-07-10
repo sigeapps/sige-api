@@ -9,14 +9,29 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub r#type: String,
+    pub base_id: i32,
     pub date_time: DateTime,
     pub process_date_time: DateTime,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::base::Entity",
+        from = "Column::BaseId",
+        to = "super::base::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Base,
     #[sea_orm(has_many = "super::correspondence_document::Entity")]
     CorrespondenceDocument,
+}
+
+impl Related<super::base::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Base.def()
+    }
 }
 
 impl Related<super::correspondence_document::Entity> for Entity {

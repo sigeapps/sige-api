@@ -1,10 +1,10 @@
-use crate::{state::AppState, Result};
+use crate::Result;
 use application::dtos::personal::plate::{GetPlateDTO, PlateRequestDTO, PlateResponseDTO};
 use application::dtos::CommonQueryFilterDTO;
 use axum::extract::{Path, Query};
 use axum::response::IntoResponse;
+use axum::response::Response;
 use axum::Json;
-use axum::{extract::State, response::Response};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -22,11 +22,15 @@ struct MultiplePlatesBody {
     plates: Vec<GetPlateDTO>,
 }
 
+use application::api::ApiContext;
+use application::services::personal::plate::PlateService;
+use axum::Extension;
+
 pub async fn create_plate(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(plate_request): Json<PlateRequestDTO>,
 ) -> Result<Response> {
-    let plate_id = app_state.plate_service.create(plate_request).await?;
+    let plate_id = PlateService::create(ctx, plate_request).await?;
 
     Ok(Json(CreatePlateResponse { id: plate_id }).into_response())
 }
@@ -34,19 +38,19 @@ pub async fn create_plate(
 // TODO: Regresar error si no se encuentra la plancha
 
 pub async fn get_plate_by_id(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Path(id): Path<i32>,
 ) -> Result<Response> {
-    let plate = app_state.plate_service.find_by_id(id).await?;
+    let plate = PlateService::find_by_id(ctx, id).await?;
 
     Ok(Json(PlateBody { plate }).into_response())
 }
 
 pub async fn get_plates(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Query(filter): Query<CommonQueryFilterDTO>,
 ) -> Result<Response> {
-    let plates = app_state.plate_service.find(filter).await?;
+    let plates = PlateService::find(ctx, filter).await?;
 
     Ok(Json(MultiplePlatesBody { plates }).into_response())
 }

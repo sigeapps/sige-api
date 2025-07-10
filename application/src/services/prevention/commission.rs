@@ -1,31 +1,44 @@
-use std::sync::Arc;
-
 use domain::entities::{
     brigade, charge, commission, commission_official, commission_reason,
     commission_seized_transport, commission_transport, hierarchy, municipality, official, parish,
     temporal_seclusion, transport,
 };
+use sea_orm::entity::prelude::*;
 use sea_orm::{prelude::Expr, *};
 
-use crate::dtos::{
-    prevention::{
-        commission::{
-            dto::GetCommissionDTO, reason_dto::GetCommissionReasonDTO,
-            seclusion_dto::GetTemporalSeclusionDTO, CreateCommissionAggregateDTO,
-            GetCommissionAggregateDTO, GetCommissionStatusAggregateDTO, GetCommissionSummaryDTO,
-            UpdateCommissionExitDTO, UpdateCommissionStatusAggregateDTO,
+use crate::{
+    api::ApiContext,
+    auth::{FilterByClaims, HasBaseId, UserClaims, UserStamp},
+    dtos::{
+        prevention::{
+            commission::{
+                dto::GetCommissionDTO, reason_dto::GetCommissionReasonDTO,
+                seclusion_dto::GetTemporalSeclusionDTO, CreateCommissionAggregateDTO,
+                GetCommissionAggregateDTO, GetCommissionStatusAggregateDTO,
+                GetCommissionSummaryDTO, UpdateCommissionExitDTO,
+                UpdateCommissionStatusAggregateDTO,
+            },
+            lookup::GetBrigadeDTO,
+            official::GetOfficialDTO,
+            transport::GetTransportDTO,
         },
-        lookup::GetBrigadeDTO,
-        official::GetOfficialDTO,
-        transport::GetTransportDTO,
+        CommonQueryFilterDTO, PaginationDTO,
     },
-    CommonQueryFilterDTO, PaginationDTO,
+    impl_filter_by_claims,
 };
 
-#[derive(Debug, Clone)]
-pub struct CommissionService {
-    db: Arc<DatabaseConnection>,
+impl HasBaseId for commission::ActiveModel {
+    fn set_base_id(mut self, id: i32) -> Self {
+        self.base_id = Set(id);
+
+        self
+    }
 }
+
+impl_filter_by_claims!(commission, BaseId);
+
+#[derive(Debug, Clone)]
+pub struct CommissionService {}
 
 #[derive(DeriveIden, Clone, Copy)]
 pub struct AuthOfficial;
@@ -39,25 +52,19 @@ pub struct BossOfficialHierarchy;
 #[derive(DeriveIden, Clone, Copy)]
 pub struct AuthOfficialHierarchy;
 
-// TODO: use transactions and async tasks
 impl CommissionService {
-    pub fn new(db: Arc<DatabaseConnection>) -> Self {
-        CommissionService { db }
-    }
-
-    // TODO: MAKE MORE QUERY PERFORMANT THIS FN
-
-    pub async fn find_by_id(self, id: i32) -> Result<GetCommissionAggregateDTO, DbErr> {
+    pub async fn find_by_id(ctx: ApiContext, id: i32) -> Result<GetCommissionAggregateDTO, DbErr> {
         // First, get the commission entity to get the foreign keys
         let commission_entity = commission::Entity::find_by_id(id)
-            .one(&*self.db)
+            .filter_by_claims(ctx.claims)
+            .one(&ctx.db)
             .await?
             .ok_or(DbErr::RecordNotFound("Commission not found".to_string()))?;
 
         // Get brigade
         let brigade = brigade::Entity::find_by_id(commission_entity.brigade_id)
             .into_partial_model::<GetBrigadeDTO>()
-            .one(&*self.db)
+            .one(&ctx.db)
             .await?
             .ok_or(DbErr::RecordNotFound("Brigade not found".to_string()))?;
 
@@ -68,7 +75,7 @@ impl CommissionService {
                 .left_join(charge::Entity)
                 .left_join(brigade::Entity)
                 .into_partial_model::<GetOfficialDTO>()
-                .one(&*self.db)
+                .one(&ctx.db)
                 .await?
         } else {
             None
@@ -81,7 +88,7 @@ impl CommissionService {
                 .left_join(charge::Entity)
                 .left_join(brigade::Entity)
                 .into_partial_model::<GetOfficialDTO>()
-                .one(&*self.db)
+                .one(&ctx.db)
                 .await?
         } else {
             None
@@ -106,7 +113,7 @@ impl CommissionService {
             .left_join(municipality::Entity)
             .left_join(parish::Entity)
             .into_partial_model::<GetCommissionReasonDTO>()
-            .one(&*self.db)
+            .one(&ctx.db)
             .await?
             .ok_or(DbErr::RecordNotFound("Reason not found".to_string()))?;
 
@@ -118,7 +125,7 @@ impl CommissionService {
                 temporal_seclusion::Relation::SeclusionStatuses.def(),
             )
             .into_partial_model::<GetTemporalSeclusionDTO>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         // Get all transports with their related data in one query
@@ -136,7 +143,7 @@ impl CommissionService {
                 transport::Relation::TransportStatuses.def(),
             )
             .into_partial_model::<GetTransportDTO>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         let officials = commission_official::Entity::find()
@@ -149,7 +156,7 @@ impl CommissionService {
             .join(JoinType::LeftJoin, official::Relation::Charge.def())
             .join(JoinType::LeftJoin, official::Relation::Brigade.def())
             .into_partial_model::<GetOfficialDTO>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         Ok(GetCommissionAggregateDTO {
@@ -162,10 +169,11 @@ impl CommissionService {
     }
 
     pub async fn find(
-        self,
+        ctx: ApiContext,
         filter: CommonQueryFilterDTO,
     ) -> Result<Vec<GetCommissionSummaryDTO>, DbErr> {
         let mut query = commission::Entity::find()
+            .filter_by_claims(ctx.claims)
             .select_only()
             .select_column_as(commission::Column::Id, "id")
             .select_column_as(commission::Column::EntryAt, "entry_at")
@@ -270,15 +278,15 @@ impl CommissionService {
 
         query
             .into_model::<GetCommissionSummaryDTO>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await
     }
 
     pub async fn get_pagination(
-        &self,
+        ctx: ApiContext,
         filter: CommonQueryFilterDTO,
     ) -> Result<PaginationDTO, DbErr> {
-        let mut query = commission::Entity::find();
+        let mut query = commission::Entity::find().filter_by_claims(ctx.claims);
 
         if let Some(search) = &filter.search {
             query = query.filter(commission::Column::Observations.contains(search));
@@ -294,7 +302,7 @@ impl CommissionService {
 
         let pagination = filter.into_pagination();
 
-        let paginator = query.paginate(&*self.db, pagination.limit);
+        let paginator = query.paginate(&ctx.db, pagination.limit);
 
         let total_count = paginator.num_items().await?;
         let page_count = paginator.num_pages().await?;
@@ -309,7 +317,7 @@ impl CommissionService {
     }
 
     pub async fn find_status_by_id(
-        self,
+        ctx: ApiContext,
         id: i32,
     ) -> Result<GetCommissionStatusAggregateDTO, DbErr> {
         let seclusions = temporal_seclusion::Entity::find()
@@ -319,7 +327,7 @@ impl CommissionService {
                 temporal_seclusion::Relation::SeclusionStatuses.def(),
             )
             .into_partial_model::<GetTemporalSeclusionDTO>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         // TODO: USE COMMISSION SEIZED ON THIS TABLE
@@ -337,7 +345,7 @@ impl CommissionService {
                 transport::Relation::TransportStatuses.def(),
             )
             .into_partial_model::<GetTransportDTO>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         Ok(GetCommissionStatusAggregateDTO {
@@ -346,15 +354,19 @@ impl CommissionService {
         })
     }
 
-    pub async fn create(self, mut commission: CreateCommissionAggregateDTO) -> Result<i32, DbErr> {
+    pub async fn create(
+        ctx: ApiContext,
+        mut commission: CreateCommissionAggregateDTO,
+    ) -> Result<i32, DbErr> {
         commission.commission.boss_id = commission.officials.first().unwrap().official_id;
         println!("{}", commission.commission.boss_id);
 
-        let txn = self.db.begin().await?;
+        let txn = ctx.db.begin().await?;
 
         let commission_id = commission
             .commission
             .into_active_model()
+            .stamp_user(ctx.claims)
             .insert(&txn)
             .await?
             .id;
@@ -388,8 +400,12 @@ impl CommissionService {
         Ok(commission_id)
     }
 
-    pub async fn update_exit(self, id: i32, mut dto: UpdateCommissionExitDTO) -> Result<(), DbErr> {
-        let txn = self.db.begin().await?;
+    pub async fn update_exit(
+        ctx: ApiContext,
+        id: i32,
+        mut dto: UpdateCommissionExitDTO,
+    ) -> Result<(), DbErr> {
+        let txn = ctx.db.begin().await?;
 
         dto.commission.id = id;
         dto.commission.into_active_model().update(&txn).await?;
@@ -426,11 +442,11 @@ impl CommissionService {
 
     // TODO: USE COMMISSION SEIZED ON THIS TABLE AND UPDATE THE STATUS OF THE TRANSPORT AND SECLUSION
     pub async fn update_status(
-        self,
+        ctx: ApiContext,
         id: i32,
         mut dto: UpdateCommissionStatusAggregateDTO,
     ) -> Result<(), DbErr> {
-        let txn = self.db.begin().await?;
+        let txn = ctx.db.begin().await?;
 
         dto.commission.id = id;
         dto.commission.into_active_model().update(&txn).await?;

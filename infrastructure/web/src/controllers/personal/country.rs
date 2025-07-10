@@ -1,10 +1,10 @@
-use crate::state::AppState;
 use crate::Result;
+use application::api::ApiContext;
 use application::dtos::personal::country::AddVerificationDTO;
-use axum::extract::State;
+use application::services::personal::country::CountryService;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use axum::Json;
+use axum::{Extension, Json};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -13,10 +13,10 @@ pub struct CountryVerificationBody<T> {
 }
 
 pub async fn add_verification(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(dto): Json<AddVerificationDTO>,
 ) -> Result<Response> {
-    let verification_id = app_state.country_service.add_verification(dto).await?;
+    let verification_id = CountryService::add_verification(ctx, dto).await?;
 
     Ok((
         StatusCode::CREATED,

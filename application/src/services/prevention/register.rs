@@ -13,7 +13,7 @@ use crate::{
         prevention::register::{CreateRegisterDTO, GetRegisterDTO, UpdateRegisterExitDTO},
         CommonQueryFilterDTO, PaginationDTO,
     },
-    impl_filter_by_base_id,
+    impl_filter_by_claims,
 };
 
 impl HasBaseId for register::ActiveModel {
@@ -24,9 +24,7 @@ impl HasBaseId for register::ActiveModel {
     }
 }
 
-impl_filter_by_base_id!(register, BaseId);
-
-// Safety: Uso de unwrap en servicio ya que si el usuario es None sera manejado por el extension de Axum
+impl_filter_by_claims!(register, BaseId);
 
 #[derive(Debug, Clone)]
 pub struct RegisterService {}
@@ -65,7 +63,7 @@ impl RegisterService {
         ctx: ApiContext,
         filter: CommonQueryFilterDTO,
     ) -> Result<Vec<GetRegisterDTO>, DbErr> {
-        let mut query = register::Entity::find().filter_by_claims(ctx.clone().claims);
+        let mut query = register::Entity::find();
 
         if let Some(from_date) = &filter.from_date {
             query = query.filter(Column::EntryDate.gte(*from_date));

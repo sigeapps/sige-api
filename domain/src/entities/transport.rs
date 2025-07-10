@@ -11,6 +11,7 @@ pub struct Model {
     pub type_id: i32,
     pub details: Option<String>,
     pub brand_id: i32,
+    pub base_id: i32,
     pub model_id: i32,
     #[sea_orm(unique)]
     pub plate: String,
@@ -22,6 +23,14 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::base::Entity",
+        from = "Column::BaseId",
+        to = "super::base::Column::Id",
+        on_update = "NoAction",
+        on_delete = "Restrict"
+    )]
+    Base,
     #[sea_orm(
         belongs_to = "super::brand::Entity",
         from = "Column::BrandId",
@@ -56,6 +65,12 @@ pub enum Relation {
         on_delete = "Restrict"
     )]
     VehicleModel,
+}
+
+impl Related<super::base::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Base.def()
+    }
 }
 
 impl Related<super::brand::Entity> for Entity {

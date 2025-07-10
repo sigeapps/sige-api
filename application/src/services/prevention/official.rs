@@ -1,26 +1,35 @@
-use std::sync::Arc;
-
 use domain::entities::{brigade, charge, hierarchy, official};
+use sea_orm::entity::prelude::*;
 use sea_orm::*;
 
-use crate::dtos::prevention::official::{CreateOfficialDTO, GetOfficialDTO};
+use crate::{
+    api::ApiContext,
+    auth::{FilterByClaims, HasBaseId, UserClaims, UserStamp},
+    dtos::prevention::official::{CreateOfficialDTO, GetOfficialDTO},
+    impl_filter_by_claims,
+};
 
-#[derive(Debug, Clone)]
-pub struct OfficialService {
-    db: Arc<DatabaseConnection>,
+impl HasBaseId for official::ActiveModel {
+    fn set_base_id(mut self, id: i32) -> Self {
+        self.base_id = Set(id);
+
+        self
+    }
 }
 
-impl OfficialService {
-    pub fn new(db: Arc<DatabaseConnection>) -> Self {
-        OfficialService { db }
-    }
+impl_filter_by_claims!(official, BaseId);
 
+#[derive(Debug, Clone)]
+pub struct OfficialService {}
+
+impl OfficialService {
     pub async fn find(
-        self,
+        ctx: ApiContext,
         search: Option<String>,
         brigade_id: Option<i32>,
     ) -> Result<Vec<GetOfficialDTO>, DbErr> {
         let mut query = official::Entity::find()
+            .filter_by_claims(ctx.claims)
             .left_join(brigade::Entity)
             .left_join(hierarchy::Entity)
             .left_join(charge::Entity);
@@ -33,11 +42,15 @@ impl OfficialService {
             query = query.filter(official::Column::BrigadeId.eq(brigade_id));
         }
 
-        query.into_partial_model::<GetOfficialDTO>().all(&*self.db).await
+        query
+            .into_partial_model::<GetOfficialDTO>()
+            .all(&ctx.db)
+            .await
     }
 
-    pub async fn find_by_id(self, id: i32) -> Result<Option<GetOfficialDTO>, DbErr> {
+    pub async fn find_by_id(ctx: ApiContext, id: i32) -> Result<Option<GetOfficialDTO>, DbErr> {
         let official = official::Entity::find_by_id(id)
+            .filter_by_claims(ctx.claims)
             .select_only()
             .column_as(official::Column::Id, "id")
             .column_as(official::Column::Ci, "ci")
@@ -51,15 +64,15 @@ impl OfficialService {
             .join(JoinType::InnerJoin, hierarchy::Relation::Official.def())
             .join(JoinType::InnerJoin, charge::Relation::Official.def())
             .into_model::<GetOfficialDTO>()
-            .one(&*self.db)
+            .one(&ctx.db)
             .await?;
 
         Ok(official)
     }
 
-    pub async fn create(self, official: CreateOfficialDTO) -> Result<(), DbErr> {
-        official::Entity::insert(official.into_active_model())
-            .exec(&*self.db)
+    pub async fn create(ctx: ApiContext, official: CreateOfficialDTO) -> Result<(), DbErr> {
+        official::Entity::insert(official.into_active_model().stamp_user(ctx.claims))
+            .exec(&ctx.db)
             .await?;
 
         Ok(())

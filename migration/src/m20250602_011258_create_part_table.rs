@@ -1,6 +1,8 @@
 use sea_orm_migration::{prelude::*, schema::*};
 
-use crate::m20250419_000013_create_official_table::Official;
+use crate::{
+    m20250419_000013_create_official_table::Official, m20250618_113709_create_base_tables::Base,
+};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -28,6 +30,14 @@ impl MigrationTrait for Migration {
                     .table(Part::Table)
                     .if_not_exists()
                     .col(pk_auto(Part::Id))
+                    .col(integer(Part::BaseId).not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk-part-base_id")
+                            .from(Part::Table, Part::BaseId)
+                            .to(Base::Table, Base::Id)
+                            .on_delete(ForeignKeyAction::Restrict),
+                    )
                     .col(timestamp(Part::Date).default(Keyword::CurrentTimestamp))
                     .col(timestamp(Part::CreatedAt).default(Keyword::CurrentTimestamp))
                     .to_owned(),
@@ -279,6 +289,7 @@ enum Part {
     Table,
     Id,
     Date,
+    BaseId,
     CreatedAt,
 }
 

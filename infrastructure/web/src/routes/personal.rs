@@ -13,10 +13,9 @@ use crate::{
         process::{create_correspondence, get_correspondence, get_correspondences},
     },
     middleware::authenticate,
-    state::AppState,
 };
 
-pub fn personal_routes(app_state: &Arc<AppState>) -> Router {
+pub fn personal_routes() -> Router {
     Router::new()
         .route("/personal/persona", post(create_persona))
         .route("/personal/persona", get(get_personas))
@@ -31,5 +30,4 @@ pub fn personal_routes(app_state: &Arc<AppState>) -> Router {
         )
         .route("/personal/correspondence/{id}", get(get_correspondence))
         .layer(axum::middleware::from_fn(authenticate))
-        .with_state(app_state.as_ref().clone())
 }

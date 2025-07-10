@@ -1,11 +1,10 @@
 use crate::auth::JwtTrait;
-use crate::state::AppState;
 use crate::Result;
 use application::api::ApiContext;
 use application::auth::UserClaims;
 use application::dtos::auth::LoginRequest;
+use application::services::user::UserService;
 use axum::body::Body;
-use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::{Extension, Json};
@@ -20,20 +19,20 @@ pub struct UserBody {
 
 #[axum::debug_handler]
 pub async fn login(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(form): Json<LoginRequest>,
 ) -> Result<Response> {
-    debug!("Login attempt for user: {}", form.username);
+    debug!(
+        "Intento de inicio de sesión para el usuario: {}",
+        form.username
+    );
 
-    let user = app_state
-        .user_service
-        .find_by_username(form.username)
-        .await?;
+    let user = UserService::find_by_username(ctx.clone(), form.username).await?;
 
     if user.is_none() {
         return Ok(Response::builder()
             .status(StatusCode::UNAUTHORIZED)
-            .body(Body::from("Invalid username or password"))
+            .body(Body::from("Usuario o contraseña inválidos"))
             .unwrap());
     }
 
@@ -42,14 +41,11 @@ pub async fn login(
     if verify_password(form.password, &user.password_hash).is_err() {
         return Ok(Response::builder()
             .status(StatusCode::UNAUTHORIZED)
-            .body(Body::from("Invalid username or password"))
+            .body(Body::from("Usuario o contraseña inválidos"))
             .unwrap());
     }
 
-    let permissions = app_state
-        .user_service
-        .find_permissions_by_role_id(user.role.id)
-        .await?;
+    let permissions = UserService::find_permissions_by_role_id(ctx, user.role.id).await?;
 
     println!("{:?}", permissions);
 

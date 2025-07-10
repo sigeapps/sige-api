@@ -13,12 +13,50 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(has_many = "super::commission::Entity")]
+    Commission,
+    #[sea_orm(has_many = "super::correspondence::Entity")]
+    Correspondence,
+    #[sea_orm(has_many = "super::official::Entity")]
+    Official,
+    #[sea_orm(has_many = "super::part::Entity")]
+    Part,
     #[sea_orm(has_many = "super::persona_situation::Entity")]
     PersonaSituation,
     #[sea_orm(has_many = "super::plate::Entity")]
     Plate,
     #[sea_orm(has_many = "super::register::Entity")]
     Register,
+    #[sea_orm(has_many = "super::seclusion::Entity")]
+    Seclusion,
+    #[sea_orm(has_many = "super::temporal_seclusion::Entity")]
+    TemporalSeclusion,
+    #[sea_orm(has_many = "super::transport::Entity")]
+    Transport,
+}
+
+impl Related<super::commission::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Commission.def()
+    }
+}
+
+impl Related<super::correspondence::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Correspondence.def()
+    }
+}
+
+impl Related<super::official::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Official.def()
+    }
+}
+
+impl Related<super::part::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Part.def()
+    }
 }
 
 impl Related<super::persona_situation::Entity> for Entity {
@@ -36,6 +74,24 @@ impl Related<super::plate::Entity> for Entity {
 impl Related<super::register::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Register.def()
+    }
+}
+
+impl Related<super::seclusion::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Seclusion.def()
+    }
+}
+
+impl Related<super::temporal_seclusion::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::TemporalSeclusion.def()
+    }
+}
+
+impl Related<super::transport::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Transport.def()
     }
 }
 

@@ -3,6 +3,7 @@ use sea_orm_migration::prelude::*;
 use crate::{
     m20250419_000005_create_organism_table::Parish,
     m20250419_000009_create_municipality_table::Municipality,
+    m20250618_113709_create_base_tables::Base,
 };
 
 pub struct Migration;
@@ -46,6 +47,13 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(Commission::ExitAt)
                             .timestamp_with_time_zone()
                             .null(),
+                    )
+                    .col(ColumnDef::new(Commission::BaseId).integer().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_commission_base_id")
+                            .from(Commission::Table, Commission::BaseId)
+                            .to(Base::Table, Base::Id),
                     )
                     .col(
                         ColumnDef::new(Commission::StatusAt)
@@ -426,6 +434,7 @@ pub enum Commission {
     Table,
     Id,
     BrigadeId,
+    BaseId,
     AuthorizedOfficialId,
     BossId,
     EntryAt,

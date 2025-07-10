@@ -6,9 +6,8 @@ use axum::{
 use crate::{
     controllers::prevention::{
         commission::{
-            create_commission, get_commission_by_id, get_commission_status,
-            get_commission_status_by_id, get_commissions, update_commission_exit,
-            update_commission_status,
+            create_commission, get_commission_by_id, get_commission_status_by_id, get_commissions,
+            update_commission_exit, update_commission_status,
         },
         official::{create_official, get_officials},
         part::{create_part, get_part_by_id, get_parts, update_part_complete},
@@ -20,11 +19,9 @@ use crate::{
         transport::{create_transport, get_tranports},
     },
     middleware::authenticate,
-    state::AppState,
 };
-use std::sync::Arc;
 
-pub fn prevention_routes(app_state: &Arc<AppState>) -> Router {
+pub fn prevention_routes() -> Router {
     Router::new()
         .route("/prevention/register", get(get_registers))
         .route("/prevention/register", post(create_register))
@@ -44,9 +41,10 @@ pub fn prevention_routes(app_state: &Arc<AppState>) -> Router {
         )
         .route("/prevention/commission", post(create_commission))
         .route("/prevention/commission", get(get_commissions))
+        // TODO: revisa esto
         .route(
             "/prevention/commission/{id}/exit",
-            get(get_commission_status),
+            get(get_commission_status_by_id),
         )
         .route(
             "/prevention/commission/{id}/exit",
@@ -66,5 +64,4 @@ pub fn prevention_routes(app_state: &Arc<AppState>) -> Router {
         .route("/prevention/part/{id}", get(get_part_by_id))
         .route("/prevention/part/{id}", patch(update_part_complete))
         .layer(axum::middleware::from_fn(authenticate))
-        .with_state(app_state.as_ref().clone())
 }

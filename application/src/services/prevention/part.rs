@@ -1,34 +1,48 @@
-use std::sync::Arc;
-
 use domain::entities::{
     brigade, charge, hierarchy, novelty, official, part, part_development, part_official,
     part_responsability,
 };
+use sea_orm::entity::prelude::*;
 use sea_orm::*;
 
-use crate::dtos::prevention::{
-    official::GetOfficialDTO,
-    part::{
-        development_dto::GetPartDevelopmentDTO, dto::GetPartDTO, official_dto::GetPartOfficialDTO,
-        responsability_dto::GetPartResponsabilityDTO, CreatePartAggregateDTO, GetPartAggregateDTO,
-        GetPartSummaryDTO, UpdatePartCompleteDTO,
+use crate::{
+    api::ApiContext,
+    auth::{FilterByClaims, HasBaseId, UserClaims, UserStamp},
+    dtos::prevention::{
+        official::GetOfficialDTO,
+        part::{
+            development_dto::GetPartDevelopmentDTO, dto::GetPartDTO,
+            official_dto::GetPartOfficialDTO, responsability_dto::GetPartResponsabilityDTO,
+            CreatePartAggregateDTO, GetPartAggregateDTO, GetPartSummaryDTO, UpdatePartCompleteDTO,
+        },
     },
+    impl_filter_by_claims,
 };
 
-#[derive(Clone, Debug)]
-pub struct PartService {
-    pub db: Arc<DatabaseConnection>,
+impl HasBaseId for part::ActiveModel {
+    fn set_base_id(mut self, id: i32) -> Self {
+        self.base_id = Set(id);
+
+        self
+    }
 }
 
+impl_filter_by_claims!(part, BaseId);
+
+#[derive(Clone, Debug)]
+pub struct PartService {}
+
 impl PartService {
-    pub fn new(db: Arc<DatabaseConnection>) -> Self {
-        PartService { db }
-    }
+    pub async fn create(ctx: ApiContext, mut dto: CreatePartAggregateDTO) -> Result<(), DbErr> {
+        let transaction = ctx.db.begin().await?;
 
-    pub async fn create(&self, mut dto: CreatePartAggregateDTO) -> Result<(), DbErr> {
-        let transaction = self.db.begin().await?;
-
-        let part_id = dto.part.into_active_model().insert(&transaction).await?.id;
+        let part_id = dto
+            .part
+            .into_active_model()
+            .stamp_user(ctx.claims)
+            .insert(&transaction)
+            .await?
+            .id;
 
         dto.responsability.part_id = part_id;
 
@@ -62,10 +76,11 @@ impl PartService {
         Ok(())
     }
 
-    pub async fn find_by_id(&self, id: i32) -> Result<GetPartAggregateDTO, DbErr> {
+    pub async fn find_by_id(ctx: ApiContext, id: i32) -> Result<GetPartAggregateDTO, DbErr> {
         let part = part::Entity::find_by_id(id)
+            .filter_by_claims(ctx.claims)
             .into_partial_model::<GetPartDTO>()
-            .one(&*self.db)
+            .one(&ctx.db)
             .await?
             .ok_or(DbErr::RecordNotFound(format!(
                 "Part with id {} not found",
@@ -93,13 +108,13 @@ impl PartService {
             .join(JoinType::LeftJoin, official::Relation::Hierarchy.def())
             .join(JoinType::LeftJoin, official::Relation::Brigade.def())
             .into_partial_model::<GetPartOfficialDTO>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         // First, get the responsibility record with just the basic fields
         let resp_model = part_responsability::Entity::find()
             .filter(part_responsability::Column::PartId.eq(id))
-            .one(&*self.db)
+            .one(&ctx.db)
             .await?
             .ok_or(DbErr::RecordNotFound(format!(
                 "Part responsabilities with id {} not found",
@@ -126,7 +141,7 @@ impl PartService {
                 .join(JoinType::LeftJoin, official::Relation::Hierarchy.def())
                 .join(JoinType::LeftJoin, official::Relation::Brigade.def())
                 .into_partial_model::<GetOfficialDTO>()
-                .one(&*self.db)
+                .one(&ctx.db)
         };
 
         // Fetch all officials in parallel
@@ -201,7 +216,7 @@ impl PartService {
             .filter(part_development::Column::PartId.eq(id))
             .left_join(novelty::Entity)
             .into_partial_model::<GetPartDevelopmentDTO>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         Ok(GetPartAggregateDTO {
@@ -212,8 +227,9 @@ impl PartService {
         })
     }
 
-    pub async fn find(&self) -> Result<Vec<GetPartSummaryDTO>, DbErr> {
+    pub async fn find(ctx: ApiContext) -> Result<Vec<GetPartSummaryDTO>, DbErr> {
         part::Entity::find()
+            .filter_by_claims(ctx.claims)
             .select_only()
             .column(part::Column::Id)
             .column(part::Column::Date)
@@ -225,12 +241,16 @@ impl PartService {
             .group_by(part::Column::Date)
             .order_by_desc(part::Column::Id)
             .into_model::<GetPartSummaryDTO>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await
     }
 
-    pub async fn edit_part(&self, id: i32, mut part: UpdatePartCompleteDTO) -> Result<(), DbErr> {
-        let transaction = self.db.begin().await?;
+    pub async fn edit_part(
+        ctx: ApiContext,
+        id: i32,
+        mut part: UpdatePartCompleteDTO,
+    ) -> Result<(), DbErr> {
+        let transaction = ctx.db.begin().await?;
 
         part.part.id = id;
 

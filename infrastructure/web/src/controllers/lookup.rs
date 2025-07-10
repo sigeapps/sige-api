@@ -1,10 +1,11 @@
 use crate::Result;
-use application::dtos::lookup::CreateBasicLookUpDTO;
+use application::{
+    dtos::lookup::CreateBasicLookUpDTO, services::prevention::lookup::LookupService,
+};
 use axum::{
-    extract::State,
     http::StatusCode,
     response::{IntoResponse, Response},
-    Json,
+    Extension, Json,
 };
 use domain::entities::{
     band, base, brand, brigade, charge, division, document_type, family_relationship, hierarchy,
@@ -13,22 +14,20 @@ use domain::entities::{
 };
 use tracing::debug;
 
-use crate::state::AppState;
+use application::api::ApiContext;
 
 // TODO: Refactorizar para que no se repita el codigo
 
-pub async fn get_brigades(State(app_state): State<AppState>) -> Result<Response> {
-    let brigades = app_state
-        .lookup_service
-        .find::<brigade::Entity, brigade::Model, brigade::ActiveModel>()
-        .await?;
+pub async fn get_brigades(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let brigades =
+        LookupService::find::<brigade::Entity, brigade::Model, brigade::ActiveModel>(ctx).await?;
 
     debug!("{:?}", Json(&brigades));
     Ok((StatusCode::OK, Json(brigades)).into_response())
 }
 
 pub async fn create_brigade(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(brigade): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = brigade::ActiveModel {
@@ -36,26 +35,26 @@ pub async fn create_brigade(
         name: sea_orm::Set(brigade.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<brigade::Entity, brigade::Model, brigade::ActiveModel>(active_model)
-        .await?;
+    LookupService::create::<brigade::Entity, brigade::Model, brigade::ActiveModel>(
+        ctx,
+        active_model,
+    )
+    .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_organisms(State(app_state): State<AppState>) -> Result<Response> {
-    let organisms = app_state
-        .lookup_service
-        .find::<organism::Entity, organism::Model, organism::ActiveModel>()
-        .await?;
+pub async fn get_organisms(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let organisms =
+        LookupService::find::<organism::Entity, organism::Model, organism::ActiveModel>(ctx)
+            .await?;
 
     debug!("{:?}", Json(&organisms));
     Ok((StatusCode::OK, Json(organisms)).into_response())
 }
 
 pub async fn create_organism(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(organism): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = organism::ActiveModel {
@@ -64,16 +63,26 @@ pub async fn create_organism(
         phone: sea_orm::Set(String::new()), // Default empty string for phone
     };
 
-    app_state
-        .lookup_service
-        .create::<organism::Entity, organism::Model, organism::ActiveModel>(active_model)
-        .await?;
+    LookupService::create::<organism::Entity, organism::Model, organism::ActiveModel>(
+        ctx,
+        active_model,
+    )
+    .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
+pub async fn get_divisions(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let divisions =
+        LookupService::find::<division::Entity, division::Model, division::ActiveModel>(ctx)
+            .await?;
+
+    debug!("{:?}", Json(&divisions));
+    Ok((StatusCode::OK, Json(divisions)).into_response())
+}
+
 pub async fn create_division(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(division): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = division::ActiveModel {
@@ -82,26 +91,25 @@ pub async fn create_division(
         state: sea_orm::Set(division.state.unwrap_or_default()),
     };
 
-    app_state
-        .lookup_service
-        .create::<division::Entity, division::Model, division::ActiveModel>(active_model)
-        .await?;
+    LookupService::create::<division::Entity, division::Model, division::ActiveModel>(
+        ctx,
+        active_model,
+    )
+    .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_charges(State(app_state): State<AppState>) -> Result<Response> {
-    let charges = app_state
-        .lookup_service
-        .find::<charge::Entity, charge::Model, charge::ActiveModel>()
-        .await?;
+pub async fn get_charges(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let charges =
+        LookupService::find::<charge::Entity, charge::Model, charge::ActiveModel>(ctx).await?;
 
     debug!("{:?}", Json(&charges));
     Ok((StatusCode::OK, Json(charges)).into_response())
 }
 
 pub async fn create_charge(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(charge): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = charge::ActiveModel {
@@ -109,26 +117,23 @@ pub async fn create_charge(
         name: sea_orm::Set(charge.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<charge::Entity, charge::Model, charge::ActiveModel>(active_model)
+    LookupService::create::<charge::Entity, charge::Model, charge::ActiveModel>(ctx, active_model)
         .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_hierarchies(State(app_state): State<AppState>) -> Result<Response> {
-    let hierarchies = app_state
-        .lookup_service
-        .find::<hierarchy::Entity, hierarchy::Model, hierarchy::ActiveModel>()
-        .await?;
+pub async fn get_hierarchies(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let hierarchies =
+        LookupService::find::<hierarchy::Entity, hierarchy::Model, hierarchy::ActiveModel>(ctx)
+            .await?;
 
     debug!("{:?}", Json(&hierarchies));
     Ok((StatusCode::OK, Json(hierarchies)).into_response())
 }
 
 pub async fn create_hierarchy(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(hierarchy): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = hierarchy::ActiveModel {
@@ -136,26 +141,25 @@ pub async fn create_hierarchy(
         name: sea_orm::Set(hierarchy.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<hierarchy::Entity, hierarchy::Model, hierarchy::ActiveModel>(active_model)
-        .await?;
+    LookupService::create::<hierarchy::Entity, hierarchy::Model, hierarchy::ActiveModel>(
+        ctx,
+        active_model,
+    )
+    .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_states(State(app_state): State<AppState>) -> Result<Response> {
-    let states = app_state
-        .lookup_service
-        .find::<state::Entity, state::Model, state::ActiveModel>()
-        .await?;
+pub async fn get_states(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let states =
+        LookupService::find::<state::Entity, state::Model, state::ActiveModel>(ctx).await?;
 
     debug!("{:?}", Json(&states));
     Ok((StatusCode::OK, Json(states)).into_response())
 }
 
 pub async fn create_state(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(state): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = state::ActiveModel {
@@ -163,26 +167,26 @@ pub async fn create_state(
         name: sea_orm::Set(state.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<state::Entity, state::Model, state::ActiveModel>(active_model)
+    LookupService::create::<state::Entity, state::Model, state::ActiveModel>(ctx, active_model)
         .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_municipalities(State(app_state): State<AppState>) -> Result<Response> {
-    let municipalities = app_state
-        .lookup_service
-        .find::<municipality::Entity, municipality::Model, municipality::ActiveModel>()
-        .await?;
+pub async fn get_municipalities(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let municipalities = LookupService::find::<
+        municipality::Entity,
+        municipality::Model,
+        municipality::ActiveModel,
+    >(ctx)
+    .await?;
 
     debug!("{:?}", Json(&municipalities));
     Ok((StatusCode::OK, Json(municipalities)).into_response())
 }
 
 pub async fn create_municipality(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(municipality): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = municipality::ActiveModel {
@@ -191,28 +195,29 @@ pub async fn create_municipality(
         state: sea_orm::Set(municipality.state.unwrap_or_default()),
     };
 
-    app_state
-        .lookup_service
-        .create::<municipality::Entity, municipality::Model, municipality::ActiveModel>(
-            active_model,
-        )
-        .await?;
+    LookupService::create::<municipality::Entity, municipality::Model, municipality::ActiveModel>(
+        ctx,
+        active_model,
+    )
+    .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_transport_types(State(app_state): State<AppState>) -> Result<Response> {
-    let transport_types = app_state
-        .lookup_service
-        .find::<transport_type::Entity, transport_type::Model, transport_type::ActiveModel>()
-        .await?;
+pub async fn get_transport_types(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let transport_types = LookupService::find::<
+        transport_type::Entity,
+        transport_type::Model,
+        transport_type::ActiveModel,
+    >(ctx)
+    .await?;
 
     debug!("{:?}", Json(&transport_types));
     Ok((StatusCode::OK, Json(transport_types)).into_response())
 }
 
 pub async fn create_transport_type(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(transport_type): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = transport_type::ActiveModel {
@@ -220,28 +225,30 @@ pub async fn create_transport_type(
         name: sea_orm::Set(transport_type.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<transport_type::Entity, transport_type::Model, transport_type::ActiveModel>(
-            active_model,
-        )
-        .await?;
+    LookupService::create::<
+        transport_type::Entity,
+        transport_type::Model,
+        transport_type::ActiveModel,
+    >(ctx, active_model)
+    .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_transport_statuses(State(app_state): State<AppState>) -> Result<Response> {
-    let transport_statuses = app_state
-        .lookup_service
-        .find::<transport_statuses::Entity, transport_statuses::Model, transport_statuses::ActiveModel>()
-        .await?;
+pub async fn get_transport_statuses(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let transport_statuses = LookupService::find::<
+        transport_statuses::Entity,
+        transport_statuses::Model,
+        transport_statuses::ActiveModel,
+    >(ctx)
+    .await?;
 
     debug!("{:?}", Json(&transport_statuses));
     Ok((StatusCode::OK, Json(transport_statuses)).into_response())
 }
 
 pub async fn create_transport_status(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(transport_status): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = transport_statuses::ActiveModel {
@@ -249,28 +256,26 @@ pub async fn create_transport_status(
         name: sea_orm::Set(transport_status.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<transport_statuses::Entity, transport_statuses::Model, transport_statuses::ActiveModel>(
-            active_model,
-        )
-        .await?;
+    LookupService::create::<
+        transport_statuses::Entity,
+        transport_statuses::Model,
+        transport_statuses::ActiveModel,
+    >(ctx, active_model)
+    .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_brands(State(app_state): State<AppState>) -> Result<Response> {
-    let brands = app_state
-        .lookup_service
-        .find::<brand::Entity, brand::Model, brand::ActiveModel>()
-        .await?;
+pub async fn get_brands(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let brands =
+        LookupService::find::<brand::Entity, brand::Model, brand::ActiveModel>(ctx).await?;
 
     debug!("{:?}", Json(&brands));
     Ok((StatusCode::OK, Json(brands)).into_response())
 }
 
 pub async fn create_brand(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(brand): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = brand::ActiveModel {
@@ -278,23 +283,26 @@ pub async fn create_brand(
         name: sea_orm::Set(brand.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<brand::Entity, brand::Model, brand::ActiveModel>(active_model)
+    LookupService::create::<brand::Entity, brand::Model, brand::ActiveModel>(ctx, active_model)
         .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_vehicle_models(State(app_state): State<AppState>) -> Result<Response> {
-    let vehicle_models = app_state.lookup_service.find_vehicle_models().await?;
+pub async fn get_vehicle_models(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let vehicle_models = LookupService::find::<
+        vehicle_model::Entity,
+        vehicle_model::Model,
+        vehicle_model::ActiveModel,
+    >(ctx)
+    .await?;
 
     debug!("{:?}", Json(&vehicle_models));
     Ok((StatusCode::OK, Json(vehicle_models)).into_response())
 }
 
 pub async fn create_vehicle_model(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(vehicle_model): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     if vehicle_model.brand.is_none() {
@@ -307,109 +315,110 @@ pub async fn create_vehicle_model(
         brand: sea_orm::Set(vehicle_model.brand.unwrap_or_default()),
     };
 
-    app_state
-        .lookup_service
-        .create::<vehicle_model::Entity, vehicle_model::Model, vehicle_model::ActiveModel>(
-            active_model,
-        )
-        .await?;
+    LookupService::create::<vehicle_model::Entity, vehicle_model::Model, vehicle_model::ActiveModel>(
+        ctx,
+        active_model,
+    )
+    .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_parish(State(app_state): State<AppState>) -> Result<Response> {
-    let vehicle_models = app_state
-        .lookup_service
-        .find::<parish::Entity, parish::Model, parish::ActiveModel>()
-        .await?;
+pub async fn get_parish(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let parishes =
+        LookupService::find::<parish::Entity, parish::Model, parish::ActiveModel>(ctx).await?;
 
-    debug!("{:?}", Json(&vehicle_models));
-    Ok((StatusCode::OK, Json(vehicle_models)).into_response())
+    debug!("{:?}", Json(&parishes));
+    Ok((StatusCode::OK, Json(parishes)).into_response())
 }
 
 pub async fn create_parish(
-    State(app_state): State<AppState>,
-    Json(vehicle_model): Json<CreateBasicLookUpDTO>,
+    Extension(ctx): Extension<ApiContext>,
+    Json(parish): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = parish::ActiveModel {
         id: Default::default(),
-        name: sea_orm::Set(vehicle_model.name),
+        name: sea_orm::Set(parish.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<parish::Entity, parish::Model, parish::ActiveModel>(active_model)
+    LookupService::create::<parish::Entity, parish::Model, parish::ActiveModel>(ctx, active_model)
         .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_seclusion_statuses(State(app_state): State<AppState>) -> Result<Response> {
-    let vehicle_models = app_state
-        .lookup_service
-        .find::<seclusion_statuses::Entity, seclusion_statuses::Model, seclusion_statuses::ActiveModel>()
-        .await?;
+pub async fn get_seclusion_statuses(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let seclusion_statuses = LookupService::find::<
+        seclusion_statuses::Entity,
+        seclusion_statuses::Model,
+        seclusion_statuses::ActiveModel,
+    >(ctx)
+    .await?;
 
-    debug!("{:?}", Json(&vehicle_models));
-    Ok((StatusCode::OK, Json(vehicle_models)).into_response())
+    debug!("{:?}", Json(&seclusion_statuses));
+    Ok((StatusCode::OK, Json(seclusion_statuses)).into_response())
 }
 
 pub async fn create_seclusion_statuses(
-    State(app_state): State<AppState>,
-    Json(vehicle_model): Json<CreateBasicLookUpDTO>,
+    Extension(ctx): Extension<ApiContext>,
+    Json(seclusion_status): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = seclusion_statuses::ActiveModel {
         id: Default::default(),
-        name: sea_orm::Set(vehicle_model.name),
+        name: sea_orm::Set(seclusion_status.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<seclusion_statuses::Entity, seclusion_statuses::Model, seclusion_statuses::ActiveModel>(active_model)
-        .await?;
+    LookupService::create::<
+        seclusion_statuses::Entity,
+        seclusion_statuses::Model,
+        seclusion_statuses::ActiveModel,
+    >(ctx, active_model)
+    .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_family_relationships(State(app_state): State<AppState>) -> Result<Response> {
-    let vehicle_models = app_state
-        .lookup_service
-        .find::<family_relationship::Entity, family_relationship::Model, family_relationship::ActiveModel>()
-        .await?;
+pub async fn get_family_relationships(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let family_relationships = LookupService::find::<
+        family_relationship::Entity,
+        family_relationship::Model,
+        family_relationship::ActiveModel,
+    >(ctx)
+    .await?;
 
-    debug!("{:?}", Json(&vehicle_models));
-    Ok((StatusCode::OK, Json(vehicle_models)).into_response())
+    debug!("{:?}", Json(&family_relationships));
+    Ok((StatusCode::OK, Json(family_relationships)).into_response())
 }
 
 pub async fn create_family_relationships(
-    State(app_state): State<AppState>,
-    Json(vehicle_model): Json<CreateBasicLookUpDTO>,
+    Extension(ctx): Extension<ApiContext>,
+    Json(family_relationship): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = family_relationship::ActiveModel {
         id: Default::default(),
-        name: sea_orm::Set(vehicle_model.name),
+        name: sea_orm::Set(family_relationship.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<family_relationship::Entity, family_relationship::Model, family_relationship::ActiveModel>(active_model)
-        .await?;
+    LookupService::create::<
+        family_relationship::Entity,
+        family_relationship::Model,
+        family_relationship::ActiveModel,
+    >(ctx, active_model)
+    .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_novelties(State(app_state): State<AppState>) -> Result<Response> {
-    let novelties = app_state
-        .lookup_service
-        .find::<novelty::Entity, novelty::Model, novelty::ActiveModel>()
-        .await?;
+pub async fn get_novelties(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let novelties =
+        LookupService::find::<novelty::Entity, novelty::Model, novelty::ActiveModel>(ctx).await?;
 
     debug!("{:?}", Json(&novelties));
     Ok((StatusCode::OK, Json(novelties)).into_response())
 }
 
 pub async fn create_novelty(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(novelty): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = novelty::ActiveModel {
@@ -418,53 +427,51 @@ pub async fn create_novelty(
         format: sea_orm::Set(novelty.format.unwrap_or_default()),
     };
 
-    app_state
-        .lookup_service
-        .create::<novelty::Entity, novelty::Model, novelty::ActiveModel>(active_model)
-        .await?;
+    LookupService::create::<novelty::Entity, novelty::Model, novelty::ActiveModel>(
+        ctx,
+        active_model,
+    )
+    .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_status_conditions(State(app_state): State<AppState>) -> Result<Response> {
-    let novelties = app_state
-        .lookup_service
-        .find::<status_condition::Entity, status_condition::Model, status_condition::ActiveModel>()
-        .await?;
+pub async fn get_status_conditions(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let status_conditions = LookupService::find::<
+        status_condition::Entity,
+        status_condition::Model,
+        status_condition::ActiveModel,
+    >(ctx)
+    .await?;
 
-    debug!("{:?}", Json(&novelties));
-    Ok((StatusCode::OK, Json(novelties)).into_response())
+    debug!("{:?}", Json(&status_conditions));
+    Ok((StatusCode::OK, Json(status_conditions)).into_response())
 }
 
 pub async fn create_band(
-    State(app_state): State<AppState>,
-    Json(novelty): Json<CreateBasicLookUpDTO>,
+    Extension(ctx): Extension<ApiContext>,
+    Json(band): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = band::ActiveModel {
         id: Default::default(),
-        name: sea_orm::Set(novelty.name),
+        name: sea_orm::Set(band.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<band::Entity, band::Model, band::ActiveModel>(active_model)
+    LookupService::create::<band::Entity, band::Model, band::ActiveModel>(ctx, active_model)
         .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_bands(State(app_state): State<AppState>) -> Result<Response> {
-    let novelties = app_state
-        .lookup_service
-        .find::<band::Entity, band::Model, band::ActiveModel>()
-        .await?;
+pub async fn get_bands(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let bands = LookupService::find::<band::Entity, band::Model, band::ActiveModel>(ctx).await?;
 
-    debug!("{:?}", Json(&novelties));
-    Ok((StatusCode::OK, Json(novelties)).into_response())
+    debug!("{:?}", Json(&bands));
+    Ok((StatusCode::OK, Json(bands)).into_response())
 }
 
 pub async fn create_institution(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(institution): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = institution::ActiveModel {
@@ -472,18 +479,20 @@ pub async fn create_institution(
         name: sea_orm::Set(institution.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<institution::Entity, institution::Model, institution::ActiveModel>(active_model)
-        .await?;
+    LookupService::create::<institution::Entity, institution::Model, institution::ActiveModel>(
+        ctx,
+        active_model,
+    )
+    .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_institutions(State(app_state): State<AppState>) -> Result<Response> {
-    let institutions = app_state
-        .lookup_service
-        .find::<institution::Entity, institution::Model, institution::ActiveModel>()
+pub async fn get_institutions(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let institutions =
+        LookupService::find::<institution::Entity, institution::Model, institution::ActiveModel>(
+            ctx,
+        )
         .await?;
 
     debug!("{:?}", Json(&institutions));
@@ -491,7 +500,7 @@ pub async fn get_institutions(State(app_state): State<AppState>) -> Result<Respo
 }
 
 pub async fn create_profession(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(profession): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = profession::ActiveModel {
@@ -499,33 +508,33 @@ pub async fn create_profession(
         name: sea_orm::Set(profession.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<profession::Entity, profession::Model, profession::ActiveModel>(active_model)
-        .await?;
+    LookupService::create::<profession::Entity, profession::Model, profession::ActiveModel>(
+        ctx,
+        active_model,
+    )
+    .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_professions(State(app_state): State<AppState>) -> Result<Response> {
-    let professions = app_state
-        .lookup_service
-        .find::<profession::Entity, profession::Model, profession::ActiveModel>()
-        .await?;
+pub async fn get_professions(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let professions =
+        LookupService::find::<profession::Entity, profession::Model, profession::ActiveModel>(ctx)
+            .await?;
 
     debug!("{:?}", Json(&professions));
     Ok((StatusCode::OK, Json(professions)).into_response())
 }
 
-pub async fn get_divisions(State(app_state): State<AppState>) -> Result<Response> {
-    let divisions = app_state.lookup_service.find_divisions().await?;
+pub async fn get_bases(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let bases = LookupService::find::<base::Entity, base::Model, base::ActiveModel>(ctx).await?;
 
-    debug!("{:?}", Json(&divisions));
-    Ok((StatusCode::OK, Json(divisions)).into_response())
+    debug!("roles: {:?}", Json(&bases));
+    Ok((StatusCode::OK, Json(bases)).into_response())
 }
 
 pub async fn create_base(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(base): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = base::ActiveModel {
@@ -533,46 +542,33 @@ pub async fn create_base(
         name: sea_orm::Set(base.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<base::Entity, base::Model, base::ActiveModel>(active_model)
+    LookupService::create::<base::Entity, base::Model, base::ActiveModel>(ctx, active_model)
         .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_bases(State(app_state): State<AppState>) -> Result<Response> {
-    let bases = app_state
-        .lookup_service
-        .find::<base::Entity, base::Model, base::ActiveModel>()
-        .await?;
+pub async fn get_roles(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let roles = LookupService::find::<role::Entity, role::Model, role::ActiveModel>(ctx).await?;
 
-    debug!("roles: {:?}", Json(&bases));
-    Ok((StatusCode::OK, Json(bases)).into_response())
+    debug!("{:?}", Json(&roles));
+    Ok((StatusCode::OK, Json(roles)).into_response())
 }
 
-pub async fn get_roles(State(app_state): State<AppState>) -> Result<Response> {
-    let bases = app_state
-        .lookup_service
-        .find::<role::Entity, role::Model, role::ActiveModel>()
-        .await?;
-
-    debug!("{:?}", Json(&bases));
-    Ok((StatusCode::OK, Json(bases)).into_response())
-}
-
-pub async fn get_persona_states(State(app_state): State<AppState>) -> Result<Response> {
-    let persona_states = app_state
-        .lookup_service
-        .find::<persona_state::Entity, persona_state::Model, persona_state::ActiveModel>()
-        .await?;
+pub async fn get_persona_states(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let persona_states = LookupService::find::<
+        persona_state::Entity,
+        persona_state::Model,
+        persona_state::ActiveModel,
+    >(ctx)
+    .await?;
 
     debug!("persona_states: {:?}", Json(&persona_states));
     Ok((StatusCode::OK, Json(persona_states)).into_response())
 }
 
 pub async fn create_persona_state(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(persona_state): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = persona_state::ActiveModel {
@@ -580,41 +576,41 @@ pub async fn create_persona_state(
         name: sea_orm::Set(persona_state.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<persona_state::Entity, persona_state::Model, persona_state::ActiveModel>(
-            active_model,
-        )
-        .await?;
+    LookupService::create::<persona_state::Entity, persona_state::Model, persona_state::ActiveModel>(
+        ctx,
+        active_model,
+    )
+    .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }
 
-pub async fn get_document_types(State(app_state): State<AppState>) -> Result<Response> {
-    let persona_states = app_state
-        .lookup_service
-        .find::<document_type::Entity, document_type::Model, document_type::ActiveModel>()
-        .await?;
+pub async fn get_document_types(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let document_types = LookupService::find::<
+        document_type::Entity,
+        document_type::Model,
+        document_type::ActiveModel,
+    >(ctx)
+    .await?;
 
-    debug!("persona_states: {:?}", Json(&persona_states));
-    Ok((StatusCode::OK, Json(persona_states)).into_response())
+    debug!("persona_states: {:?}", Json(&document_types));
+    Ok((StatusCode::OK, Json(document_types)).into_response())
 }
 
 pub async fn create_document_type(
-    State(app_state): State<AppState>,
-    Json(persona_state): Json<CreateBasicLookUpDTO>,
+    Extension(ctx): Extension<ApiContext>,
+    Json(document_type): Json<CreateBasicLookUpDTO>,
 ) -> Result<Response> {
     let active_model = document_type::ActiveModel {
         id: Default::default(),
-        name: sea_orm::Set(persona_state.name),
+        name: sea_orm::Set(document_type.name),
     };
 
-    app_state
-        .lookup_service
-        .create::<document_type::Entity, document_type::Model, document_type::ActiveModel>(
-            active_model,
-        )
-        .await?;
+    LookupService::create::<document_type::Entity, document_type::Model, document_type::ActiveModel>(
+        ctx,
+        active_model,
+    )
+    .await?;
 
     Ok(StatusCode::CREATED.into_response())
 }

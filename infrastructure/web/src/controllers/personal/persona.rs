@@ -1,4 +1,3 @@
-use crate::state::AppState;
 use crate::Result;
 use application::dtos::personal::persona::CreatePersonaDTO;
 use application::dtos::personal::persona::GetPersonaDTO;
@@ -8,7 +7,6 @@ use application::dtos::CommonQueryFilterDTO;
 use application::dtos::PaginationDTO;
 use axum::extract::Path;
 use axum::extract::Query;
-use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::Json;
@@ -25,11 +23,15 @@ pub struct MultiplePersonasBody {
     pub pagination: PaginationDTO,
 }
 
+use application::api::ApiContext;
+use application::services::personal::persona::PersonaService;
+use axum::Extension;
+
 pub async fn create_persona(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(persona): Json<CreatePersonaDTO>,
 ) -> Result<Response> {
-    let persona_id = app_state.persona_service.create(persona).await?;
+    let persona_id = PersonaService::create(ctx, persona).await?;
 
     Ok((
         StatusCode::CREATED,
@@ -41,20 +43,20 @@ pub async fn create_persona(
 }
 
 pub async fn update_persona(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Path(id): Path<i32>,
     Json(persona): Json<UpdatePersonaDTO>,
 ) -> Result<Response> {
-    let persona_id = app_state.persona_service.update(id, persona).await?;
+    let persona_id = PersonaService::update(ctx, id, persona).await?;
 
     Ok((StatusCode::OK, Json(persona_id)).into_response())
 }
 
 pub async fn get_persona(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Path(id): Path<i32>,
 ) -> Result<Response> {
-    let persona = app_state.persona_service.find_by_id(id).await?;
+    let persona = PersonaService::find_by_id(ctx, id).await?;
 
     Ok((
         StatusCode::OK,
@@ -64,14 +66,12 @@ pub async fn get_persona(
 }
 
 pub async fn get_personas(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Query(query): Query<CommonQueryFilterDTO>,
 ) -> Result<Response> {
-    let personas: Vec<GetPersonaSummaryDTO> = app_state
-        .persona_service
-        .find_summary(query.clone())
-        .await?;
-    let pagination = app_state.persona_service.get_pagination(query).await?;
+    let personas: Vec<GetPersonaSummaryDTO> =
+        PersonaService::find_summary(ctx.clone(), query.clone()).await?;
+    let pagination = PersonaService::get_pagination(ctx, query).await?;
 
     Ok(Json(MultiplePersonasBody {
         personas,

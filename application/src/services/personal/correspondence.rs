@@ -1,8 +1,10 @@
 use domain::entities::{correspondence, correspondence_document, document_type};
 use sea_orm::*;
+use sea_orm::entity::prelude::*;
 
 use crate::{
     api::ApiContext,
+    auth::{FilterByClaims, HasBaseId, UserClaims, UserStamp},
     dtos::{
         personal::correspondence::{
             document::CorrespondenceDocumentResponse, CorrespondenceResponse,
@@ -10,7 +12,18 @@ use crate::{
         },
         CommonQueryFilterDTO, PaginationDTO,
     },
+    impl_filter_by_claims,
 };
+
+impl HasBaseId for correspondence::ActiveModel {
+    fn set_base_id(mut self, id: i32) -> Self {
+        self.base_id = Set(id);
+
+        self
+    }
+}
+
+impl_filter_by_claims!(correspondence, BaseId);
 
 #[derive(Debug, Clone)]
 pub struct CorrespondenceService {}
@@ -40,7 +53,7 @@ impl CorrespondenceService {
         ctx: ApiContext,
         filter: CommonQueryFilterDTO,
     ) -> Result<Vec<CorrespondenceSummary>, DbErr> {
-        let mut query = correspondence::Entity::find().left_join(correspondence_document::Entity);
+        let mut query = correspondence::Entity::find().filter_by_claims(ctx.claims).left_join(correspondence_document::Entity);
 
         if let Some(search) = &filter.search {
             query = query.filter(correspondence::Column::Type.contains(search));
@@ -72,7 +85,7 @@ impl CorrespondenceService {
         ctx: ApiContext,
         filter: CommonQueryFilterDTO,
     ) -> Result<PaginationDTO, DbErr> {
-        let mut query = correspondence::Entity::find();
+        let mut query = correspondence::Entity::find().filter_by_claims(ctx.claims);
 
         if let Some(search) = &filter.search {
             query = query.filter(correspondence::Column::Type.contains(search));
@@ -105,6 +118,7 @@ impl CorrespondenceService {
         id: i32,
     ) -> Result<Option<CorrespondenceResponse>, DbErr> {
         let correspondence = correspondence::Entity::find_by_id(id)
+            .filter_by_claims(ctx.claims)
             .column_as(
                 correspondence_document::Column::Id.count(),
                 "document_count",

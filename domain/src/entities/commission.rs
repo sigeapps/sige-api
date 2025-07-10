@@ -13,6 +13,7 @@ pub struct Model {
     pub boss_id: Option<i32>,
     pub entry_at: DateTimeWithTimeZone,
     pub exit_at: Option<DateTimeWithTimeZone>,
+    pub base_id: i32,
     pub status_at: Option<DateTimeWithTimeZone>,
     #[sea_orm(column_type = "Text", nullable)]
     pub observations: Option<String>,
@@ -21,6 +22,14 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::base::Entity",
+        from = "Column::BaseId",
+        to = "super::base::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Base,
     #[sea_orm(
         belongs_to = "super::brigade::Entity",
         from = "Column::BrigadeId",
@@ -55,6 +64,12 @@ pub enum Relation {
     Official1,
     #[sea_orm(has_many = "super::temporal_seclusion::Entity")]
     TemporalSeclusion,
+}
+
+impl Related<super::base::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Base.def()
+    }
 }
 
 impl Related<super::brigade::Entity> for Entity {

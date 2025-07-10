@@ -1,6 +1,9 @@
 use sea_orm_migration::prelude::*;
 
-use crate::m20250504_000015_create_commissions_table::Commission;
+use crate::{
+    m20250504_000015_create_commissions_table::Commission,
+    m20250618_113709_create_base_tables::Base,
+};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -115,6 +118,14 @@ impl MigrationTrait for Migration {
                 Table::create()
                     .table(Seclusion::Table)
                     .if_not_exists()
+                    .col(ColumnDef::new(Seclusion::BaseId).integer().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_seclusion_base_id")
+                            .from(Seclusion::Table, Seclusion::BaseId)
+                            .to(Base::Table, Base::Id)
+                            .on_delete(ForeignKeyAction::Restrict),
+                    )
                     .col(
                         ColumnDef::new(Seclusion::Id)
                             .integer()
@@ -169,6 +180,19 @@ impl MigrationTrait for Migration {
                             .integer()
                             .auto_increment()
                             .primary_key(),
+                    )
+                    .col(
+                        ColumnDef::new(TemporalSeclusion::BaseId)
+                            .integer()
+                            .not_null(),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_temporal-seclusion_base")
+                            .from(TemporalSeclusion::Table, TemporalSeclusion::BaseId)
+                            .to(Base::Table, Base::Id)
+                            .on_delete(ForeignKeyAction::Restrict)
+                            .on_update(ForeignKeyAction::Cascade),
                     )
                     .col(
                         ColumnDef::new(TemporalSeclusion::CommissionId)
@@ -347,6 +371,7 @@ enum Seclusion {
     Age,
     LastName,
     FirstName,
+    BaseId,
     Reason,
     ExitReason,
     PhysicalState,
@@ -362,6 +387,7 @@ enum TemporalSeclusion {
     Table,
     Id,
     CommissionId,
+    BaseId,
     Ci,
     LastName,
     FirstName,

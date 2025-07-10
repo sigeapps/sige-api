@@ -1,6 +1,8 @@
 use sea_orm_migration::{prelude::*, schema::*};
 
-use crate::m20250607_152359_create_lookup_tables::DocumentType;
+use crate::{
+    m20250607_152359_create_lookup_tables::DocumentType, m20250618_113709_create_base_tables::Base,
+};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -15,6 +17,13 @@ impl MigrationTrait for Migration {
                     .if_not_exists()
                     .col(pk_auto(Correspondence::Id))
                     .col(string(Correspondence::Type))
+                    .col(integer(Correspondence::BaseId).not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_correspondence_base_id")
+                            .from(Correspondence::Table, Correspondence::BaseId)
+                            .to(Base::Table, Base::Id),
+                    )
                     .col(date_time(Correspondence::DateTime))
                     .col(date_time(Correspondence::ProcessDateTime))
                     .to_owned(),
@@ -81,6 +90,7 @@ enum Correspondence {
     Table,
     Id,
     Type,
+    BaseId,
     DateTime,
     ProcessDateTime,
 }

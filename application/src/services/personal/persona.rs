@@ -1,14 +1,16 @@
 use sea_orm::{sea_query::Alias, *};
-use std::sync::Arc;
 
-use crate::dtos::{
-    personal::persona::{
-        child::Child, conyuge::Conyuge, course::Course, educational::Educational, health::Health,
-        labor::Labor, operational::Operational, personal::GetPersonalDTO, record::Record,
-        relative::Relative, situation::GetSituationDTO, traits::Traits, CreatePersonaDTO,
-        GetPersonaDTO, GetPersonaSummaryDTO, UpdatePersonaDTO,
+use crate::{
+    api::ApiContext,
+    dtos::{
+        personal::persona::{
+            child::Child, conyuge::Conyuge, course::Course, educational::Educational,
+            health::Health, labor::Labor, operational::Operational, personal::GetPersonalDTO,
+            record::Record, relative::Relative, situation::GetSituationDTO, traits::Traits,
+            CreatePersonaDTO, GetPersonaDTO, GetPersonaSummaryDTO, UpdatePersonaDTO,
+        },
+        CommonQueryFilterDTO, PaginationDTO,
     },
-    CommonQueryFilterDTO, PaginationDTO,
 };
 use domain::entities::{
     country_verification, persona, persona_children, persona_conyuge, persona_course,
@@ -17,17 +19,11 @@ use domain::entities::{
 };
 
 #[derive(Debug, Clone)]
-pub struct PersonaService {
-    pub db: Arc<DatabaseConnection>,
-}
+pub struct PersonaService {}
 
 impl PersonaService {
-    pub fn new(db: Arc<DatabaseConnection>) -> Self {
-        PersonaService { db }
-    }
-
-    pub async fn create(self, mut dto: CreatePersonaDTO) -> Result<i32, DbErr> {
-        let transaction = self.db.begin().await?;
+    pub async fn create(ctx: ApiContext, mut dto: CreatePersonaDTO) -> Result<i32, DbErr> {
+        let transaction = ctx.db.begin().await?;
 
         dto.personal.others = dto.others.others;
 
@@ -133,8 +129,8 @@ impl PersonaService {
         Ok(persona_id)
     }
 
-    pub async fn update(self, id: i32, mut dto: UpdatePersonaDTO) -> Result<i32, DbErr> {
-        let transaction = self.db.begin().await?;
+    pub async fn update(ctx: ApiContext, id: i32, mut dto: UpdatePersonaDTO) -> Result<i32, DbErr> {
+        let transaction = ctx.db.begin().await?;
 
         if let Some(others) = dto.others {
             dto.personal.others = others.others;
@@ -279,10 +275,10 @@ impl PersonaService {
         Ok(id)
     }
 
-    pub async fn find_by_id(&self, id: i32) -> Result<GetPersonaDTO, DbErr> {
+    pub async fn find_by_id(ctx: ApiContext, id: i32) -> Result<GetPersonaDTO, DbErr> {
         let persona = persona::Entity::find_by_id(id)
             .into_partial_model::<GetPersonalDTO>()
-            .one(&*self.db)
+            .one(&ctx.db)
             .await?;
 
         if persona.is_none() {
@@ -292,61 +288,61 @@ impl PersonaService {
         let traits = persona_traits::Entity::find()
             .filter(persona_traits::Column::PersonaId.eq(id))
             .into_partial_model::<Traits>()
-            .one(&*self.db)
+            .one(&ctx.db)
             .await?;
 
         let relatives = persona_relative::Entity::find()
             .filter(persona_relative::Column::PersonaId.eq(id))
             .into_partial_model::<Relative>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         let childrens = persona_children::Entity::find()
             .filter(persona_children::Column::PersonaId.eq(id))
             .into_partial_model::<Child>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         let education = persona_education::Entity::find()
             .filter(persona_education::Column::PersonaId.eq(id))
             .into_partial_model::<Educational>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         let conyuge = persona_conyuge::Entity::find()
             .filter(persona_conyuge::Column::PersonaId.eq(id))
             .into_partial_model::<Conyuge>()
-            .one(&*self.db)
+            .one(&ctx.db)
             .await?;
 
         let courses = persona_course::Entity::find()
             .filter(persona_course::Column::PersonaId.eq(id))
             .into_partial_model::<Course>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         let work_experiencies = persona_work_experience::Entity::find()
             .filter(persona_work_experience::Column::PersonaId.eq(id))
             .into_partial_model::<Labor>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         let health = persona_health::Entity::find()
             .filter(persona_health::Column::PersonaId.eq(id))
             .into_partial_model::<Health>()
-            .one(&*self.db)
+            .one(&ctx.db)
             .await?;
 
         let operational = persona_operational::Entity::find()
             .filter(persona_operational::Column::PersonaId.eq(id))
             .into_partial_model::<Operational>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         let records = persona_record::Entity::find()
             .filter(persona_record::Column::PersonaId.eq(id))
             .into_partial_model::<Record>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         let situation = persona_situation::Entity::find()
@@ -387,7 +383,7 @@ impl PersonaService {
                 Alias::new("division_origin"),
             )
             .into_partial_model::<GetSituationDTO>()
-            .one(&*self.db)
+            .one(&ctx.db)
             .await?;
 
         let persona = GetPersonaDTO {
@@ -410,7 +406,7 @@ impl PersonaService {
     }
 
     pub async fn find_summary(
-        &self,
+        ctx: ApiContext,
         filter: CommonQueryFilterDTO,
     ) -> Result<Vec<GetPersonaSummaryDTO>, DbErr> {
         let mut query = persona::Entity::find()
@@ -498,14 +494,14 @@ impl PersonaService {
             .limit(pagination.limit)
             .offset(pagination.offset)
             .into_partial_model::<GetPersonaSummaryDTO>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         Ok(personas)
     }
 
     pub async fn get_pagination(
-        &self,
+        ctx: ApiContext,
         filter: CommonQueryFilterDTO,
     ) -> Result<PaginationDTO, DbErr> {
         let mut query = persona::Entity::find();
@@ -532,7 +528,7 @@ impl PersonaService {
         }
 
         let pagination = filter.into_pagination();
-        let paginator = query.paginate(&*self.db, pagination.limit);
+        let paginator = query.paginate(&ctx.db, pagination.limit);
         let total_count = paginator.num_items().await?;
         let page_count = paginator.num_pages().await?;
 

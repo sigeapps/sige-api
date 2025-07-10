@@ -18,10 +18,19 @@ pub struct Model {
     pub hierarchy_id: i32,
     pub brigade_id: i32,
     pub code: Option<i32>,
+    pub base_id: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::base::Entity",
+        from = "Column::BaseId",
+        to = "super::base::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Base,
     #[sea_orm(
         belongs_to = "super::brigade::Entity",
         from = "Column::BrigadeId",
@@ -50,6 +59,12 @@ pub enum Relation {
     Hierarchy,
     #[sea_orm(has_many = "super::part_official::Entity")]
     PartOfficial,
+}
+
+impl Related<super::base::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Base.def()
+    }
 }
 
 impl Related<super::brigade::Entity> for Entity {

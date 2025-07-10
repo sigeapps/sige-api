@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
+    pub base_id: i32,
     pub commission_id: i32,
     pub ci: String,
     pub last_name: String,
@@ -18,6 +19,14 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::base::Entity",
+        from = "Column::BaseId",
+        to = "super::base::Column::Id",
+        on_update = "Cascade",
+        on_delete = "Restrict"
+    )]
+    Base,
     #[sea_orm(
         belongs_to = "super::commission::Entity",
         from = "Column::CommissionId",
@@ -34,6 +43,12 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     SeclusionStatuses,
+}
+
+impl Related<super::base::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Base.def()
+    }
 }
 
 impl Related<super::commission::Entity> for Entity {

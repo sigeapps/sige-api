@@ -1,29 +1,43 @@
-use domain::entities::{base, division, persona_state, state};
+use domain::entities::{base, division, persona_state, plate, state};
+use sea_orm::entity::prelude::*;
 use sea_orm::*;
-use std::sync::Arc;
 
-use crate::dtos::{
-    personal::plate::{
-        persona::{ModifyPersonaResponse, PlatePersona},
-        GetPlateDTO, PlateRequestDTO, PlateResponseDTO,
+use crate::{
+    api::ApiContext,
+    auth::{FilterByClaims, HasBaseId, UserClaims, UserStamp},
+    dtos::{
+        personal::plate::{
+            persona::{ModifyPersonaResponse, PlatePersona},
+            GetPlateDTO, PlateRequestDTO, PlateResponseDTO,
+        },
+        CommonQueryFilterDTO,
     },
-    CommonQueryFilterDTO,
+    impl_filter_by_claims,
 };
 
-#[derive(Debug, Clone)]
-pub struct PlateService {
-    pub db: Arc<DatabaseConnection>,
+impl HasBaseId for plate::ActiveModel {
+    fn set_base_id(mut self, id: i32) -> Self {
+        self.base_id = Set(id);
+
+        self
+    }
 }
 
+impl_filter_by_claims!(plate, BaseId);
+
+#[derive(Debug, Clone)]
+pub struct PlateService {}
 impl PlateService {
-    pub fn new(db: Arc<DatabaseConnection>) -> Self {
-        PlateService { db }
-    }
+    pub async fn create(ctx: ApiContext, dto: PlateRequestDTO) -> Result<i32, DbErr> {
+        let transaction = ctx.db.begin().await?;
 
-    pub async fn create(self, dto: PlateRequestDTO) -> Result<i32, DbErr> {
-        let transaction = self.db.begin().await?;
-
-        let id = dto.plate.into_active_model().insert(&transaction).await?.id;
+        let id = dto
+            .plate
+            .into_active_model()
+            .stamp_user(ctx.claims)
+            .insert(&transaction)
+            .await?
+            .id;
 
         for persona in dto.modified_personas {
             let mut active_model = persona.into_active_model();
@@ -40,13 +54,14 @@ impl PlateService {
         Ok(id)
     }
 
-    pub async fn find_by_id(self, id: i32) -> Result<Option<PlateResponseDTO>, DbErr> {
+    pub async fn find_by_id(ctx: ApiContext, id: i32) -> Result<Option<PlateResponseDTO>, DbErr> {
         let plate = domain::entities::plate::Entity::find_by_id(id)
+            .filter_by_claims(ctx.claims)
             .left_join(base::Entity)
             .left_join(state::Entity)
             .left_join(division::Entity)
             .into_partial_model::<GetPlateDTO>()
-            .one(&*self.db)
+            .one(&ctx.db)
             .await?;
 
         // Esta sección fue reescrita para evitar errores con into_partial_model.
@@ -58,7 +73,7 @@ impl PlateService {
 
         let plate_personas = domain::entities::plate_persona::Entity::find()
             .filter(domain::entities::plate_persona::Column::PlateId.eq(id))
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         let mut personas = Vec::new();
@@ -67,21 +82,21 @@ impl PlateService {
             // Buscar la persona asociada
             let persona = domain::entities::persona::Entity::find_by_id(plate_persona.persona_id)
                 .into_partial_model::<SimplePersonaResponseDTO>()
-                .one(&*self.db)
+                .one(&ctx.db)
                 .await?
                 .ok_or(DbErr::RecordNotFound("record not found".to_string()))?;
 
             // Buscar el estado nuevo
             let new_state = persona_state::Entity::find_by_id(plate_persona.new_state_id)
                 .into_partial_model::<GetPersonaStateDTO>()
-                .one(&*self.db)
+                .one(&ctx.db)
                 .await?
                 .ok_or(DbErr::RecordNotFound("record not found".to_string()))?;
 
             // Buscar el estado viejo
             let old_state = persona_state::Entity::find_by_id(plate_persona.old_state_id)
                 .into_partial_model::<GetPersonaStateDTO>()
-                .one(&*self.db)
+                .one(&ctx.db)
                 .await?
                 .ok_or(DbErr::RecordNotFound("record not found".to_string()))?;
 
@@ -101,8 +116,12 @@ impl PlateService {
         }
     }
 
-    pub async fn find(self, filter: CommonQueryFilterDTO) -> Result<Vec<GetPlateDTO>, DbErr> {
+    pub async fn find(
+        ctx: ApiContext,
+        filter: CommonQueryFilterDTO,
+    ) -> Result<Vec<GetPlateDTO>, DbErr> {
         let mut query = domain::entities::plate::Entity::find()
+            .filter_by_claims(ctx.claims)
             .left_join(base::Entity)
             .left_join(state::Entity)
             .left_join(division::Entity);
@@ -119,7 +138,7 @@ impl PlateService {
 
         let plates = query
             .into_partial_model::<GetPlateDTO>()
-            .all(&*self.db)
+            .all(&ctx.db)
             .await?;
 
         Ok(plates)

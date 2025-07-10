@@ -1,5 +1,7 @@
 use sea_orm_migration::prelude::*;
 
+use crate::m20250618_113709_create_base_tables::Base;
+
 pub struct Migration;
 
 impl MigrationName for Migration {
@@ -77,6 +79,13 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Official::HierarchyId).integer().not_null())
                     .col(ColumnDef::new(Official::BrigadeId).integer().not_null())
                     .col(ColumnDef::new(Official::Code).integer().null())
+                    .col(ColumnDef::new(Official::BaseId).integer().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_official_base")
+                            .from(Official::Table, Official::BaseId)
+                            .to(Base::Table, Base::Id),
+                    )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_official_charge")
@@ -167,6 +176,7 @@ pub enum Official {
     Ci,
     LastName,
     FirstName,
+    BaseId,
     Phone,
     ChargeId,
     HierarchyId,

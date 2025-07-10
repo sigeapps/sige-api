@@ -1,4 +1,6 @@
 use sea_orm_migration::prelude::*;
+
+use crate::m20250618_113709_create_base_tables::Base;
 pub struct Migration;
 
 impl MigrationName for Migration {
@@ -74,6 +76,14 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Transport::TypeId).integer().not_null())
                     .col(ColumnDef::new(Transport::Details).string().null())
                     .col(ColumnDef::new(Transport::BrandId).integer().not_null())
+                    .col(ColumnDef::new(Transport::BaseId).integer().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk-transports-base_id")
+                            .from(Transport::Table, Transport::BaseId)
+                            .to(Base::Table, Base::Id)
+                            .on_delete(ForeignKeyAction::Restrict),
+                    )
                     .col(ColumnDef::new(Transport::ModelId).integer().not_null())
                     .col(
                         ColumnDef::new(Transport::Plate)
@@ -125,7 +135,12 @@ impl MigrationTrait for Migration {
 
         println!("🔨 Seeding transport statuses");
 
-        let statuses = ["Verificado", "Solicitado", "Espera por experto", "Entregado"];
+        let statuses = [
+            "Verificado",
+            "Solicitado",
+            "Espera por experto",
+            "Entregado",
+        ];
 
         for status in statuses {
             let insert = Query::insert()
@@ -242,5 +257,6 @@ enum Transport {
     Unit,
     SerialPhoto,
     StatusId,
+    BaseId,
     CreatedAt,
 }

@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[sea_orm(table_name = "seclusion")]
 pub struct Model {
+    pub base_id: i32,
     #[sea_orm(primary_key)]
     pub id: i32,
     pub photo: Option<String>,
@@ -26,8 +27,22 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::base::Entity",
+        from = "Column::BaseId",
+        to = "super::base::Column::Id",
+        on_update = "NoAction",
+        on_delete = "Restrict"
+    )]
+    Base,
     #[sea_orm(has_many = "super::seclusion_visit::Entity")]
     SeclusionVisit,
+}
+
+impl Related<super::base::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Base.def()
+    }
 }
 
 impl Related<super::seclusion_visit::Entity> for Entity {

@@ -35,7 +35,7 @@ pub trait FilterByClaims {
 }
 
 #[macro_export]
-macro_rules! impl_filter_by_base_id {
+macro_rules! impl_filter_by_claims {
     ($entity:ident, $column:ident) => {
         impl FilterByClaims for sea_orm::Select<$entity::Entity> {
             fn filter_by_claims(self, claims: Option<UserClaims>) -> Self {

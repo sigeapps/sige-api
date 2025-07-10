@@ -3,14 +3,13 @@ use application::dtos::prevention::seclusion::{
     visit::AddSeclusionVisitDTO, CreateSeclusionDTO, UpdateSeclusionExitDTO,
 };
 use application::dtos::{CommonQueryFilterDTO, PaginationDTO};
-use axum::extract::{Path, Query, State};
+use axum::extract::{Path, Query};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::Json;
 use serde::{Deserialize, Serialize};
 use tracing::error;
 
-use crate::state::AppState;
 use crate::Result;
 
 #[derive(Serialize, Deserialize)]
@@ -26,11 +25,15 @@ pub struct MultipleSeclusionsBody {
 
 // TODO: This is a temporary solution, we should use a proper DTO for this
 //
+use application::api::ApiContext;
+use application::services::prevention::seclusion::SeclusionService;
+use axum::Extension;
+
 pub async fn create_seclusion(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Json(seclusion): Json<CreateSeclusionDTO>,
 ) -> Result<Response> {
-    let seclusion_id = app_state.seclusion_service.create(seclusion).await?;
+    let seclusion_id = SeclusionService::create(ctx, seclusion).await?;
 
     Ok((
         StatusCode::CREATED,
@@ -42,20 +45,12 @@ pub async fn create_seclusion(
 }
 
 pub async fn get_seclusions(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Query(query): Query<CommonQueryFilterDTO>,
 ) -> Result<Response> {
-    let seclusions = app_state
-        .clone()
-        .seclusion_service
-        .find(query.clone())
-        .await?;
+    let seclusions = SeclusionService::find(ctx.clone(), query.clone()).await?;
 
-    let pagination = app_state
-        .clone()
-        .seclusion_service
-        .get_pagination(query.clone())
-        .await?;
+    let pagination = SeclusionService::get_pagination(ctx, query.clone()).await?;
 
     Ok(Json(MultipleSeclusionsBody {
         seclusions,
@@ -65,22 +60,22 @@ pub async fn get_seclusions(
 }
 
 pub async fn get_seclusion_by_id(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Path(id): Path<i32>,
 ) -> Result<Response> {
-    match app_state.seclusion_service.find_by_id(id).await {
+    match SeclusionService::find_by_id(ctx, id).await {
         Ok(Some(seclusion)) => {
             Ok((StatusCode::OK, Json(SeclusionBody { seclusion })).into_response())
         }
 
-        Ok(None) => Ok((StatusCode::NOT_FOUND, "Seclusion not found").into_response()),
+        Ok(None) => Ok((StatusCode::NOT_FOUND, "Reclusión no encontrada").into_response()),
 
         Err(e) => {
-            error!("Error fetching seclusion: {}", e.to_string());
+            error!("Error obteniendo reclusión: {}", e.to_string());
 
             Ok((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Error fetching seclusion",
+                "Error obteniendo reclusión",
             )
                 .into_response())
         }
@@ -89,24 +84,25 @@ pub async fn get_seclusion_by_id(
 
 #[axum::debug_handler]
 pub async fn update_seclusion_exit(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Path(id): Path<i32>,
     Json(seclusion): Json<UpdateSeclusionExitDTO>,
 ) -> Result<Response> {
-    app_state
-        .seclusion_service
-        .update_exit(id, seclusion)
-        .await?;
+    SeclusionService::update_exit(ctx, id, seclusion).await?;
 
-    Ok((StatusCode::OK, "Seclusion exit updated successfully").into_response())
+    Ok((
+        StatusCode::OK,
+        "Salida de reclusión actualizada exitosamente",
+    )
+        .into_response())
 }
 
 pub async fn add_seclusion_visit(
-    State(app_state): State<AppState>,
+    Extension(ctx): Extension<ApiContext>,
     Path(id): Path<i32>,
     Json(visit): Json<AddSeclusionVisitDTO>,
 ) -> Result<Response> {
-    let visit_id = app_state.seclusion_service.add_visit(id, visit).await?;
+    let visit_id = SeclusionService::add_visit(ctx, id, visit).await?;
 
     Ok((
         StatusCode::CREATED,

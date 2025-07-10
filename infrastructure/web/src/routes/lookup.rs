@@ -17,11 +17,9 @@ use crate::{
         get_vehicle_models,
     },
     middleware::authenticate,
-    state::AppState,
 };
-use std::sync::Arc;
 
-pub fn lookup_routes(app_state: &Arc<AppState>) -> Router {
+pub fn lookup_routes() -> Router {
     Router::new()
         .route("/lookup/brigade", get(get_brigades))
         .route("/lookup/brigade", post(create_brigade))
@@ -74,5 +72,4 @@ pub fn lookup_routes(app_state: &Arc<AppState>) -> Router {
         .route("/lookup/document-type", get(get_document_types))
         .route("/lookup/document-type", post(create_document_type))
         .layer(axum::middleware::from_fn(authenticate))
-        .with_state(app_state.as_ref().clone())
 }
