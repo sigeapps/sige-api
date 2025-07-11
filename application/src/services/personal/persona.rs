@@ -491,6 +491,7 @@ impl PersonaService {
         let pagination = &filter.into_pagination();
 
         let personas = query
+            .filter(persona_situation::Column::BaseId.eq(ctx.claims.unwrap().user.base.id))
             .limit(pagination.limit)
             .offset(pagination.offset)
             .into_partial_model::<GetPersonaSummaryDTO>()
