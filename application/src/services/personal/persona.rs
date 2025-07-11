@@ -161,7 +161,7 @@ impl PersonaService {
                 .one(&transaction)
                 .await?;
 
-            if let Some(_) = existing_conyuge {
+            if existing_conyuge.is_some() {
                 // Si existe, actualizar
                 persona_conyuge::Entity::update_many()
                     .set(conyuge.into_active_model())
