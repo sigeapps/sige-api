@@ -1,6 +1,5 @@
 use domain::entities::{correspondence, correspondence_document, document_type};
 use sea_orm::*;
-use sea_orm::entity::prelude::*;
 
 use crate::{
     api::ApiContext,
@@ -32,7 +31,13 @@ impl CorrespondenceService {
     pub async fn create(ctx: ApiContext, dto: CreateCorrespondenceRequest) -> Result<i32, DbErr> {
         let transaction = ctx.db.begin().await?;
 
-        let id = dto.dto.into_active_model().insert(&transaction).await?.id;
+        let id = dto
+            .dto
+            .into_active_model()
+            .stamp_user(ctx.claims)
+            .insert(&transaction)
+            .await?
+            .id;
 
         async {
             for mut document in dto.documents {
@@ -53,7 +58,9 @@ impl CorrespondenceService {
         ctx: ApiContext,
         filter: CommonQueryFilterDTO,
     ) -> Result<Vec<CorrespondenceSummary>, DbErr> {
-        let mut query = correspondence::Entity::find().filter_by_claims(ctx.claims).left_join(correspondence_document::Entity);
+        let mut query = correspondence::Entity::find()
+            .filter_by_claims(ctx.claims)
+            .left_join(correspondence_document::Entity);
 
         if let Some(search) = &filter.search {
             query = query.filter(correspondence::Column::Type.contains(search));
