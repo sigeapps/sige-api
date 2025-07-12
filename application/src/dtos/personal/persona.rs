@@ -1,4 +1,5 @@
-use sea_orm::DerivePartialModel;
+use domain::entities::persona::ActiveModel;
+use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
 use serde::{Deserialize, Serialize};
 use situation::SimpleDivisionDTO;
 
@@ -13,7 +14,7 @@ use crate::dtos::{
             others::Others,
             personal::{GetPersonalDTO, Personal, UpdatePersonal},
             record::Record,
-            situation::GetSituationDTO,
+            situation::{GetSituationDTO, UpdateSituationSummaryDTO},
         },
     },
     prevention::lookup::{GetBaseDTO, GetHierarchyDTO, GetPersonaStateDTO, GetStateDTO},
@@ -35,6 +36,24 @@ pub struct CreatePersonaDTO {
     pub situation: situation::Situation,
     pub others: Others,
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UpdatePersonaSummaryDTO {
+    #[serde(flatten)]
+    pub situation: UpdateSituationSummaryDTO,
+    #[serde(flatten)]
+    pub persona: UpdatePersonaSummary,
+}
+
+#[derive(Serialize, Deserialize, Debug, DeriveIntoActiveModel)]
+pub struct UpdatePersonaSummary {
+    #[serde(skip_deserializing)]
+    pub id: i32,
+    pub genre: String,
+    #[serde(rename = "work_state_id")]
+    pub state_id: i32,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct UpdatePersonaDTO {
     pub personal: UpdatePersonal,
@@ -145,6 +164,13 @@ pub mod situation {
         pub division_origin_id: Option<i32>,
         pub organism_origin_id: Option<i32>,
         pub requested_by_id: i32,
+    }
+
+    #[derive(Serialize, Deserialize, Debug, DeriveIntoActiveModel)]
+    pub struct UpdateSituationSummaryDTO {
+        pub state_id: i32,
+        pub base_id: i32,
+        pub division_id: i32,
     }
 
     // DTOs simplificados para evitar conflictos de alias

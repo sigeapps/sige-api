@@ -5,7 +5,7 @@ use application::dtos::prevention::commission::{
 };
 use application::dtos::{CommonQueryFilterDTO, PaginationDTO};
 use application::services::prevention::commission::CommissionService;
-use axum::extract::{Path, Query, State};
+use axum::extract::{Path, Query};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::Json;

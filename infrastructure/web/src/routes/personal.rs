@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use axum::{
     routing::{get, patch, post},
     Router,
@@ -8,7 +6,9 @@ use axum::{
 use crate::{
     controllers::personal::{
         country::add_verification,
-        persona::{create_persona, get_persona, get_personas, update_persona},
+        persona::{
+            create_persona, get_persona, get_personas, update_persona, update_persona_summary,
+        },
         plate::{create_plate, get_plate_by_id, get_plates},
         process::{create_correspondence, get_correspondence, get_correspondences},
     },
@@ -21,6 +21,10 @@ pub fn personal_routes() -> Router {
         .route("/personal/persona", get(get_personas))
         .route("/personal/persona/{id}", get(get_persona))
         .route("/personal/persona/{id}", patch(update_persona))
+        .route(
+            "/personal/persona/{id}/summary",
+            patch(update_persona_summary),
+        )
         .route("/personal/plate", post(create_plate).get(get_plates))
         .route("/personal/plate/{id}", get(get_plate_by_id))
         .route("/personal/country/verification", post(add_verification))

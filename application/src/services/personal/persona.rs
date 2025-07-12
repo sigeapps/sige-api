@@ -8,6 +8,7 @@ use crate::{
             health::Health, labor::Labor, operational::Operational, personal::GetPersonalDTO,
             record::Record, relative::Relative, situation::GetSituationDTO, traits::Traits,
             CreatePersonaDTO, GetPersonaDTO, GetPersonaSummaryDTO, UpdatePersonaDTO,
+            UpdatePersonaSummaryDTO,
         },
         CommonQueryFilterDTO, PaginationDTO,
     },
@@ -540,5 +541,23 @@ impl PersonaService {
             total_count,
             offset: pagination.offset,
         })
+    }
+
+    pub async fn update_summary(
+        ctx: ApiContext,
+        id: i32,
+        mut dto: UpdatePersonaSummaryDTO,
+    ) -> Result<i32, DbErr> {
+        dto.persona.id = id;
+
+        let id = dto.persona.into_active_model().update(&ctx.db).await?.id;
+
+        persona_situation::Entity::update_many()
+            .set(dto.situation.into_active_model())
+            .filter(persona_situation::Column::PersonaId.eq(id))
+            .exec(&ctx.db)
+            .await?;
+
+        Ok(id)
     }
 }

@@ -3,6 +3,7 @@ use application::dtos::personal::persona::CreatePersonaDTO;
 use application::dtos::personal::persona::GetPersonaDTO;
 use application::dtos::personal::persona::GetPersonaSummaryDTO;
 use application::dtos::personal::persona::UpdatePersonaDTO;
+use application::dtos::personal::persona::UpdatePersonaSummaryDTO;
 use application::dtos::CommonQueryFilterDTO;
 use application::dtos::PaginationDTO;
 use axum::extract::Path;
@@ -26,6 +27,7 @@ pub struct MultiplePersonasBody {
 use application::api::ApiContext;
 use application::services::personal::persona::PersonaService;
 use axum::Extension;
+use serde_json::json;
 
 pub async fn create_persona(
     Extension(ctx): Extension<ApiContext>,
@@ -78,4 +80,14 @@ pub async fn get_personas(
         pagination,
     })
     .into_response())
+}
+
+pub async fn update_persona_summary(
+    Extension(ctx): Extension<ApiContext>,
+    Path(id): Path<i32>,
+    Json(persona): Json<UpdatePersonaSummaryDTO>,
+) -> Result<Response> {
+    let id = PersonaService::update_summary(ctx, id, persona).await?;
+
+    Ok(Json(json!({"persona_id": id})).into_response())
 }
