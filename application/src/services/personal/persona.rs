@@ -643,6 +643,11 @@ impl PersonaService {
     ) -> Result<i32, DbErr> {
         let transaction = ctx.db.begin().await?;
 
+        persona_operational::Entity::delete_many()
+            .filter(persona_operational::Column::PersonaId.eq(id))
+            .exec(&ctx.db)
+            .await?;
+
         for mut operational in dto {
             operational.persona_id = id;
 
@@ -661,6 +666,11 @@ impl PersonaService {
     ) -> Result<i32, DbErr> {
         let transaction = ctx.db.begin().await?;
 
+        persona_relative::Entity::delete_many()
+            .filter(persona_relative::Column::PersonaId.eq(id))
+            .exec(&ctx.db)
+            .await?;
+
         for mut relative in dto {
             relative.persona_id = id;
 
@@ -674,6 +684,10 @@ impl PersonaService {
 
     pub async fn add_courses(ctx: &ApiContext, id: i32, dto: Vec<Course>) -> Result<i32, DbErr> {
         let transaction = ctx.db.begin().await?;
+        persona_course::Entity::delete_many()
+            .filter(persona_course::Column::PersonaId.eq(id))
+            .exec(&ctx.db)
+            .await?;
 
         for mut course in dto {
             course.persona_id = id;
@@ -688,6 +702,11 @@ impl PersonaService {
 
     pub async fn add_records(ctx: &ApiContext, id: i32, dto: Vec<Record>) -> Result<i32, DbErr> {
         let transaction = ctx.db.begin().await?;
+
+        persona_record::Entity::delete_many()
+            .filter(persona_record::Column::PersonaId.eq(id))
+            .exec(&ctx.db)
+            .await?;
 
         for mut record in dto {
             record.persona_id = id;
@@ -707,6 +726,11 @@ impl PersonaService {
     ) -> Result<i32, DbErr> {
         let transaction = ctx.db.begin().await?;
 
+        persona_education::Entity::delete_many()
+            .filter(persona_education::Column::PersonaId.eq(id))
+            .exec(&ctx.db)
+            .await?;
+
         for mut education in dto {
             education.persona_id = id;
 
@@ -725,6 +749,11 @@ impl PersonaService {
     ) -> Result<i32, DbErr> {
         let transaction = ctx.db.begin().await?;
 
+        persona_work_experience::Entity::delete_many()
+            .filter(persona_work_experience::Column::PersonaId.eq(id))
+            .exec(&ctx.db)
+            .await?;
+
         for mut labor in dto {
             labor.persona_id = id;
 
@@ -738,6 +767,11 @@ impl PersonaService {
 
     pub async fn add_childrens(ctx: &ApiContext, id: i32, dto: Vec<Child>) -> Result<i32, DbErr> {
         let transaction = ctx.db.begin().await?;
+
+        persona_children::Entity::delete_many()
+            .filter(persona_work_experience::Column::PersonaId.eq(id))
+            .exec(&ctx.db)
+            .await?;
 
         for mut children in dto {
             children.persona_id = id;

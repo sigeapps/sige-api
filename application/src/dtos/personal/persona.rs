@@ -428,7 +428,7 @@ pub mod personal {
         pub vehicle_license: String,
         pub age: i32,
         #[serde(skip_deserializing)]
-        pub others: String,
+        pub others: Option<String>,
     }
 
     #[derive(Serialize, Deserialize, DeriveIntoActiveModel, DerivePartialModel)]
@@ -454,7 +454,7 @@ pub mod personal {
         pub vehicle_license: String,
         pub age: i32,
         #[serde(skip_deserializing)]
-        pub others: String,
+        pub others: Option<String>,
     }
 }
 
