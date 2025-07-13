@@ -8,6 +8,14 @@ pub mod personal;
 pub mod prevention;
 pub mod user;
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct WithId<T, ID = i32> {
+    pub id: ID,
+    #[serde(flatten)]
+    pub data: T,
+}
+
+// TODO: Agregar validaciones y moverlo a api.rs
 #[derive(Debug, Serialize, Deserialize, Validate, Clone)]
 pub struct CommonQueryFilterDTO {
     pub search: Option<String>,

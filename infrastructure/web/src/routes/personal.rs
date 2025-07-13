@@ -2,17 +2,21 @@ use axum::{
     routing::{get, patch, post},
     Router,
 };
+use domain::auth::permissions::Permission;
 
 use crate::{
+    authorize,
     controllers::personal::{
         country::add_verification,
         persona::{
-            create_persona, get_persona, get_personas, update_persona, update_persona_summary,
+            add_courses, add_education, add_operational, add_records, add_work_experience,
+            create_persona, get_persona, get_personas, update_health, update_persona,
+            update_persona_summary, update_situation, update_traits,
         },
         plate::{create_plate, get_plate_by_id, get_plates},
         process::{create_correspondence, get_correspondence, get_correspondences},
     },
-    middleware::authenticate,
+    middleware::{authenticate, authorize},
 };
 
 pub fn personal_routes() -> Router {
@@ -21,6 +25,38 @@ pub fn personal_routes() -> Router {
         .route("/personal/persona", get(get_personas))
         .route("/personal/persona/{id}", get(get_persona))
         .route("/personal/persona/{id}", patch(update_persona))
+        .route(
+            "/personal/persona/{id}/traits",
+            patch(update_traits).layer(authorize!(Permission::PersonasUpdateTraits)),
+        )
+        .route(
+            "/personal/persona/{id}/academic",
+            post(add_education).layer(authorize!(Permission::PersonasUpdateAcademic)),
+        )
+        .route(
+            "/personal/persona/{id}/courses",
+            post(add_courses).layer(authorize!(Permission::PersonasUpdateCourses)),
+        )
+        .route(
+            "/personal/persona/{id}/labor",
+            post(add_work_experience).layer(authorize!(Permission::PersonasUpdateLabor)),
+        )
+        .route(
+            "/personal/persona/{id}/operational",
+            post(add_operational).layer(authorize!(Permission::PersonasUpdateLabor)),
+        )
+        .route(
+            "/personal/persona/{id}/records",
+            post(add_records).layer(authorize!(Permission::PersonasUpdateRecords)),
+        )
+        .route(
+            "/personal/persona/{id}/health",
+            patch(update_health).layer(authorize!(Permission::PersonasUpdateHealth)),
+        )
+        .route(
+            "/personal/persona/{id}/situation",
+            patch(update_situation).layer(authorize!(Permission::PersonasUpdateSituation)),
+        )
         .route(
             "/personal/persona/{id}/summary",
             patch(update_persona_summary),

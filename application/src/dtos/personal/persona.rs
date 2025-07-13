@@ -220,6 +220,25 @@ pub mod situation {
         pub name: String,
     }
 
+    #[derive(Serialize, Deserialize, DeriveIntoActiveModel)]
+    pub struct UpdateSituationDTO {
+        #[serde(skip_deserializing)]
+        pub persona_id: i32,
+        pub situation_type: String,
+        pub date: NaiveDate,
+        pub process_id: Option<i32>,
+
+        pub entry_type: Option<String>,
+        pub division_id: Option<i32>,
+        pub state_id: Option<i32>,
+        pub base_id: Option<i32>,
+        pub hierarchy_id: Option<i32>,
+        pub charge_id: Option<i32>,
+        pub division_origin_id: Option<i32>,
+        pub organism_origin_id: Option<i32>,
+        pub requested_by_id: i32,
+    }
+
     #[derive(Serialize, Deserialize, DerivePartialModel)]
     #[sea_orm(
         entity = "domain::entities::persona_situation::Entity",
@@ -307,6 +326,23 @@ pub mod operational {
     )]
     pub struct Operational {
         #[serde(skip_deserializing)]
+        pub persona_id: i32,
+        pub organism_id: i32,
+        pub withdrawal_type: String,
+        pub hierarchy_id: i32,
+        pub charge_id: i32,
+        pub start_at: NaiveDate,
+        pub end_at: NaiveDate,
+        pub time: String,
+        pub boss_name: String,
+        pub boss_phone: String,
+        pub description: Option<String>,
+        pub is_active: Option<bool>,
+        pub file: Option<String>,
+    }
+
+    #[derive(Serialize, Deserialize, DeriveIntoActiveModel)]
+    pub struct GetOperationalDTO {
         pub id: i32,
         #[serde(skip_deserializing)]
         pub persona_id: i32,
@@ -332,7 +368,7 @@ pub mod others {
 
     #[derive(Serialize, Deserialize, DeriveIntoActiveModel)]
     pub struct Others {
-        pub others: String,
+        pub others: Option<String>,
     }
 }
 
@@ -439,6 +475,18 @@ pub mod record {
         pub date: NaiveDate,
         pub description: String,
     }
+
+    #[derive(Serialize, Deserialize, DeriveIntoActiveModel)]
+    pub struct GetRecordDTO {
+        pub id: i32,
+        #[serde(skip_deserializing)]
+        pub persona_id: i32,
+        pub name: String,
+        pub r#type: String,
+        pub requested_by_id: i32,
+        pub date: NaiveDate,
+        pub description: String,
+    }
 }
 
 pub mod conyuge {
@@ -464,6 +512,19 @@ pub mod conyuge {
         pub age: i32,
         pub phone: String,
     }
+
+    #[derive(Serialize, Deserialize, DeriveIntoActiveModel)]
+    pub struct GetConyugeDTO {
+        pub id: i32,
+        #[serde(skip_deserializing)]
+        pub persona_id: i32,
+        pub ci: String,
+        pub name: String,
+        pub last_name: String,
+        pub birthdate: NaiveDate,
+        pub age: i32,
+        pub phone: String,
+    }
 }
 
 pub mod relative {
@@ -471,6 +532,8 @@ pub mod relative {
     use domain::entities::persona_relative::ActiveModel;
     use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
+
+    use crate::dtos::WithId;
 
     #[derive(Serialize, Deserialize, DerivePartialModel, DeriveIntoActiveModel)]
     #[sea_orm(
@@ -488,6 +551,8 @@ pub mod relative {
         pub address: String,
         pub relationship_id: i32,
     }
+
+    pub type GetRelativeDTO = WithId<Relative>;
 }
 
 pub mod child {
@@ -545,6 +610,8 @@ pub mod labor {
     use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
 
+    use crate::dtos::WithId;
+
     #[derive(Serialize, Deserialize, DerivePartialModel, DeriveIntoActiveModel)]
     #[sea_orm(
         entity = "domain::entities::persona_work_experience::Entity",
@@ -564,4 +631,6 @@ pub mod labor {
         pub time: String,
         pub photo: Option<String>,
     }
+
+    pub type GetLaborDTO = WithId<Labor>;
 }

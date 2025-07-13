@@ -1,3 +1,4 @@
+use sea_orm::*;
 use sea_orm_migration::{prelude::*, sea_orm::Statement};
 
 use crate::m20250419_000004_create_role_permissions_table::RolePermission;
@@ -153,13 +154,13 @@ impl MigrationTrait for Migration {
         // Asignar todos los permisos al rol sudo usando el ID real
         use domain::auth::permissions::Permission as DomainPermission;
 
-        for permission in DomainPermission::all().iter() {
+        for permission in DomainPermission::iter() {
             manager
                 .exec_stmt(
                     Query::insert()
                         .into_table(RolePermission::Table)
                         .columns([RolePermission::RoleId, RolePermission::PermissionId])
-                        .values_panic([sudo_role_id.into(), permission.as_str().into()])
+                        .values_panic([sudo_role_id.into(), permission.to_value().into()])
                         .to_owned(),
                 )
                 .await?;

@@ -1,4 +1,14 @@
 use crate::Result;
+use application::dtos::personal::persona::child::Child;
+use application::dtos::personal::persona::course::Course;
+use application::dtos::personal::persona::educational::Educational;
+use application::dtos::personal::persona::health::Health;
+use application::dtos::personal::persona::labor::Labor;
+use application::dtos::personal::persona::operational::Operational;
+use application::dtos::personal::persona::record::Record;
+use application::dtos::personal::persona::relative::Relative;
+use application::dtos::personal::persona::situation::UpdateSituationDTO;
+use application::dtos::personal::persona::traits::Traits;
 use application::dtos::personal::persona::CreatePersonaDTO;
 use application::dtos::personal::persona::GetPersonaDTO;
 use application::dtos::personal::persona::GetPersonaSummaryDTO;
@@ -91,3 +101,43 @@ pub async fn update_persona_summary(
 
     Ok(Json(json!({"persona_id": id})).into_response())
 }
+
+macro_rules! update_entity {
+    ($fn_name:ident, $dto_type:ty) => {
+        pub async fn $fn_name(
+            Extension(ctx): Extension<ApiContext>,
+            Path(id): Path<i32>,
+            Json(entity): Json<$dto_type>,
+        ) -> Result<impl IntoResponse> {
+            PersonaService::$fn_name(&ctx, id, entity).await?;
+
+            Ok(StatusCode::OK.into_response())
+        }
+    };
+}
+
+update_entity!(update_traits, Traits);
+update_entity!(update_health, Health);
+update_entity!(update_situation, UpdateSituationDTO);
+
+macro_rules! add_entitys {
+    ($fn_name:ident, $dto_type:ty) => {
+        pub async fn $fn_name(
+            Extension(ctx): Extension<ApiContext>,
+            Path(id): Path<i32>,
+            Json(entity): Json<Vec<$dto_type>>,
+        ) -> Result<impl IntoResponse> {
+            PersonaService::$fn_name(&ctx, id, entity).await?;
+
+            Ok(StatusCode::OK.into_response())
+        }
+    };
+}
+
+add_entitys!(add_childrens, Child);
+add_entitys!(add_operational, Operational);
+add_entitys!(add_relatives, Relative);
+add_entitys!(add_courses, Course);
+add_entitys!(add_education, Educational);
+add_entitys!(add_work_experience, Labor);
+add_entitys!(add_records, Record);

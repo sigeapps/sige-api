@@ -4,9 +4,18 @@ use crate::{
     api::ApiContext,
     dtos::{
         personal::persona::{
-            child::Child, conyuge::Conyuge, course::Course, educational::Educational,
-            health::Health, labor::Labor, operational::Operational, personal::GetPersonalDTO,
-            record::Record, relative::Relative, situation::GetSituationDTO, traits::Traits,
+            child::Child,
+            conyuge::{Conyuge, GetConyugeDTO},
+            course::Course,
+            educational::Educational,
+            health::Health,
+            labor::Labor,
+            operational::Operational,
+            personal::GetPersonalDTO,
+            record::Record,
+            relative::Relative,
+            situation::{GetSituationDTO, UpdateSituationDTO},
+            traits::Traits,
             CreatePersonaDTO, GetPersonaDTO, GetPersonaSummaryDTO, UpdatePersonaDTO,
             UpdatePersonaSummaryDTO,
         },
@@ -557,6 +566,186 @@ impl PersonaService {
             .filter(persona_situation::Column::PersonaId.eq(id))
             .exec(&ctx.db)
             .await?;
+
+        Ok(id)
+    }
+}
+
+macro_rules! update_entity {
+    ($fn_name:ident, $dto_type:ty, $entity:ty, $column:expr) => {
+        pub async fn $fn_name(ctx: &ApiContext, id: i32, mut dto: $dto_type) -> Result<i32, DbErr> {
+            dto.persona_id = id;
+
+            let active_model = dto.into_active_model();
+
+            <$entity>::update_many()
+                .set(active_model)
+                .filter($column.eq(id))
+                .exec(&ctx.db)
+                .await?;
+
+            Ok(id)
+        }
+    };
+}
+
+impl PersonaService {
+    update_entity!(
+        update_traits,
+        Traits,
+        persona_traits::Entity,
+        persona_traits::Column::PersonaId
+    );
+
+    update_entity!(
+        update_health,
+        Health,
+        persona_health::Entity,
+        persona_health::Column::PersonaId
+    );
+
+    update_entity!(
+        update_situation,
+        UpdateSituationDTO,
+        persona_situation::Entity,
+        persona_situation::Column::PersonaId
+    );
+
+    pub async fn update_conyuge(
+        ctx: &ApiContext,
+        id: i32,
+        mut dto: GetConyugeDTO,
+    ) -> Result<i32, DbErr> {
+        dto.persona_id = id;
+
+        let existing_conyuge = persona_conyuge::Entity::find()
+            .filter(persona_conyuge::Column::PersonaId.eq(id))
+            .one(&ctx.db)
+            .await?;
+
+        if existing_conyuge.is_some() {
+            persona_conyuge::Entity::update_many()
+                .set(dto.into_active_model())
+                .filter(persona_conyuge::Column::PersonaId.eq(id))
+                .exec(&ctx.db)
+                .await?;
+        } else {
+            dto.into_active_model().insert(&ctx.db).await?;
+        }
+
+        Ok(id)
+    }
+
+    pub async fn add_operational(
+        ctx: &ApiContext,
+        id: i32,
+        dto: Vec<Operational>,
+    ) -> Result<i32, DbErr> {
+        let transaction = ctx.db.begin().await?;
+
+        for mut operational in dto {
+            operational.persona_id = id;
+
+            operational.into_active_model().insert(&transaction).await?;
+        }
+
+        transaction.commit().await?;
+
+        Ok(id)
+    }
+
+    pub async fn add_relatives(
+        ctx: &ApiContext,
+        id: i32,
+        dto: Vec<Relative>,
+    ) -> Result<i32, DbErr> {
+        let transaction = ctx.db.begin().await?;
+
+        for mut relative in dto {
+            relative.persona_id = id;
+
+            relative.into_active_model().insert(&transaction).await?;
+        }
+
+        transaction.commit().await?;
+
+        Ok(id)
+    }
+
+    pub async fn add_courses(ctx: &ApiContext, id: i32, dto: Vec<Course>) -> Result<i32, DbErr> {
+        let transaction = ctx.db.begin().await?;
+
+        for mut course in dto {
+            course.persona_id = id;
+
+            course.into_active_model().insert(&transaction).await?;
+        }
+
+        transaction.commit().await?;
+
+        Ok(id)
+    }
+
+    pub async fn add_records(ctx: &ApiContext, id: i32, dto: Vec<Record>) -> Result<i32, DbErr> {
+        let transaction = ctx.db.begin().await?;
+
+        for mut record in dto {
+            record.persona_id = id;
+
+            record.into_active_model().insert(&transaction).await?;
+        }
+
+        transaction.commit().await?;
+
+        Ok(id)
+    }
+
+    pub async fn add_education(
+        ctx: &ApiContext,
+        id: i32,
+        dto: Vec<Educational>,
+    ) -> Result<i32, DbErr> {
+        let transaction = ctx.db.begin().await?;
+
+        for mut education in dto {
+            education.persona_id = id;
+
+            education.into_active_model().insert(&transaction).await?;
+        }
+
+        transaction.commit().await?;
+
+        Ok(id)
+    }
+
+    pub async fn add_work_experience(
+        ctx: &ApiContext,
+        id: i32,
+        dto: Vec<Labor>,
+    ) -> Result<i32, DbErr> {
+        let transaction = ctx.db.begin().await?;
+
+        for mut labor in dto {
+            labor.persona_id = id;
+
+            labor.into_active_model().insert(&transaction).await?;
+        }
+
+        transaction.commit().await?;
+
+        Ok(id)
+    }
+
+    pub async fn add_childrens(ctx: &ApiContext, id: i32, dto: Vec<Child>) -> Result<i32, DbErr> {
+        let transaction = ctx.db.begin().await?;
+
+        for mut children in dto {
+            children.persona_id = id;
+
+            children.into_active_model().insert(&transaction).await?;
+        }
+
+        transaction.commit().await?;
 
         Ok(id)
     }

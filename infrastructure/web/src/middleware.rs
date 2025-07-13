@@ -99,6 +99,13 @@ pub async fn authorize(
     Ok(next.run(request).await)
 }
 
+#[macro_export]
+macro_rules! authorize {
+    ($permission:expr) => {
+        axum::middleware::from_fn_with_state($permission, authorize)
+    };
+}
+
 // Agregar handler para OPTIONS
 pub async fn handle_preflight(request: Request, next: Next) -> Result<Response> {
     if request.method() == Method::OPTIONS {

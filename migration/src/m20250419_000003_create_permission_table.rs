@@ -1,3 +1,5 @@
+use sea_orm::*;
+use sea_orm_migration::prelude::ColumnDef;
 use sea_orm_migration::prelude::*;
 
 pub struct Migration;
@@ -29,15 +31,15 @@ impl MigrationTrait for Migration {
         // Sembrar la tabla con todos los permisos disponibles
         use domain::auth::permissions::Permission as DomainPermission;
 
-        for permission in DomainPermission::all().iter() {
+        for permission in DomainPermission::iter() {
             manager
                 .exec_stmt(
                     Query::insert()
                         .into_table(Permission::Table)
                         .columns([Permission::Id, Permission::Name])
                         .values_panic([
-                            permission.as_str().into(),
-                            format!("Permiso para {}", permission.as_str()).into(),
+                            permission.to_value().into(),
+                            format!("Permiso para {}", permission.to_value()).into(),
                         ])
                         .to_owned(),
                 )
