@@ -1,4 +1,5 @@
 use crate::auth::JwtTrait;
+use crate::tags::AUTH_TAG;
 use crate::Result;
 use application::api::ApiContext;
 use application::auth::UserClaims;
@@ -17,7 +18,12 @@ pub struct UserBody {
     token: String,
 }
 
-#[axum::debug_handler]
+#[utoipa::path(post, path = "/login", tag = AUTH_TAG,
+    request_body = LoginRequest,
+    responses(
+    (status = 200, description = "El usuario inicio sesión de forma correcta"),
+)
+)]
 pub async fn login(
     Extension(ctx): Extension<ApiContext>,
     Json(form): Json<LoginRequest>,
@@ -54,6 +60,11 @@ pub async fn login(
     Ok((Json(UserBody { token })).into_response())
 }
 
+#[utoipa::path(get, path = "/me", tag = AUTH_TAG,
+    responses(
+    (status = 200, description = "El usuario obtuvo su informacion de forma correcta"),
+)
+)]
 pub async fn get_current_user(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
     Ok(Json(ctx.claims).into_response())
 }

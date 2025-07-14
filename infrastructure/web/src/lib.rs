@@ -3,17 +3,56 @@ pub mod controllers;
 pub mod error;
 pub mod middleware;
 pub mod routes;
+pub mod tags;
 pub mod types;
 
 use application::api::ApiContext;
 use application::connection::connect;
 use axum::http::{HeaderName, HeaderValue, Method};
-use axum::Extension;
-use axum::{routing::get, Router};
+use axum::routing::get;
+use axum::{Extension, Json};
 use error::WebError;
 use tower_http::cors::CorsLayer;
+use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
+use utoipa::{Modify, OpenApi};
+use utoipa_axum::router::OpenApiRouter;
+use utoipa_scalar::{Scalar, Servable};
+
+use crate::tags::REGISTER_TAG;
 
 pub type Result<T, E = WebError> = std::result::Result<T, E>;
+
+#[derive(OpenApi)]
+#[openapi(
+    modifiers(&SecurityAddon),
+tags(
+        (name = REGISTER_TAG, description = "API de registros de prevencion")
+    ),
+        paths(
+        openapi
+    )
+)]
+struct ApiDoc;
+
+struct SecurityAddon;
+
+impl Modify for SecurityAddon {
+    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
+        openapi.components = Some(
+            utoipa::openapi::ComponentsBuilder::new()
+                .security_scheme(
+                    "api_jwt_token",
+                    SecurityScheme::Http(
+                        HttpBuilder::new()
+                            .scheme(HttpAuthScheme::Bearer)
+                            .bearer_format("JWT")
+                            .build(),
+                    ),
+                )
+                .build(),
+        )
+    }
+}
 
 #[tokio::main]
 pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
@@ -62,15 +101,19 @@ pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
             "content-range".parse::<HeaderName>().unwrap(),
         ]);
 
-    let app = Router::new()
+    let (router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .route("/", get(root))
-        .merge(routes::user::user_routes())
+        .route("/api-docs/openapi.json", get(openapi))
+        .merge(routes::user::user_routes().into())
         .merge(routes::auth::auth_routes())
         .merge(routes::prevention::prevention_routes())
-        .merge(routes::personal::personal_routes())
-        .merge(routes::lookup::lookup_routes())
+        .merge(routes::personal::personal_routes().into())
+        .merge(routes::lookup::lookup_routes().into())
         .layer(Extension(ApiContext { db, claims: None }))
-        .layer(cors);
+        .layer(cors)
+        .split_for_parts();
+
+    let app = router.merge(Scalar::with_url("/scalar", api));
 
     let listener = tokio::net::TcpListener::bind(address).await?;
 
@@ -81,4 +124,15 @@ pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
 
 async fn root() -> &'static str {
     "Bienvenido a la API de SIGE! Esperando Conexion..."
+}
+
+#[utoipa::path(
+    get,
+    path = "/api-docs/openapi.json",
+    responses(
+        (status = 200, description = "JSON file", body = ())
+    )
+)]
+async fn openapi() -> Json<utoipa::openapi::OpenApi> {
+    Json(ApiDoc::openapi())
 }

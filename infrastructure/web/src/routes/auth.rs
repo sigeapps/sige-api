@@ -1,12 +1,11 @@
-use axum::routing::get;
-use axum::{routing::post, Router};
+use utoipa_axum::router::{OpenApiRouter, UtoipaMethodRouterExt};
+use utoipa_axum::routes;
 
-use crate::controllers::auth::{get_current_user, login};
+use crate::controllers::auth::*;
 use crate::middleware::authenticate;
 
-pub fn auth_routes() -> Router {
-    Router::new().route("/login", post(login)).route(
-        "/me",
-        get(get_current_user).layer(axum::middleware::from_fn(authenticate)),
-    )
+pub fn auth_routes() -> OpenApiRouter {
+    OpenApiRouter::new()
+        .routes(routes!(login))
+        .routes(routes!(get_current_user).layer(axum::middleware::from_fn(authenticate)))
 }

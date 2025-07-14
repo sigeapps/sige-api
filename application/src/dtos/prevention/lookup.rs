@@ -1,9 +1,10 @@
 use sea_orm::DerivePartialModel;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 // TODO: Encontrar forma de evitar duplicación de código
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, ToSchema)]
 pub struct LookupItemDto {
     pub id: i32,
     pub name: String,

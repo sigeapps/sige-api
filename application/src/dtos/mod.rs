@@ -1,5 +1,6 @@
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
+use utoipa::IntoParams;
 use validator::Validate;
 
 pub mod auth;
@@ -16,11 +17,13 @@ pub struct WithId<T, ID = i32> {
 }
 
 // TODO: Agregar validaciones y moverlo a api.rs
-#[derive(Debug, Serialize, Deserialize, Validate, Clone)]
+#[derive(Debug, Serialize, Deserialize, Validate, Clone, IntoParams)]
 pub struct CommonQueryFilterDTO {
     pub search: Option<String>,
     pub ci: Option<String>,
+    #[param(allow_reserved, value_type = String, example = "2022-01-22", format = Date)]
     pub from_date: Option<NaiveDate>,
+    #[param(allow_reserved, value_type = String, example = "2022-01-22", format = Date)]
     pub to_date: Option<NaiveDate>,
     pub page: Option<u64>,
     pub limit: Option<u64>,

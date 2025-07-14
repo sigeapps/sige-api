@@ -13,7 +13,7 @@ pub enum WebError {
     #[error("error on database")]
     Database(#[from] DbErr),
     #[error("unprocessable entity")]
-    Validation(#[from] rejection::JsonSyntaxError),
+    Validation(#[from] rejection::JsonDataError),
     #[error("token management failed")]
     Jwt(#[from] jwt::Error),
 }

@@ -1,3 +1,4 @@
+use crate::tags::REGISTER_TAG;
 use crate::Result;
 use application::api::ApiContext;
 use application::dtos::prevention::register::{
@@ -19,7 +20,12 @@ pub struct RegistersBody {
     pagination: PaginationDTO,
 }
 
-#[axum::debug_handler]
+#[utoipa::path(post, path = "", tag = REGISTER_TAG,
+    request_body = CreateRegisterDTO,
+    responses(
+    (status = 201, description = "El registro se creo de forma correcta"),
+)
+)]
 pub async fn create_register(
     Extension(ctx): Extension<ApiContext>,
     Json(register): Json<CreateRegisterDTO>,
@@ -29,9 +35,18 @@ pub async fn create_register(
     Ok((StatusCode::CREATED, "Register created successfully").into_response())
 }
 
+#[utoipa::path(get, path = "", tag = REGISTER_TAG,
+    responses(
+    (status = 200, description = "Listado de registros"),
+),
+ params(
+            CommonQueryFilterDTO,
+        ),
+)]
 #[axum::debug_handler]
 pub async fn get_registers(
     Query(query): Query<CommonQueryFilterDTO>,
+
     Extension(ctx): Extension<ApiContext>,
 ) -> Result<Response> {
     let registers = RegisterService::find(ctx.clone(), query.clone()).await?;
@@ -47,6 +62,16 @@ pub async fn get_registers(
         .into_response())
 }
 
+#[utoipa::path(get, path = "/{id}", tag = REGISTER_TAG,
+    params(
+            ("id" = i32, Path, description = "ID del registro")
+    ),
+    responses(
+    (status = 200, description = "Registro obtenido de forma correcta"),
+    (status = 404, description = "Registro no encontrado"),
+    (status = 500, description = "Error en el servidor"),
+)
+)]
 pub async fn get_register_by_id(
     Extension(ctx): Extension<ApiContext>,
     axum::extract::Path(id): axum::extract::Path<i32>,
@@ -64,6 +89,15 @@ pub async fn get_register_by_id(
     }
 }
 
+#[utoipa::path(patch, path = "/{id}", tag = REGISTER_TAG,
+    request_body = UpdateRegisterExitDTO,
+    params(
+            ("id" = i32, Path, description = "ID del registro")
+    ),
+    responses(
+    (status = 200, description = "Registro actualizado de forma correcta"),
+)
+)]
 #[axum::debug_handler]
 pub async fn update_register_exit(
     Extension(ctx): Extension<ApiContext>,

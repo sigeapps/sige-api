@@ -16,6 +16,8 @@ dotenv = "0.15.0"
 clap = { workspace = true }
 strum = "0.27.1"
 strum_macros = "0.27.1"
+utoipa = { workspace = true }
+utoipa-scalar = "0.3.0"
 
 [workspace]
 # No defaults members cause any crate can't work itself, all need the cli params to work
@@ -23,3 +25,4 @@ members = ["infrastructure/web", "domain", "application", "migration"]
 
 [workspace.dependencies]
 clap = { version = "4.5.37", features = ["derive"] }
+utoipa = "5.4.0"

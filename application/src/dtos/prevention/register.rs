@@ -3,6 +3,7 @@ use domain::entities::register::ActiveModel;
 use domain::entities::{division, organism, register};
 use sea_orm::DeriveIntoActiveModel;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use super::lookup::LookupItemDto;
 
@@ -11,7 +12,7 @@ pub struct RegisterExit {
     pub observations: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, DeriveIntoActiveModel)]
+#[derive(Debug, Clone, Deserialize, Serialize, DeriveIntoActiveModel, ToSchema)]
 pub struct CreateRegisterDTO {
     pub photo: Option<String>,
     pub ci: String,
@@ -24,7 +25,7 @@ pub struct CreateRegisterDTO {
     pub observations: Option<String>,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize, ToSchema)]
 pub struct GetRegisterDTO {
     pub id: i32,
     pub photo: Option<String>,
@@ -33,7 +34,9 @@ pub struct GetRegisterDTO {
     pub first_name: String,
     pub organism: Option<LookupItemDto>,
     pub division: Option<LookupItemDto>,
+    #[schema(value_type = String, format = Date)]
     pub entry_date: NaiveDateTime,
+    #[schema(value_type = String, format = Date)]
     pub exit_date: Option<NaiveDateTime>,
     pub is_official: Option<bool>,
     pub visit_reason: String,
@@ -77,7 +80,7 @@ impl
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, DeriveIntoActiveModel)]
+#[derive(Debug, Clone, Serialize, Deserialize, DeriveIntoActiveModel, ToSchema)]
 pub struct UpdateRegisterExitDTO {
     pub observations: String,
 }
