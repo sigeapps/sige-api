@@ -7,6 +7,7 @@ use crate::routes::OpenApiRouterExt;
 
 pub fn parking_routes() -> OpenApiRouter {
     OpenApiRouter::new()
-        .nest_routes("/weapons", routes!(get_weapon_by_id, create_weapon))
+        .nest_routes("/weapons", routes!(get_weapons, create_weapon))
+        .nest_routes("/weapons", routes!(get_weapon_by_id))
         .layer(axum::middleware::from_fn(authenticate))
 }

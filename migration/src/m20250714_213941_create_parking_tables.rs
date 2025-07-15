@@ -17,6 +17,18 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
+        let weapon_types = ["Carabina", "Semiautomatica", "Doble accion"];
+
+        for weapon_type in weapon_types {
+            let insert = Query::insert()
+                .into_table(WeaponType::Table)
+                .columns([WeaponType::Name])
+                .values_panic([weapon_type.into()])
+                .to_owned();
+
+            manager.exec_stmt(insert).await?;
+        }
+
         manager
             .create_table(
                 Table::create()
@@ -28,6 +40,18 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
+        let weapon_brands = ["Remington"];
+
+        for weapon_brand in weapon_brands {
+            let insert = Query::insert()
+                .into_table(WeaponBrand::Table)
+                .columns([WeaponBrand::Name])
+                .values_panic([weapon_brand.into()])
+                .to_owned();
+
+            manager.exec_stmt(insert).await?;
+        }
+
         manager
             .create_table(
                 Table::create()
@@ -35,17 +59,21 @@ impl MigrationTrait for Migration {
                     .if_not_exists()
                     .col(pk_auto(WeaponModel::Id))
                     .col(string(WeaponModel::Name).unique_key())
-                    .col(integer(WeaponModel::BrandId))
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("fk-weapon_model-brand_id")
-                            .from(WeaponModel::Table, WeaponModel::BrandId)
-                            .to(WeaponBrand::Table, WeaponBrand::Id)
-                            .on_delete(ForeignKeyAction::Cascade),
-                    )
                     .to_owned(),
             )
             .await?;
+
+        let weapon_models = ["Winchester M1897"];
+
+        for weapon_model in weapon_models {
+            let insert = Query::insert()
+                .into_table(WeaponModel::Table)
+                .columns([WeaponModel::Name])
+                .values_panic([weapon_model.into()])
+                .to_owned();
+
+            manager.exec_stmt(insert).await?;
+        }
 
         manager
             .create_table(
@@ -57,17 +85,10 @@ impl MigrationTrait for Migration {
                     .col(integer(Weapon::ModelId))
                     .col(ColumnDef::new(Weapon::Photo).string().null())
                     .col(string(Weapon::Serial).unique_key())
-                    .col(
-                        timestamp_with_time_zone(Weapon::EntryAt)
-                            .default(Expr::current_timestamp()),
-                    )
+                    .col(date_time(Weapon::EntryAt).default(Expr::current_timestamp()))
                     .col(ColumnDef::new(Weapon::DocumentId).string().null())
                     .col(string(Weapon::Calibre))
-                    .col(
-                        ColumnDef::new(Weapon::ManteinanceAt)
-                            .timestamp_with_time_zone()
-                            .null(),
-                    )
+                    .col(ColumnDef::new(Weapon::ManteinanceAt).date_time().null())
                     .col(boolean(Weapon::HasCharger).default(false))
                     .col(ColumnDef::new(Weapon::Observations).text().null())
                     .foreign_key(
@@ -96,13 +117,10 @@ impl MigrationTrait for Migration {
                     .col(integer(Issuance::AssignedWeaponId))
                     .col(boolean(Issuance::HasCharger).default(false))
                     .col(integer(Issuance::AmmoCount))
-                    .col(
-                        timestamp_with_time_zone(Issuance::DateTime)
-                            .default(Expr::current_timestamp()),
-                    )
+                    .col(date_time(Issuance::DateTime).default(Expr::current_timestamp()))
                     .col(string(Issuance::Reason))
                     .col(string(Issuance::Type))
-                    .col(timestamp_with_time_zone(Issuance::AssignanceTime))
+                    .col(date_time(Issuance::AssignanceTime))
                     .col(integer(Issuance::AuthById))
                     .foreign_key(
                         ForeignKey::create()
@@ -133,10 +151,7 @@ impl MigrationTrait for Migration {
                     .if_not_exists()
                     .col(pk_auto(IssuanceReturn::Id))
                     .col(integer(IssuanceReturn::IssuanceId))
-                    .col(
-                        timestamp_with_time_zone(IssuanceReturn::ReturnedAt)
-                            .default(Expr::current_timestamp()),
-                    )
+                    .col(date_time(IssuanceReturn::ReturnedAt).default(Expr::current_timestamp()))
                     .col(boolean(IssuanceReturn::HasCharger).default(false))
                     .col(integer(IssuanceReturn::ReturnedAmmo))
                     .col(ColumnDef::new(IssuanceReturn::Observations).text().null())
@@ -207,7 +222,6 @@ pub enum WeaponModel {
     Table,
     Id,
     Name,
-    BrandId,
 }
 
 #[derive(DeriveIden)]
@@ -251,4 +265,3 @@ enum IssuanceReturn {
     ReturnedAmmo,
     Observations,
 }
-

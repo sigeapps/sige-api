@@ -10,32 +10,17 @@ pub struct Model {
     pub id: i32,
     #[sea_orm(unique)]
     pub name: String,
-    pub brand_id: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(has_many = "super::weapon::Entity")]
     Weapon,
-    #[sea_orm(
-        belongs_to = "super::weapon_brand::Entity",
-        from = "Column::BrandId",
-        to = "super::weapon_brand::Column::Id",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    WeaponBrand,
 }
 
 impl Related<super::weapon::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Weapon.def()
-    }
-}
-
-impl Related<super::weapon_brand::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::WeaponBrand.def()
     }
 }
 

@@ -12,10 +12,10 @@ pub struct Model {
     pub assigned_weapon_id: i32,
     pub has_charger: bool,
     pub ammo_count: i32,
-    pub date_time: DateTimeWithTimeZone,
+    pub date_time: DateTime,
     pub reason: String,
     pub r#type: String,
-    pub assignance_time: DateTimeWithTimeZone,
+    pub assignance_time: DateTime,
     pub auth_by_id: i32,
 }
 

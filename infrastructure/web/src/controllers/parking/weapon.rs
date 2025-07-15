@@ -1,11 +1,14 @@
 use crate::{tags::WEAPON_TAG, Result};
 use application::{
     api::ApiContext,
-    dtos::parking::weapon::{WeaponCreate, WeaponView},
+    dtos::{
+        parking::weapon::{WeaponCreate, WeaponView},
+        CommonQueryFilterDTO,
+    },
     services::parking::weapon::WeaponService,
 };
 use axum::{
-    extract::Path,
+    extract::{Path, Query},
     http::StatusCode,
     response::{IntoResponse, Response},
     Extension, Json,
@@ -30,13 +33,13 @@ pub struct CreateWeaponResponse {
 
 #[utoipa::path(
     get,
-    path = "",
+    path = "/{id}",
     params(
             ("id" = i32, Path, description = "ID del arma")
     ),
     tag = WEAPON_TAG,
     responses(
-        (status = 200, description = "Arma individual", body = WeaponBody),
+        (status = 200, description = "Arma individual", body = SingleWeaponBody),
         (status = 404, description = "El arma no existe"),
     )
 )]
@@ -57,6 +60,23 @@ pub async fn get_weapon_by_id(
         }),
     )
         .into_response())
+}
+
+#[utoipa::path(
+    get,
+    path = "",
+    tag = WEAPON_TAG,
+    responses(
+        (status = 200, description = "Listado de armas", body = WeaponBody),
+    )
+)]
+pub async fn get_weapons(
+    Query(query): Query<CommonQueryFilterDTO>,
+    Extension(ctx): Extension<ApiContext>,
+) -> Result<Response> {
+    let weapons = WeaponService::find(ctx, query).await?;
+
+    Ok((StatusCode::OK, Json(WeaponBody { weapons })).into_response())
 }
 
 #[utoipa::path(

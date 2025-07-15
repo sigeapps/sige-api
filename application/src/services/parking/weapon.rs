@@ -3,7 +3,10 @@ use sea_orm::*;
 
 use crate::{
     api::ApiContext,
-    dtos::parking::weapon::{WeaponCreate, WeaponView},
+    dtos::{
+        parking::weapon::{WeaponCreate, WeaponView},
+        CommonQueryFilterDTO,
+    },
 };
 
 pub struct WeaponService {}
@@ -24,5 +27,31 @@ impl WeaponService {
             .into_model::<WeaponView>()
             .one(&ctx.db)
             .await
+    }
+
+    pub async fn find(
+        ctx: ApiContext,
+        opts: CommonQueryFilterDTO,
+    ) -> Result<Vec<WeaponView>, DbErr> {
+        let mut query = weapon::Entity::find()
+            .column_as(weapon_type::Column::Name, "type")
+            .column_as(weapon_model::Column::Name, "model")
+            .left_join(weapon_type::Entity)
+            .left_join(weapon_model::Entity);
+
+        if let Some(search) = opts.search {
+            query = query.filter(
+                Condition::any()
+                    .add(weapon::Column::Serial.contains(&search))
+                    .add(weapon::Column::EntryAt.contains(&search))
+                    .add(weapon::Column::ManteinanceAt.contains(&search))
+                    .add(weapon::Column::Observations.contains(&search))
+                    .add(weapon::Column::Calibre.contains(&search)),
+            );
+        }
+
+        let weapons = query.into_model::<WeaponView>().all(&ctx.db).await?;
+
+        Ok(weapons)
     }
 }

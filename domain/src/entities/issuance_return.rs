@@ -9,7 +9,7 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub issuance_id: i32,
-    pub returned_at: DateTimeWithTimeZone,
+    pub returned_at: DateTime,
     pub has_charger: bool,
     pub returned_ammo: i32,
     #[sea_orm(column_type = "Text", nullable)]

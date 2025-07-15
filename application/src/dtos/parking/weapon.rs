@@ -1,5 +1,6 @@
+use chrono::NaiveDateTime;
 use domain::entities::weapon::ActiveModel;
-use sea_orm::{prelude::DateTimeWithTimeZone, DeriveIntoActiveModel, FromQueryResult};
+use sea_orm::{DeriveIntoActiveModel, FromQueryResult};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -10,11 +11,11 @@ pub struct WeaponCreate {
     pub photo: Option<String>,
     pub serial: String,
     #[schema(value_type = String, format = Date)]
-    pub entry_at: DateTimeWithTimeZone,
+    pub entry_at: NaiveDateTime,
     pub document_id: Option<String>,
     pub calibre: String,
     #[schema(value_type = String, format = Date)]
-    pub manteinance_at: Option<DateTimeWithTimeZone>,
+    pub manteinance_at: NaiveDateTime,
     pub has_charger: bool,
     pub observations: Option<String>,
 }
@@ -27,11 +28,11 @@ pub struct WeaponView {
     pub photo: Option<String>,
     pub serial: String,
     #[schema(value_type = String, format = Date)]
-    pub entry_at: DateTimeWithTimeZone,
+    pub entry_at: NaiveDateTime,
     pub document_id: Option<String>,
     pub calibre: String,
     #[schema(value_type = String, format = Date)]
-    pub manteinance_at: Option<DateTimeWithTimeZone>,
+    pub manteinance_at: Option<NaiveDateTime>,
     pub has_charger: bool,
     pub observations: Option<String>,
 }

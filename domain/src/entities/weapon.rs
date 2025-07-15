@@ -13,10 +13,10 @@ pub struct Model {
     pub photo: Option<String>,
     #[sea_orm(unique)]
     pub serial: String,
-    pub entry_at: DateTimeWithTimeZone,
+    pub entry_at: DateTime,
     pub document_id: Option<String>,
     pub calibre: String,
-    pub manteinance_at: Option<DateTimeWithTimeZone>,
+    pub manteinance_at: Option<DateTime>,
     pub has_charger: bool,
     #[sea_orm(column_type = "Text", nullable)]
     pub observations: Option<String>,
