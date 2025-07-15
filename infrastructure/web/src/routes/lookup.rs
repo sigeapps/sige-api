@@ -3,21 +3,7 @@ use axum::{
     Router,
 };
 
-use crate::{
-    controllers::lookup::{
-        create_band, create_base, create_brand, create_brigade, create_charge, create_division,
-        create_document_type, create_family_relationships, create_hierarchy, create_institution,
-        create_municipality, create_novelty, create_organism, create_parish, create_persona_state,
-        create_profession, create_seclusion_statuses, create_state, create_transport_status,
-        create_transport_type, create_vehicle_model, get_bands, get_bases, get_brands,
-        get_brigades, get_charges, get_divisions, get_document_types, get_family_relationships,
-        get_hierarchies, get_institutions, get_municipalities, get_novelties, get_organisms,
-        get_parish, get_persona_states, get_professions, get_roles, get_seclusion_statuses,
-        get_states, get_status_conditions, get_transport_statuses, get_transport_types,
-        get_vehicle_models,
-    },
-    middleware::authenticate,
-};
+use crate::{controllers::lookup::*, middleware::authenticate};
 
 pub fn lookup_routes() -> Router {
     Router::new()
@@ -71,5 +57,17 @@ pub fn lookup_routes() -> Router {
         .route("/lookup/persona-state", post(create_persona_state))
         .route("/lookup/document-type", get(get_document_types))
         .route("/lookup/document-type", post(create_document_type))
+        .route(
+            "/lookup/weapon-type",
+            post(create_weapon_type).get(get_weapon_types),
+        )
+        .route(
+            "/lookup/weapon-brand",
+            post(create_weapon_brand).get(get_weapon_brands),
+        )
+        .route(
+            "/lookup/weapon-model",
+            post(create_weapon_model).get(get_weapon_models),
+        )
         .layer(axum::middleware::from_fn(authenticate))
 }

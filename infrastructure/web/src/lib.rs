@@ -12,6 +12,7 @@ use axum::http::{HeaderName, HeaderValue, Method};
 use axum::routing::get;
 use axum::{Extension, Json};
 use error::WebError;
+use routes::parking::parking_routes;
 use tower_http::cors::CorsLayer;
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi};
@@ -61,6 +62,7 @@ pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
     let address = format!("{}:{}", host, port);
 
     // Configuración específica de CORS - Corregida para evitar el error
+    // TODO: Mover a settings.json
     let cors = CorsLayer::new()
         .allow_origin([
             "http://localhost:1420".parse::<HeaderValue>().unwrap(),
@@ -104,6 +106,7 @@ pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
     let (router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .route("/", get(root))
         .route("/api-docs/openapi.json", get(openapi))
+        .nest("/parking", parking_routes())
         .merge(routes::user::user_routes().into())
         .merge(routes::auth::auth_routes())
         .merge(routes::prevention::prevention_routes())

@@ -214,19 +214,14 @@ impl MigrationTrait for Migration {
     }
 }
 
-// --- SeaORM Entity Names (for use in the migration) ---
-// These Iden enums are used by the migration builder to refer to table and column names.
-// You should define these in your SeaORM entity module(s) and potentially import them.
-// For this migration file to compile, we define them locally.
-
 #[derive(Iden)]
-enum Brand {
+pub enum Brand {
     Table,
     Id,
 }
 
 #[derive(Iden)]
-enum TransportType {
+pub enum TransportType {
     Table,
     Id,
     Name,
@@ -240,7 +235,7 @@ enum TransportStatuses {
 }
 
 #[derive(Iden)]
-enum VehicleModel {
+pub enum VehicleModel {
     Table,
     Id,
 }

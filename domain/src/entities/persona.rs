@@ -37,6 +37,8 @@ pub struct Model {
 pub enum Relation {
     #[sea_orm(has_one = "super::country_verification::Entity")]
     CountryVerification,
+    #[sea_orm(has_many = "super::issuance::Entity")]
+    Issuance,
     #[sea_orm(has_many = "super::persona_children::Entity")]
     PersonaChildren,
     #[sea_orm(has_many = "super::persona_conyuge::Entity")]
@@ -74,6 +76,12 @@ pub enum Relation {
 impl Related<super::country_verification::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::CountryVerification.def()
+    }
+}
+
+impl Related<super::issuance::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Issuance.def()
     }
 }
 

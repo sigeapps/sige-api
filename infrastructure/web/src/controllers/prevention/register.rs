@@ -13,8 +13,9 @@ use axum::response::Response;
 use axum::{Extension, Json};
 use serde::{Deserialize, Serialize};
 use tracing::error;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct RegistersBody {
     registers: Vec<GetRegisterDTO>,
     pagination: PaginationDTO,
@@ -37,7 +38,7 @@ pub async fn create_register(
 
 #[utoipa::path(get, path = "", tag = REGISTER_TAG,
     responses(
-    (status = 200, description = "Listado de registros"),
+    (status = 200, description = "Listado de registros", body = RegistersBody),
 ),
  params(
             CommonQueryFilterDTO,
@@ -67,7 +68,7 @@ pub async fn get_registers(
             ("id" = i32, Path, description = "ID del registro")
     ),
     responses(
-    (status = 200, description = "Registro obtenido de forma correcta"),
+    (status = 200, description = "Registro obtenido de forma correcta", body = GetRegisterDTO),
     (status = 404, description = "Registro no encontrado"),
     (status = 500, description = "Error en el servidor"),
 )

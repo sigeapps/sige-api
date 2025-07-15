@@ -1,10 +1,11 @@
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
-use utoipa::IntoParams;
+use utoipa::{IntoParams, ToSchema};
 use validator::Validate;
 
 pub mod auth;
 pub mod lookup;
+pub mod parking;
 pub mod personal;
 pub mod prevention;
 pub mod user;
@@ -46,7 +47,7 @@ impl CommonQueryFilterDTO {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct PaginationDTO {
     pub page: u64,
     pub limit: u64,
