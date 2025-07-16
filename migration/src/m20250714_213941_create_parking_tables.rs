@@ -118,9 +118,8 @@ impl MigrationTrait for Migration {
                     .col(boolean(Issuance::HasCharger).default(false))
                     .col(integer(Issuance::AmmoCount))
                     .col(date_time(Issuance::DateTime).default(Expr::current_timestamp()))
-                    .col(string(Issuance::Reason))
                     .col(string(Issuance::Type))
-                    .col(date_time(Issuance::AssignanceTime))
+                    .col(integer(Issuance::AssignanceDays))
                     .col(integer(Issuance::AuthById))
                     .foreign_key(
                         ForeignKey::create()
@@ -249,9 +248,8 @@ enum Issuance {
     HasCharger,
     AmmoCount,
     DateTime,
-    Reason,
     Type,
-    AssignanceTime,
+    AssignanceDays,
     AuthById,
 }
 

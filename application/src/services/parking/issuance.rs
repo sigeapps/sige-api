@@ -30,16 +30,13 @@ impl IssuanceService {
     ) -> Result<Vec<IssuanceSummary>, DbErr> {
         let mut query = issuance::Entity::find()
             .select_only()
+            .column_as(issuance::Column::Id, "id")
             .column_as(issuance::Column::DateTime, "date_time")
-            .column_as(issuance::Column::AssignanceTime, "assignance_time")
+            .column_as(issuance::Column::AssignanceDays, "assignance_days")
             .column_as(issuance_return::Column::ReturnedAt, "returned_at");
 
         if let Some(search) = &opts.search {
-            query = query.filter(
-                Condition::any()
-                    .add(issuance::Column::Id.contains(search))
-                    .add(issuance::Column::Reason.contains(search)),
-            )
+            query = query.filter(Condition::any().add(issuance::Column::Id.contains(search)))
         }
 
         if let Some(start) = &opts.from_date {
@@ -53,6 +50,7 @@ impl IssuanceService {
         let pagination = &opts.into_pagination();
 
         let issuances = query
+            .left_join(issuance_return::Entity)
             .limit(pagination.limit)
             .offset(pagination.offset)
             .into_model::<IssuanceSummary>()

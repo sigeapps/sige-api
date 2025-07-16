@@ -12,10 +12,8 @@ pub struct StartIssuance {
     pub ammo_count: i32,
     #[schema(value_type = String, format = Date)]
     pub date_time: NaiveDateTime,
-    pub reason: String,
     pub r#type: String,
-    #[schema(value_type = String, format = Date)]
-    pub assignance_time: NaiveDateTime,
+    pub assignance_days: i32,
     pub auth_by_id: i32,
 }
 
@@ -24,8 +22,7 @@ pub struct IssuanceSummary {
     pub id: i32,
     #[schema(value_type = String, format = Date)]
     pub date_time: NaiveDateTime,
-    #[schema(value_type = String, format = Date)]
-    pub assignance_time: NaiveDateTime,
+    pub assignance_days: i32,
     #[schema(value_type = String, format = Date)]
     pub returned_at: Option<NaiveDateTime>,
 }

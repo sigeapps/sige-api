@@ -68,7 +68,7 @@ pub async fn start_issuance(
     post,
     path = "/finalize",
     tag = ISSUANCE_TAG,
-    request_body = StartIssuance,
+    request_body = FinalizeIssuance,
     responses(
         (status = 200, description = "La arma fue recuperada", body = CreateIssuanceResponse)
     )
