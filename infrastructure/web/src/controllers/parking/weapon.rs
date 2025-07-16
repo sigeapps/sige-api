@@ -41,7 +41,7 @@ pub struct CreateWeaponResponse {
     responses(
         (status = 200, description = "Arma individual", body = SingleWeaponBody),
         (status = 404, description = "El arma no existe"),
-    )
+    ),
 )]
 pub async fn get_weapon_by_id(
     Path(id): Path<i32>,
@@ -68,7 +68,10 @@ pub async fn get_weapon_by_id(
     tag = WEAPON_TAG,
     responses(
         (status = 200, description = "Listado de armas", body = WeaponBody),
-    )
+    ),
+ params(
+            CommonQueryFilterDTO,
+        )
 )]
 pub async fn get_weapons(
     Query(query): Query<CommonQueryFilterDTO>,

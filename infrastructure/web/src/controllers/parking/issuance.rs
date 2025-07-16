@@ -32,7 +32,10 @@ pub struct CreateIssuanceResponse {
     tag = ISSUANCE_TAG,
     responses(
         (status = 200, description = "Listado de cargas", body = IssuanceBody),
-    )
+    ),
+ params(
+            CommonQueryFilterDTO,
+        )
 )]
 pub async fn get_issuances(
     Query(query): Query<CommonQueryFilterDTO>,
