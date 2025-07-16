@@ -26,6 +26,8 @@ pub struct CommonQueryFilterDTO {
     pub from_date: Option<NaiveDate>,
     #[param(allow_reserved, value_type = String, example = "2022-01-22", format = Date)]
     pub to_date: Option<NaiveDate>,
+    // Se utiliza para filtrar por estado de la operacion, casi todos los servicios pueden utilizar esta propiedad
+    pub finalized: Option<bool>,
     pub page: Option<u64>,
     pub limit: Option<u64>,
     pub sort: Option<String>,

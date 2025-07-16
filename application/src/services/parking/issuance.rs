@@ -47,6 +47,19 @@ impl IssuanceService {
             query = query.filter(Condition::any().add(issuance::Column::DateTime.lte(*end)))
         }
 
+        if let Some(finalized) = &opts.finalized {
+            match finalized {
+                true => {
+                    query = query
+                        .filter(Condition::any().add(issuance_return::Column::Id.is_not_null()))
+                }
+                false => {
+                    query =
+                        query.filter(Condition::any().add(issuance_return::Column::Id.is_null()))
+                }
+            }
+        }
+
         let pagination = &opts.into_pagination();
 
         let issuances = query
