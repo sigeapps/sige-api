@@ -149,7 +149,7 @@ impl MigrationTrait for Migration {
                     .table(IssuanceReturn::Table)
                     .if_not_exists()
                     .col(pk_auto(IssuanceReturn::Id))
-                    .col(integer(IssuanceReturn::IssuanceId))
+                    .col(integer(IssuanceReturn::IssuanceId).unique_key())
                     .col(date_time(IssuanceReturn::ReturnedAt).default(Expr::current_timestamp()))
                     .col(boolean(IssuanceReturn::HasCharger).default(false))
                     .col(integer(IssuanceReturn::ReturnedAmmo))
