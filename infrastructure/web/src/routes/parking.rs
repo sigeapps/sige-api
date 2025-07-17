@@ -12,5 +12,6 @@ pub fn parking_routes() -> OpenApiRouter {
         .nest_routes("/weapons", routes!(get_weapon_by_id))
         .nest_routes("/issuances", routes!(get_issuances, start_issuance))
         .nest_routes("/issuances", routes!(finalize_issuance))
+        .nest_routes("/issuances", routes!(get_issuance_by_id))
         .layer(axum::middleware::from_fn(authenticate))
 }

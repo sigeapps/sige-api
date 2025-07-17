@@ -2,13 +2,15 @@ use crate::{tags::ISSUANCE_TAG, Result};
 use application::{
     api::ApiContext,
     dtos::{
-        parking::issuance::{returns::FinalizeIssuance, IssuanceSummary, StartIssuance},
+        parking::issuance::{
+            returns::FinalizeIssuance, IssuanceSummary, IssuanceView, StartIssuance,
+        },
         CommonQueryFilterDTO,
     },
     services::parking::issuance::IssuanceService,
 };
 use axum::{
-    extract::Query,
+    extract::{Path, Query},
     http::StatusCode,
     response::{IntoResponse, Response},
     Extension, Json,
@@ -19,6 +21,11 @@ use utoipa::ToSchema;
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct IssuanceBody {
     issuances: Vec<IssuanceSummary>,
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct SingleIssuanceBody {
+    issuance: IssuanceView,
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]
@@ -80,4 +87,35 @@ pub async fn finalize_issuance(
     let issuance_id = IssuanceService::finalize(ctx, issuance).await?;
 
     Ok((StatusCode::OK, Json(CreateIssuanceResponse { issuance_id })).into_response())
+}
+
+#[utoipa::path(
+    get,
+    path = "/{id}",
+    params(
+            ("id" = i32, Path, description = "ID de la emision")
+    ),
+    tag = ISSUANCE_TAG,
+    responses(
+        (status = 200, description = "Emision individual", body = SingleIssuanceBody),
+        (status = 404, description = "La emision no existe"),
+    ),
+)]
+pub async fn get_issuance_by_id(
+    Path(id): Path<i32>,
+    Extension(ctx): Extension<ApiContext>,
+) -> Result<Response> {
+    let issuance = IssuanceService::find_by_id(ctx, id).await?;
+
+    if issuance.is_none() {
+        return Ok((StatusCode::NOT_FOUND, "Issuance not found").into_response());
+    }
+
+    Ok((
+        StatusCode::OK,
+        Json(SingleIssuanceBody {
+            issuance: issuance.unwrap(),
+        }),
+    )
+        .into_response())
 }

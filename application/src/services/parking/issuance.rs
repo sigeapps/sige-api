@@ -1,11 +1,13 @@
 use crate::{
     api::ApiContext,
     dtos::{
-        parking::issuance::{returns::FinalizeIssuance, IssuanceSummary, StartIssuance},
+        parking::issuance::{
+            returns::FinalizeIssuance, IssuanceSummary, IssuanceView, StartIssuance,
+        },
         CommonQueryFilterDTO,
     },
 };
-use domain::entities::{issuance, issuance_return};
+use domain::entities::{issuance, issuance_return, persona, weapon};
 use sea_orm::*;
 
 #[derive(Debug, Clone)]
@@ -71,5 +73,26 @@ impl IssuanceService {
             .await?;
 
         Ok(issuances)
+    }
+
+    pub async fn find_by_id(ctx: ApiContext, id: i32) -> Result<Option<IssuanceView>, DbErr> {
+        let query = issuance::Entity::find_by_id(id)
+            .column_as(issuance::Column::Id, "id")
+            .column_as(issuance::Column::DateTime, "date_time")
+            .column_as(issuance::Column::AssignanceDays, "assignance_days")
+            .column_as(issuance::Column::Type, "type")
+            .column_as(issuance_return::Column::ReturnedAt, "returned_at");
+
+        let issuance = query
+            .left_join(issuance_return::Entity)
+            .left_join(persona::Entity)
+            .left_join(weapon::Entity)
+            .join(JoinType::LeftJoin, weapon::Relation::WeaponModel.def())
+            .join(JoinType::LeftJoin, weapon::Relation::WeaponType.def())
+            .into_partial_model::<IssuanceView>()
+            .one(&ctx.db)
+            .await?;
+
+        Ok(issuance)
     }
 }

@@ -2,6 +2,7 @@ use domain::entities::persona::ActiveModel;
 use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
 use serde::{Deserialize, Serialize};
 use situation::SimpleDivisionDTO;
+use utoipa::ToSchema;
 
 use crate::dtos::{
     personal::{
@@ -88,7 +89,7 @@ pub struct GetPersonaDTO {
     pub others: Option<Others>,
 }
 
-#[derive(Serialize, Deserialize, DerivePartialModel, Debug, Clone)]
+#[derive(Serialize, Deserialize, DerivePartialModel, Debug, Clone, ToSchema)]
 #[sea_orm(entity = "domain::entities::persona::Entity", from_query_result)]
 pub struct SimplePersonaResponseDTO {
     pub id: i32,
