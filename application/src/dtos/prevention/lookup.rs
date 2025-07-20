@@ -10,14 +10,14 @@ pub struct LookupItemDto {
     pub name: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel, ToSchema)]
 #[sea_orm(entity = "domain::entities::state::Entity", from_query_result)]
 pub struct GetStateDTO {
     pub id: i32,
     pub name: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel, ToSchema)]
 #[sea_orm(entity = "domain::entities::base::Entity", from_query_result)]
 pub struct GetBaseDTO {
     pub id: i32,
@@ -95,7 +95,7 @@ pub struct GetChargeDTO {
     pub name: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel, ToSchema)]
 #[sea_orm(entity = "domain::entities::hierarchy::Entity", from_query_result)]
 pub struct GetHierarchyDTO {
     pub id: i32,
@@ -160,7 +160,7 @@ pub struct GetStatusConditionDTO {
     pub name: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel, ToSchema)]
 #[sea_orm(entity = "domain::entities::persona_state::Entity", from_query_result)]
 pub struct GetPersonaStateDTO {
     pub id: i32,

@@ -1,6 +1,7 @@
 use domain::entities::country_verification::ActiveModel;
 use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 #[derive(Serialize, Deserialize, DeriveIntoActiveModel)]
 pub struct AddVerificationDTO {
@@ -9,7 +10,7 @@ pub struct AddVerificationDTO {
     pub reported: bool,
 }
 
-#[derive(Serialize, Deserialize, DerivePartialModel, Clone, Debug)]
+#[derive(Serialize, Deserialize, DerivePartialModel, Clone, Debug, ToSchema)]
 #[sea_orm(
     entity = "domain::entities::country_verification::Entity",
     from_query_result

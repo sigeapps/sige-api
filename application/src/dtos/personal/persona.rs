@@ -98,7 +98,7 @@ pub struct SimplePersonaResponseDTO {
     pub last_name: String,
 }
 
-#[derive(Serialize, Deserialize, DerivePartialModel, Clone, Debug)]
+#[derive(Serialize, Deserialize, DerivePartialModel, Clone, Debug, ToSchema)]
 #[sea_orm(entity = "domain::entities::persona::Entity", from_query_result)]
 pub struct GetPersonaSummaryDTO {
     pub id: i32,
@@ -143,6 +143,7 @@ pub mod situation {
     use domain::entities::persona_situation::ActiveModel;
     use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
+    use utoipa::ToSchema;
 
     #[derive(Serialize, Deserialize, DeriveIntoActiveModel, DerivePartialModel)]
     #[sea_orm(
@@ -175,28 +176,28 @@ pub mod situation {
     }
 
     // DTOs simplificados para evitar conflictos de alias
-    #[derive(Serialize, Deserialize, DerivePartialModel, Clone, Debug)]
+    #[derive(Serialize, Deserialize, DerivePartialModel, Clone, Debug, ToSchema)]
     #[sea_orm(entity = "domain::entities::division::Entity", from_query_result)]
     pub struct SimpleDivisionDTO {
         pub id: i32,
         pub name: String,
     }
 
-    #[derive(Serialize, Deserialize, DerivePartialModel)]
+    #[derive(Serialize, Deserialize, DerivePartialModel, ToSchema)]
     #[sea_orm(entity = "domain::entities::state::Entity", from_query_result)]
     pub struct SimpleStateDTO {
         pub id: i32,
         pub name: String,
     }
 
-    #[derive(Serialize, Deserialize, DerivePartialModel)]
+    #[derive(Serialize, Deserialize, DerivePartialModel, ToSchema)]
     #[sea_orm(entity = "domain::entities::base::Entity", from_query_result)]
     pub struct SimpleBaseDTO {
         pub id: i32,
         pub name: String,
     }
 
-    #[derive(Serialize, Deserialize, DerivePartialModel)]
+    #[derive(Serialize, Deserialize, DerivePartialModel, ToSchema)]
     #[sea_orm(entity = "domain::entities::hierarchy::Entity", from_query_result)]
     pub struct SimpleHierarchyDTO {
         pub id: i32,
