@@ -18,8 +18,6 @@ impl MigrationTrait for Migration {
                     .col(pk_auto(TransportIssuance::Id))
                     .col(integer(TransportIssuance::AssignedPersonaId))
                     .col(integer(TransportIssuance::AssignedTransportId))
-                    .col(boolean(TransportIssuance::HasCharger).default(false))
-                    .col(integer(TransportIssuance::AmmoCount))
                     .col(date_time(TransportIssuance::DateTime).default(Expr::current_timestamp()))
                     .col(string(TransportIssuance::Type))
                     .col(integer(TransportIssuance::AssignanceDays))
@@ -70,8 +68,6 @@ impl MigrationTrait for Migration {
                         date_time(TransportIssuanceReturn::ReturnedAt)
                             .default(Expr::current_timestamp()),
                     )
-                    .col(boolean(TransportIssuanceReturn::HasCharger).default(false))
-                    .col(integer(TransportIssuanceReturn::ReturnedAmmo))
                     .col(
                         ColumnDef::new(TransportIssuanceReturn::Observations)
                             .text()
@@ -126,8 +122,6 @@ enum TransportIssuance {
     Id,
     AssignedPersonaId,
     AssignedTransportId,
-    HasCharger,
-    AmmoCount,
     DateTime,
     Type,
     AssignanceDays,
@@ -141,7 +135,5 @@ enum TransportIssuanceReturn {
     Id,
     IssuanceId,
     ReturnedAt,
-    HasCharger,
-    ReturnedAmmo,
     Observations,
 }

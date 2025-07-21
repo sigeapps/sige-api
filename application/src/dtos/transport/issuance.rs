@@ -10,8 +10,6 @@ use crate::dtos::{parking::weapon::WeaponSummary, personal::persona::SimplePerso
 pub struct StartTransportIssuance {
     pub assigned_persona_id: i32,
     pub assigned_transport_id: i32,
-    pub has_charger: bool,
-    pub ammo_count: i32,
     #[schema(value_type = String, format = Date)]
     pub date_time: NaiveDateTime,
     pub r#type: String,
@@ -59,8 +57,6 @@ pub mod returns {
         pub issuance_id: i32,
         #[schema(value_type = String, format = Date)]
         pub returned_at: NaiveDateTime,
-        pub has_charger: bool,
-        pub returned_ammo: i32,
         pub observations: Option<String>,
     }
 }
