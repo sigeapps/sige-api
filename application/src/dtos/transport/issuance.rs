@@ -1,5 +1,5 @@
 use chrono::NaiveDateTime;
-use domain::entities::issuance::ActiveModel;
+use domain::entities::transport_issuance::ActiveModel;
 use sea_orm::{DeriveIntoActiveModel, DerivePartialModel, FromQueryResult};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -9,7 +9,7 @@ use crate::dtos::{parking::weapon::WeaponSummary, personal::persona::SimplePerso
 #[derive(Deserialize, Serialize, ToSchema, DeriveIntoActiveModel)]
 pub struct StartTransportIssuance {
     pub assigned_persona_id: i32,
-    pub assigned_weapon_id: i32,
+    pub assigned_transport_id: i32,
     pub has_charger: bool,
     pub ammo_count: i32,
     #[schema(value_type = String, format = Date)]
