@@ -38,14 +38,14 @@ pub struct GetOrganismDTO {
     pub name: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel, ToSchema)]
 #[sea_orm(entity = "domain::entities::brand::Entity", from_query_result)]
 pub struct GetBrandDTO {
     pub id: i32,
     pub name: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel, ToSchema)]
 #[sea_orm(entity = "domain::entities::vehicle_model::Entity", from_query_result)]
 pub struct GetVehicleModelDTO {
     pub id: i32,
@@ -54,7 +54,7 @@ pub struct GetVehicleModelDTO {
     pub brand: GetBrandDTO,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel, ToSchema)]
 #[sea_orm(
     entity = "domain::entities::transport_statuses::Entity",
     from_query_result
@@ -64,7 +64,7 @@ pub struct GetTransportStatusDTO {
     pub name: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel, ToSchema)]
 #[sea_orm(entity = "domain::entities::transport_type::Entity", from_query_result)]
 pub struct GetTransportTypeDTO {
     pub id: i32,

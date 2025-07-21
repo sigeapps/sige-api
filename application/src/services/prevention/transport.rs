@@ -45,6 +45,14 @@ impl TransportService {
             .await
     }
 
+    pub async fn find_by_id(ctx: ApiContext, id: i32) -> Result<Option<GetTransportDTO>, DbErr> {
+        transport::Entity::find_by_id(id)
+            .filter_by_claims(ctx.claims)
+            .into_model::<GetTransportDTO>()
+            .one(&ctx.db)
+            .await
+    }
+
     pub async fn create(ctx: ApiContext, transport: CreateTransportDTO) -> Result<(), DbErr> {
         transport::Entity::insert(transport.into_active_model().stamp_user(ctx.claims))
             .exec(&ctx.db)

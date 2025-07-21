@@ -35,6 +35,8 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Role,
+    #[sea_orm(has_many = "super::transport_issuance::Entity")]
+    TransportIssuance,
 }
 
 impl Related<super::issuance::Entity> for Entity {
@@ -52,6 +54,12 @@ impl Related<super::persona::Entity> for Entity {
 impl Related<super::role::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Role.def()
+    }
+}
+
+impl Related<super::transport_issuance::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::TransportIssuance.def()
     }
 }
 

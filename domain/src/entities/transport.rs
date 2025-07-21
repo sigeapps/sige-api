@@ -41,6 +41,8 @@ pub enum Relation {
     Brand,
     #[sea_orm(has_many = "super::commission_transport::Entity")]
     CommissionTransport,
+    #[sea_orm(has_many = "super::transport_issuance::Entity")]
+    TransportIssuance,
     #[sea_orm(
         belongs_to = "super::transport_statuses::Entity",
         from = "Column::StatusId",
@@ -82,6 +84,12 @@ impl Related<super::brand::Entity> for Entity {
 impl Related<super::commission_transport::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::CommissionTransport.def()
+    }
+}
+
+impl Related<super::transport_issuance::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::TransportIssuance.def()
     }
 }
 

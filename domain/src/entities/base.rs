@@ -35,6 +35,8 @@ pub enum Relation {
     TemporalSeclusion,
     #[sea_orm(has_many = "super::transport::Entity")]
     Transport,
+    #[sea_orm(has_many = "super::transport_issuance::Entity")]
+    TransportIssuance,
     #[sea_orm(has_many = "super::weapon::Entity")]
     Weapon,
 }
@@ -102,6 +104,12 @@ impl Related<super::temporal_seclusion::Entity> for Entity {
 impl Related<super::transport::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Transport.def()
+    }
+}
+
+impl Related<super::transport_issuance::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::TransportIssuance.def()
     }
 }
 

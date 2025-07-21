@@ -3,6 +3,7 @@ pub mod lookup;
 pub mod parking;
 pub mod personal;
 pub mod prevention;
+pub mod transport;
 pub mod user;
 
 pub fn get_modules() -> Vec<String> {

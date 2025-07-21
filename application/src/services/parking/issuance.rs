@@ -26,6 +26,8 @@ impl HasBaseId for issuance::ActiveModel {
 
 impl_filter_by_claims!(issuance, BaseId);
 
+// TODO: SUPER IMPORTANTE: Refactorizar este servicio para poder usarlo en transporte
+
 impl IssuanceService {
     pub async fn start(ctx: ApiContext, dto: StartIssuance) -> Result<i32, DbErr> {
         let id = dto
