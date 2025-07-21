@@ -10,8 +10,6 @@ pub struct Model {
     pub id: i32,
     pub assigned_persona_id: i32,
     pub assigned_transport_id: i32,
-    pub has_charger: bool,
-    pub ammo_count: i32,
     pub date_time: DateTime,
     pub r#type: String,
     pub assignance_days: i32,
