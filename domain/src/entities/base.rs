@@ -17,6 +17,8 @@ pub enum Relation {
     Commission,
     #[sea_orm(has_many = "super::correspondence::Entity")]
     Correspondence,
+    #[sea_orm(has_many = "super::issuance::Entity")]
+    Issuance,
     #[sea_orm(has_many = "super::official::Entity")]
     Official,
     #[sea_orm(has_many = "super::part::Entity")]
@@ -33,6 +35,10 @@ pub enum Relation {
     TemporalSeclusion,
     #[sea_orm(has_many = "super::transport::Entity")]
     Transport,
+    #[sea_orm(has_many = "super::transport_issuance::Entity")]
+    TransportIssuance,
+    #[sea_orm(has_many = "super::weapon::Entity")]
+    Weapon,
 }
 
 impl Related<super::commission::Entity> for Entity {
@@ -44,6 +50,12 @@ impl Related<super::commission::Entity> for Entity {
 impl Related<super::correspondence::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Correspondence.def()
+    }
+}
+
+impl Related<super::issuance::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Issuance.def()
     }
 }
 
@@ -92,6 +104,18 @@ impl Related<super::temporal_seclusion::Entity> for Entity {
 impl Related<super::transport::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Transport.def()
+    }
+}
+
+impl Related<super::transport_issuance::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::TransportIssuance.def()
+    }
+}
+
+impl Related<super::weapon::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Weapon.def()
     }
 }
 

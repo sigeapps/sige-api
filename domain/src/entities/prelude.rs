@@ -57,6 +57,8 @@ pub use super::state::Entity as State;
 pub use super::status_condition::Entity as StatusCondition;
 pub use super::temporal_seclusion::Entity as TemporalSeclusion;
 pub use super::transport::Entity as Transport;
+pub use super::transport_issuance::Entity as TransportIssuance;
+pub use super::transport_issuance_return::Entity as TransportIssuanceReturn;
 pub use super::transport_statuses::Entity as TransportStatuses;
 pub use super::transport_type::Entity as TransportType;
 pub use super::user::Entity as User;

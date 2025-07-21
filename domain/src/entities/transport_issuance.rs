@@ -4,12 +4,12 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "issuance")]
+#[sea_orm(table_name = "transport_issuance")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub assigned_persona_id: i32,
-    pub assigned_weapon_id: i32,
+    pub assigned_transport_id: i32,
     pub has_charger: bool,
     pub ammo_count: i32,
     pub date_time: DateTime,
@@ -29,8 +29,6 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Base,
-    #[sea_orm(has_one = "super::issuance_return::Entity")]
-    IssuanceReturn,
     #[sea_orm(
         belongs_to = "super::persona::Entity",
         from = "Column::AssignedPersonaId",
@@ -40,6 +38,16 @@ pub enum Relation {
     )]
     Persona,
     #[sea_orm(
+        belongs_to = "super::transport::Entity",
+        from = "Column::AssignedTransportId",
+        to = "super::transport::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Transport,
+    #[sea_orm(has_one = "super::transport_issuance_return::Entity")]
+    TransportIssuanceReturn,
+    #[sea_orm(
         belongs_to = "super::user::Entity",
         from = "Column::AuthById",
         to = "super::user::Column::Id",
@@ -47,25 +55,11 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     User,
-    #[sea_orm(
-        belongs_to = "super::weapon::Entity",
-        from = "Column::AssignedWeaponId",
-        to = "super::weapon::Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    Weapon,
 }
 
 impl Related<super::base::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Base.def()
-    }
-}
-
-impl Related<super::issuance_return::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::IssuanceReturn.def()
     }
 }
 
@@ -75,15 +69,21 @@ impl Related<super::persona::Entity> for Entity {
     }
 }
 
-impl Related<super::user::Entity> for Entity {
+impl Related<super::transport::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::User.def()
+        Relation::Transport.def()
     }
 }
 
-impl Related<super::weapon::Entity> for Entity {
+impl Related<super::transport_issuance_return::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Weapon.def()
+        Relation::TransportIssuanceReturn.def()
+    }
+}
+
+impl Related<super::user::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::User.def()
     }
 }
 

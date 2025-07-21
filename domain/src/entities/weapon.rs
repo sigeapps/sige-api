@@ -15,6 +15,7 @@ pub struct Model {
     pub serial: String,
     pub entry_at: DateTime,
     pub document_id: Option<String>,
+    pub base_id: i32,
     pub calibre: String,
     pub manteinance_at: Option<DateTime>,
     pub has_charger: bool,
@@ -24,6 +25,14 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::base::Entity",
+        from = "Column::BaseId",
+        to = "super::base::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Base,
     #[sea_orm(has_many = "super::issuance::Entity")]
     Issuance,
     #[sea_orm(
@@ -42,6 +51,12 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     WeaponType,
+}
+
+impl Related<super::base::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Base.def()
+    }
 }
 
 impl Related<super::issuance::Entity> for Entity {

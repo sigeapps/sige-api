@@ -4,7 +4,7 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "issuance_return")]
+#[sea_orm(table_name = "transport_issuance_return")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
@@ -20,18 +20,18 @@ pub struct Model {
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "super::issuance::Entity",
+        belongs_to = "super::transport_issuance::Entity",
         from = "Column::IssuanceId",
-        to = "super::issuance::Column::Id",
+        to = "super::transport_issuance::Column::Id",
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    Issuance,
+    TransportIssuance,
 }
 
-impl Related<super::issuance::Entity> for Entity {
+impl Related<super::transport_issuance::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Issuance.def()
+        Relation::TransportIssuance.def()
     }
 }
 

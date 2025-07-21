@@ -1,11 +1,14 @@
 use crate::{
     api::ApiContext,
+    auth::HasBaseId,
+    auth::{FilterByClaims, UserClaims, UserStamp},
     dtos::{
         parking::issuance::{
             returns::FinalizeIssuance, IssuanceSummary, IssuanceView, StartIssuance,
         },
         CommonQueryFilterDTO,
     },
+    impl_filter_by_claims,
 };
 use domain::entities::{issuance, issuance_return, persona, weapon};
 use sea_orm::*;
@@ -13,9 +16,26 @@ use sea_orm::*;
 #[derive(Debug, Clone)]
 pub struct IssuanceService {}
 
+impl HasBaseId for issuance::ActiveModel {
+    fn set_base_id(mut self, id: i32) -> Self {
+        self.base_id = Set(id);
+
+        self
+    }
+}
+
+impl_filter_by_claims!(issuance, BaseId);
+
+// TODO: SUPER IMPORTANTE: Refactorizar este servicio para poder usarlo en transporte
+
 impl IssuanceService {
     pub async fn start(ctx: ApiContext, dto: StartIssuance) -> Result<i32, DbErr> {
-        let id = dto.into_active_model().insert(&ctx.db).await?.id;
+        let id = dto
+            .into_active_model()
+            .stamp_user(ctx.claims)
+            .insert(&ctx.db)
+            .await?
+            .id;
 
         Ok(id)
     }
@@ -66,6 +86,7 @@ impl IssuanceService {
 
         let issuances = query
             .left_join(issuance_return::Entity)
+            .filter_by_claims(ctx.claims)
             .limit(pagination.limit)
             .offset(pagination.offset)
             .into_model::<IssuanceSummary>()
@@ -89,6 +110,7 @@ impl IssuanceService {
             .left_join(weapon::Entity)
             .join(JoinType::LeftJoin, weapon::Relation::WeaponModel.def())
             .join(JoinType::LeftJoin, weapon::Relation::WeaponType.def())
+            .filter_by_claims(ctx.claims)
             .into_partial_model::<IssuanceView>()
             .one(&ctx.db)
             .await?;

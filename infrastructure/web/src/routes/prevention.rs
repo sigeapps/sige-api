@@ -13,28 +13,31 @@ use crate::{
             add_seclusion_visit, create_seclusion, get_seclusion_by_id, get_seclusions,
             update_seclusion_exit,
         },
-        transport::{create_transport, get_tranports},
     },
     middleware::authenticate,
 };
 
 use crate::controllers::prevention::register::*;
+use crate::controllers::prevention::transport::*;
 use crate::routes::OpenApiRouterExt;
 
 pub fn prevention_routes() -> OpenApiRouter {
     OpenApiRouter::new()
-        .nest_routes("/register", routes!(get_registers, create_register,))
         .nest_routes(
-            "/register",
+            "/prevention/register",
+            routes!(get_registers, create_register,),
+        )
+        .nest_routes(
+            "/prevention/register",
             routes!(update_register_exit, get_register_by_id),
+        )
+        .nest_routes(
+            "/prevention/transport",
+            routes!(get_tranports, create_transport),
         )
         .route(
             "/prevention/official",
             get(get_officials).post(create_official),
-        )
-        .route(
-            "/prevention/transport",
-            get(get_tranports).post(create_transport),
         )
         .route(
             "/prevention/seclusion",

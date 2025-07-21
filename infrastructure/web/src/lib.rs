@@ -19,6 +19,7 @@ use utoipa::{Modify, OpenApi};
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_scalar::{Scalar, Servable};
 
+use crate::routes::transport::transport_routes;
 use crate::tags::REGISTER_TAG;
 
 pub type Result<T, E = WebError> = std::result::Result<T, E>;
@@ -59,7 +60,7 @@ impl Modify for SecurityAddon {
 pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
     let db = connect(db_url).await?;
 
-    let address = format!("{}:{}", host, port);
+    let address = format!("{host}:{port}");
 
     // Configuración específica de CORS - Corregida para evitar el error
     // TODO: Mover a settings.json
@@ -107,6 +108,7 @@ pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
         .route("/", get(root))
         .route("/api-docs/openapi.json", get(openapi))
         .nest("/parking", parking_routes())
+        .nest("/transport", transport_routes())
         .merge(routes::user::user_routes().into())
         .merge(routes::auth::auth_routes())
         .merge(routes::prevention::prevention_routes())

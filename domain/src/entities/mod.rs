@@ -59,6 +59,8 @@ pub mod state;
 pub mod status_condition;
 pub mod temporal_seclusion;
 pub mod transport;
+pub mod transport_issuance;
+pub mod transport_issuance_return;
 pub mod transport_statuses;
 pub mod transport_type;
 pub mod user;

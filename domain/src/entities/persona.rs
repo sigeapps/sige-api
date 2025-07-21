@@ -69,6 +69,8 @@ pub enum Relation {
     PersonaWorkExperience,
     #[sea_orm(has_many = "super::plate_persona::Entity")]
     PlatePersona,
+    #[sea_orm(has_many = "super::transport_issuance::Entity")]
+    TransportIssuance,
     #[sea_orm(has_one = "super::user::Entity")]
     User,
 }
@@ -154,6 +156,12 @@ impl Related<super::persona_work_experience::Entity> for Entity {
 impl Related<super::plate_persona::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::PlatePersona.def()
+    }
+}
+
+impl Related<super::transport_issuance::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::TransportIssuance.def()
     }
 }
 
