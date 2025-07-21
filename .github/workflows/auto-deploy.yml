@@ -51,10 +51,10 @@ jobs:
         cat > settings-windows.json << 'EOF'
         {
           "database": {
-            "url": "postgresql://postgres:D@et2O25*@app.tecnoelectronics.com.ve:5432/sigepol"
+            "url": "postgresql://postgres:D@et2O25@192.168.1.101:5432/sige"
           },
           "address": {
-            "host": "app.tecnoelectronics.com.ve",
+            "host": "192.168.1.101",
             "port": 8443
           }
         }
@@ -65,7 +65,7 @@ jobs:
       with:
         host: cpnbdaet.org.ve
         username: sigepol
-        password: daet25
+        password: S1geD@et2O25
         port: 22
         script: |
           # Crear directorio temporal
@@ -76,7 +76,7 @@ jobs:
       with:
         host: cpnbdaet.org.ve
         username: sigepol
-        password: daet25
+        password: S1geD@et2O25
         port: 22
         source: "target/x86_64-unknown-linux-gnu/release/sige-api"
         target: "/tmp/sige-update/"
@@ -86,7 +86,7 @@ jobs:
       with:
         host: cpnbdaet.org.ve
         username: sigepol
-        password: daet25
+        password: S1geD@et2O25
         port: 22
         source: "settings-linux.json"
         target: "/tmp/sige-update/"
@@ -96,7 +96,7 @@ jobs:
       with:
         host: cpnbdaet.org.ve
         username: sigepol
-        password: daet25
+        password: S1geD@et2O25
         port: 22
         script: |
           # Detener servicio
