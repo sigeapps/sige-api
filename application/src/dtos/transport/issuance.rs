@@ -15,7 +15,6 @@ pub struct StartTransportIssuance {
     pub r#type: String,
     pub assignance_days: i32,
     pub auth_by_id: i32,
-    pub base_id: i32,
 }
 
 #[derive(Deserialize, Serialize, ToSchema, FromQueryResult)]
