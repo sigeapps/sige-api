@@ -17,7 +17,7 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        let weapon_types = ["Carabina", "Semiautomatica", "Doble accion"];
+        let weapon_types = ["Pistola", "Fusil", "Sub-fusil", "Escopeta", "Chaleco",  ];
 
         for weapon_type in weapon_types {
             let insert = Query::insert()
@@ -40,7 +40,18 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        let weapon_brands = ["Remington"];
+        let weapon_brands = [
+            "Glock",
+            "Beretta",
+            "Remington",
+            "Browning",
+            "Zamorana",
+            "Caracal",
+            "Colt",
+            "H&K",
+            "AK",
+            "FAL"
+        ];
 
         for weapon_brand in weapon_brands {
             let insert = Query::insert()
@@ -63,7 +74,39 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        let weapon_models = ["Winchester M1897"];
+        let weapon_models = [
+            // Glock
+            "Glock 17",
+            "Glock 19",
+            // Beretta
+            "FS92",
+            "PX4",
+            "90TWO",
+            // Remington
+            "Remington 870",
+            "Remington 700",
+            // Browning
+            "Browning Hi-Power",
+            "Browning A5",
+            // Zamorana (modelo genérico, si aplica)
+            "Zamorana Modelo 1",
+            // Caracal
+            "Caracal F",
+            "Caracal C",
+            // Colt
+            "Colt 1911",
+            "Colt Python",
+            // H&K
+            "HK USP",
+            "HK G36",
+            // AK
+            "AK-47",
+            "AK-103",
+            // FAL
+            "FN FAL",
+            // Modelo original que ya estaba
+            "Winchester M1897"
+        ];
 
         for weapon_model in weapon_models {
             let insert = Query::insert()
