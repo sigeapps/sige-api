@@ -1,19 +1,37 @@
+use crate::auth::{FilterByClaims, UserClaims, UserStamp};
 use domain::entities::{weapon, weapon_model, weapon_type};
 use sea_orm::*;
 
 use crate::{
     api::ApiContext,
+    auth::HasBaseId,
     dtos::{
         parking::weapon::{WeaponCreate, WeaponView},
         CommonQueryFilterDTO,
     },
+    impl_filter_by_claims,
 };
 
 pub struct WeaponService {}
 
+impl HasBaseId for weapon::ActiveModel {
+    fn set_base_id(mut self, id: i32) -> Self {
+        self.base_id = Set(id);
+
+        self
+    }
+}
+
+impl_filter_by_claims!(weapon, BaseId);
+
 impl WeaponService {
     pub async fn create(ctx: ApiContext, dto: WeaponCreate) -> Result<i32, DbErr> {
-        let id = dto.into_active_model().insert(&ctx.db).await?.id;
+        let id = dto
+            .into_active_model()
+            .stamp_user(ctx.claims)
+            .insert(&ctx.db)
+            .await?
+            .id;
 
         Ok(id)
     }
@@ -24,10 +42,13 @@ impl WeaponService {
             .column_as(weapon_model::Column::Name, "model")
             .left_join(weapon_type::Entity)
             .left_join(weapon_model::Entity)
+            .filter_by_claims(ctx.claims)
             .into_model::<WeaponView>()
             .one(&ctx.db)
             .await
     }
+
+    // TODO: Agregar paginacion
 
     pub async fn find(
         ctx: ApiContext,
@@ -36,6 +57,7 @@ impl WeaponService {
         let mut query = weapon::Entity::find()
             .column_as(weapon_type::Column::Name, "type")
             .column_as(weapon_model::Column::Name, "model")
+            .filter_by_claims(ctx.claims)
             .left_join(weapon_type::Entity)
             .left_join(weapon_model::Entity);
 

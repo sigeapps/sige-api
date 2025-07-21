@@ -16,11 +16,20 @@ pub struct Model {
     pub r#type: String,
     pub assignance_days: i32,
     pub auth_by_id: i32,
+    pub base_id: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::issuance_return::Entity")]
+    #[sea_orm(
+        belongs_to = "super::base::Entity",
+        from = "Column::BaseId",
+        to = "super::base::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Base,
+    #[sea_orm(has_one = "super::issuance_return::Entity")]
     IssuanceReturn,
     #[sea_orm(
         belongs_to = "super::persona::Entity",
@@ -46,6 +55,12 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Weapon,
+}
+
+impl Related<super::base::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Base.def()
+    }
 }
 
 impl Related<super::issuance_return::Entity> for Entity {

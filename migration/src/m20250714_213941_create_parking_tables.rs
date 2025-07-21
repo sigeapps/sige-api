@@ -1,5 +1,7 @@
 use sea_orm_migration::{prelude::*, schema::*};
 
+use crate::m20250618_113709_create_base_tables::Base;
+
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
@@ -87,10 +89,17 @@ impl MigrationTrait for Migration {
                     .col(string(Weapon::Serial).unique_key())
                     .col(date_time(Weapon::EntryAt).default(Expr::current_timestamp()))
                     .col(ColumnDef::new(Weapon::DocumentId).string().null())
+                    .col(ColumnDef::new(Weapon::BaseId).integer().not_null())
                     .col(string(Weapon::Calibre))
                     .col(ColumnDef::new(Weapon::ManteinanceAt).date_time().null())
                     .col(boolean(Weapon::HasCharger).default(false))
                     .col(ColumnDef::new(Weapon::Observations).text().null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk-weapon-base_id")
+                            .from(Weapon::Table, Weapon::BaseId)
+                            .to(Base::Table, Base::Id),
+                    )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk-weapon-type_id")
@@ -121,6 +130,13 @@ impl MigrationTrait for Migration {
                     .col(string(Issuance::Type))
                     .col(integer(Issuance::AssignanceDays))
                     .col(integer(Issuance::AuthById))
+                    .col(integer(Issuance::BaseId))
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk-issuance-base_id")
+                            .from(Issuance::Table, Issuance::BaseId)
+                            .to(Base::Table, Base::Id),
+                    )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk-issuance-persona_id")
@@ -237,6 +253,7 @@ enum Weapon {
     Observations,
     TypeId,
     ModelId,
+    BaseId,
 }
 
 #[derive(DeriveIden)]
@@ -251,6 +268,7 @@ enum Issuance {
     Type,
     AssignanceDays,
     AuthById,
+    BaseId,
 }
 
 #[derive(DeriveIden)]
