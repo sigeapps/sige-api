@@ -2,10 +2,12 @@
 
 pub mod prelude;
 
+pub mod assignance_time;
 pub mod band;
 pub mod base;
 pub mod brand;
 pub mod brigade;
+pub mod calibre;
 pub mod charge;
 pub mod commission;
 pub mod commission_actual_exit;
@@ -23,6 +25,7 @@ pub mod hierarchy;
 pub mod institution;
 pub mod issuance;
 pub mod issuance_return;
+pub mod issuance_weapon;
 pub mod municipality;
 pub mod novelty;
 pub mod official;
@@ -48,6 +51,7 @@ pub mod persona_traits;
 pub mod persona_work_experience;
 pub mod plate;
 pub mod plate_persona;
+pub mod position;
 pub mod profession;
 pub mod register;
 pub mod role;

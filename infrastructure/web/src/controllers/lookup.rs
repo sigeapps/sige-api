@@ -8,10 +8,10 @@ use axum::{
     Extension, Json,
 };
 use domain::entities::{
-    band, base, brand, brigade, charge, division, document_type, family_relationship, hierarchy,
-    institution, municipality, novelty, organism, parish, persona_state, profession, role,
-    seclusion_statuses, state, status_condition, transport_statuses, transport_type, vehicle_model,
-    weapon_brand, weapon_model, weapon_type,
+    assignance_time, band, base, brand, brigade, calibre, charge, division, document_type,
+    family_relationship, hierarchy, institution, municipality, novelty, organism, parish,
+    persona_state, position, profession, role, seclusion_statuses, state, status_condition,
+    transport_statuses, transport_type, vehicle_model, weapon_brand, weapon_model, weapon_type,
 };
 use sea_orm::ActiveModelTrait;
 use tracing::debug;
@@ -217,6 +217,33 @@ impl DtoIntoActiveModel<novelty::ActiveModel> for CreateBasicLookUpDTO {
 impl DtoIntoActiveModel<band::ActiveModel> for CreateBasicLookUpDTO {
     fn into_active_model(self) -> band::ActiveModel {
         band::ActiveModel {
+            name: sea_orm::Set(self.name),
+            ..Default::default()
+        }
+    }
+}
+
+impl DtoIntoActiveModel<calibre::ActiveModel> for CreateBasicLookUpDTO {
+    fn into_active_model(self) -> calibre::ActiveModel {
+        calibre::ActiveModel {
+            name: sea_orm::Set(self.name),
+            ..Default::default()
+        }
+    }
+}
+
+impl DtoIntoActiveModel<position::ActiveModel> for CreateBasicLookUpDTO {
+    fn into_active_model(self) -> position::ActiveModel {
+        position::ActiveModel {
+            name: sea_orm::Set(self.name),
+            ..Default::default()
+        }
+    }
+}
+
+impl DtoIntoActiveModel<assignance_time::ActiveModel> for CreateBasicLookUpDTO {
+    fn into_active_model(self) -> assignance_time::ActiveModel {
+        assignance_time::ActiveModel {
             name: sea_orm::Set(self.name),
             ..Default::default()
         }
@@ -489,6 +516,46 @@ create_lookup!(
     CreateBasicLookUpDTO
 );
 get_lookup!(get_bands, band::Entity, band::Model, band::ActiveModel);
+
+create_lookup!(
+    create_calibre,
+    calibre::Entity,
+    calibre::ActiveModel,
+    CreateBasicLookUpDTO
+);
+get_lookup!(
+    get_calibres,
+    calibre::Entity,
+    calibre::Model,
+    calibre::ActiveModel
+);
+
+create_lookup!(
+    create_position,
+    position::Entity,
+    position::ActiveModel,
+    CreateBasicLookUpDTO
+);
+get_lookup!(
+    get_positions,
+    position::Entity,
+    position::Model,
+    position::ActiveModel
+);
+
+create_lookup!(
+    create_assignance_time,
+    assignance_time::Entity,
+    assignance_time::ActiveModel,
+    CreateBasicLookUpDTO
+);
+
+get_lookup!(
+    get_assignance_times,
+    assignance_time::Entity,
+    assignance_time::Model,
+    assignance_time::ActiveModel
+);
 
 create_lookup!(
     create_institution,

@@ -69,5 +69,11 @@ pub fn lookup_routes() -> Router {
             "/lookup/weapon-model",
             post(create_weapon_model).get(get_weapon_models),
         )
+        .route(
+            "/lookup/assignance-time",
+            post(create_assignance_time).get(get_assignance_times),
+        )
+        .route("/lookup/calibre", post(create_calibre).get(get_calibres))
+        .route("/lookup/position", post(create_position).get(get_positions))
         .layer(axum::middleware::from_fn(authenticate))
 }

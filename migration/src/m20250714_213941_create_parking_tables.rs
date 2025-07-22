@@ -295,31 +295,94 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(IssuanceReturn::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(IssuanceReturn::Table)
+                    .if_exists()
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
         manager
-            .drop_table(Table::drop().table(Issuance::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(Issuance::Table)
+                    .if_exists()
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
         manager
-            .drop_table(Table::drop().table(Calibre::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(Calibre::Table)
+                    .if_exists()
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
         manager
-            .drop_table(Table::drop().table(Position::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(Position::Table)
+                    .if_exists()
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
         manager
-            .drop_table(Table::drop().table(AssignanceTime::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(AssignanceTime::Table)
+                    .if_exists()
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
         manager
-            .drop_table(Table::drop().table(Weapon::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(IssuanceWeapon::Table)
+                    .if_exists()
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
         manager
-            .drop_table(Table::drop().table(WeaponModel::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(Weapon::Table)
+                    .if_exists()
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
         manager
-            .drop_table(Table::drop().table(WeaponBrand::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(WeaponModel::Table)
+                    .if_exists()
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
         manager
-            .drop_table(Table::drop().table(WeaponType::Table).to_owned())
+            .drop_table(
+                Table::drop()
+                    .table(WeaponBrand::Table)
+                    .if_exists()
+                    .cascade()
+                    .to_owned(),
+            )
+            .await?;
+        manager
+            .drop_table(
+                Table::drop()
+                    .table(WeaponType::Table)
+                    .if_exists()
+                    .cascade()
+                    .to_owned(),
+            )
             .await?;
         Ok(())
     }

@@ -39,6 +39,8 @@ pub enum Relation {
     CountryVerification,
     #[sea_orm(has_many = "super::issuance::Entity")]
     Issuance,
+    #[sea_orm(has_many = "super::issuance_weapon::Entity")]
+    IssuanceWeapon,
     #[sea_orm(has_many = "super::persona_children::Entity")]
     PersonaChildren,
     #[sea_orm(has_many = "super::persona_conyuge::Entity")]
@@ -84,6 +86,12 @@ impl Related<super::country_verification::Entity> for Entity {
 impl Related<super::issuance::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Issuance.def()
+    }
+}
+
+impl Related<super::issuance_weapon::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::IssuanceWeapon.def()
     }
 }
 

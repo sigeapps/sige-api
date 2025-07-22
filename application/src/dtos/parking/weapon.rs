@@ -1,4 +1,5 @@
 use chrono::NaiveDateTime;
+use domain::entities::calibre;
 use domain::entities::weapon::ActiveModel;
 use sea_orm::{DeriveIntoActiveModel, DerivePartialModel, FromQueryResult};
 use serde::{Deserialize, Serialize};
@@ -13,7 +14,8 @@ pub struct WeaponCreate {
     #[schema(value_type = String, format = Date)]
     pub entry_at: NaiveDateTime,
     pub document_id: Option<String>,
-    pub calibre: String,
+    pub calibre_id: i32,
+    pub position_id: i32,
     #[schema(value_type = String, format = Date)]
     pub manteinance_at: NaiveDateTime,
     pub has_charger: bool,
@@ -42,6 +44,7 @@ pub struct WeaponView {
 pub struct WeaponSummary {
     pub id: i32,
     pub serial: String,
+    #[sea_orm(from_expr = "calibre::Column::Id")]
     pub calibre: String,
     pub has_charger: bool,
 }

@@ -9,18 +9,23 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub assigned_persona_id: i32,
-    pub assigned_weapon_id: i32,
-    pub has_charger: bool,
-    pub ammo_count: i32,
     pub date_time: DateTime,
     pub r#type: String,
-    pub assignance_days: i32,
+    pub assignance_time_id: i32,
     pub auth_by_id: i32,
     pub base_id: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::assignance_time::Entity",
+        from = "Column::AssignanceTimeId",
+        to = "super::assignance_time::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    AssignanceTime,
     #[sea_orm(
         belongs_to = "super::base::Entity",
         from = "Column::BaseId",
@@ -47,14 +52,12 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     User,
-    #[sea_orm(
-        belongs_to = "super::weapon::Entity",
-        from = "Column::AssignedWeaponId",
-        to = "super::weapon::Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    Weapon,
+}
+
+impl Related<super::assignance_time::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::AssignanceTime.def()
+    }
 }
 
 impl Related<super::base::Entity> for Entity {
@@ -78,12 +81,6 @@ impl Related<super::persona::Entity> for Entity {
 impl Related<super::user::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::User.def()
-    }
-}
-
-impl Related<super::weapon::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Weapon.def()
     }
 }
 

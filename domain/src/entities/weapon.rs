@@ -16,7 +16,8 @@ pub struct Model {
     pub entry_at: DateTime,
     pub document_id: Option<String>,
     pub base_id: i32,
-    pub calibre: String,
+    pub calibre_id: i32,
+    pub position_id: i32,
     pub manteinance_at: Option<DateTime>,
     pub has_charger: bool,
     #[sea_orm(column_type = "Text", nullable)]
@@ -33,8 +34,24 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Base,
-    #[sea_orm(has_many = "super::issuance::Entity")]
-    Issuance,
+    #[sea_orm(
+        belongs_to = "super::calibre::Entity",
+        from = "Column::BaseId",
+        to = "super::calibre::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Calibre,
+    #[sea_orm(has_many = "super::issuance_weapon::Entity")]
+    IssuanceWeapon,
+    #[sea_orm(
+        belongs_to = "super::position::Entity",
+        from = "Column::PositionId",
+        to = "super::position::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Position,
     #[sea_orm(
         belongs_to = "super::weapon_model::Entity",
         from = "Column::ModelId",
@@ -59,9 +76,21 @@ impl Related<super::base::Entity> for Entity {
     }
 }
 
-impl Related<super::issuance::Entity> for Entity {
+impl Related<super::calibre::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Issuance.def()
+        Relation::Calibre.def()
+    }
+}
+
+impl Related<super::issuance_weapon::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::IssuanceWeapon.def()
+    }
+}
+
+impl Related<super::position::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Position.def()
     }
 }
 
