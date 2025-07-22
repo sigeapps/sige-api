@@ -13,7 +13,7 @@ use axum::routing::get;
 use axum::{Extension, Json};
 use error::WebError;
 use routes::parking::parking_routes;
-use tower_http::cors::{CorsLayer, Any};
+use tower_http::cors::CorsLayer;
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi};
 use utoipa_axum::router::OpenApiRouter;
@@ -63,6 +63,7 @@ pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
     let address = format!("{host}:{port}");
 
     // CORS temporalmente abierto para depuración, NO USAR EN PRODUCCIÓN
+    // TODO: Agregar toda esta configuracion a settings.json
     let cors = CorsLayer::new()
         .allow_origin([
             "http://localhost:1420".parse::<HeaderValue>().unwrap(),
@@ -71,8 +72,12 @@ pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
             "http://localhost:5173".parse::<HeaderValue>().unwrap(),
             "https://localhost:1420".parse::<HeaderValue>().unwrap(),
             "http://tauri.localhost".parse::<HeaderValue>().unwrap(),
-            "http://app.tecnoelectronics.com.ve".parse::<HeaderValue>().unwrap(),
-            "https://app.tecnoelectronics.com.ve".parse::<HeaderValue>().unwrap(),
+            "http://app.tecnoelectronics.com.ve"
+                .parse::<HeaderValue>()
+                .unwrap(),
+            "https://app.tecnoelectronics.com.ve"
+                .parse::<HeaderValue>()
+                .unwrap(),
             "http://192.168.1.101:8443".parse::<HeaderValue>().unwrap(),
             "http://localhost:8443".parse::<HeaderValue>().unwrap(),
         ])

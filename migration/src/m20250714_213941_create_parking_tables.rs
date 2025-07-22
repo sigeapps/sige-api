@@ -19,6 +19,39 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
+        manager
+            .create_table(
+                Table::create()
+                    .table(Position::Table)
+                    .if_not_exists()
+                    .col(pk_auto(Position::Id))
+                    .col(string(Position::Name).unique_key())
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(Calibre::Table)
+                    .if_not_exists()
+                    .col(pk_auto(Calibre::Id))
+                    .col(string(Calibre::Name).unique_key())
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(AssignanceTime::Table)
+                    .if_not_exists()
+                    .col(pk_auto(AssignanceTime::Id))
+                    .col(string(AssignanceTime::Name).unique_key())
+                    .to_owned(),
+            )
+            .await?;
+
         let weapon_types = ["Pistola", "Fusil", "Sub-fusil", "Escopeta", "Chaleco"];
 
         for weapon_type in weapon_types {
@@ -133,7 +166,8 @@ impl MigrationTrait for Migration {
                     .col(date_time(Weapon::EntryAt).default(Expr::current_timestamp()))
                     .col(ColumnDef::new(Weapon::DocumentId).string().null())
                     .col(ColumnDef::new(Weapon::BaseId).integer().not_null())
-                    .col(string(Weapon::Calibre))
+                    .col(integer(Weapon::CalibreId))
+                    .col(integer(Weapon::PositionId))
                     .col(ColumnDef::new(Weapon::ManteinanceAt).date_time().null())
                     .col(boolean(Weapon::HasCharger).default(false))
                     .col(ColumnDef::new(Weapon::Observations).text().null())
@@ -142,6 +176,18 @@ impl MigrationTrait for Migration {
                             .name("fk-weapon-base_id")
                             .from(Weapon::Table, Weapon::BaseId)
                             .to(Base::Table, Base::Id),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk-weapon-calibre_id")
+                            .from(Weapon::Table, Weapon::BaseId)
+                            .to(Calibre::Table, Calibre::Id),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk-weapon-position_id")
+                            .from(Weapon::Table, Weapon::PositionId)
+                            .to(Position::Table, Position::Id),
                     )
                     .foreign_key(
                         ForeignKey::create()
@@ -166,12 +212,9 @@ impl MigrationTrait for Migration {
                     .if_not_exists()
                     .col(pk_auto(Issuance::Id))
                     .col(integer(Issuance::AssignedPersonaId))
-                    .col(integer(Issuance::AssignedWeaponId))
-                    .col(boolean(Issuance::HasCharger).default(false))
-                    .col(integer(Issuance::AmmoCount))
                     .col(date_time(Issuance::DateTime).default(Expr::current_timestamp()))
                     .col(string(Issuance::Type))
-                    .col(integer(Issuance::AssignanceDays))
+                    .col(integer(Issuance::AssignanceTimeId))
                     .col(integer(Issuance::AuthById))
                     .col(integer(Issuance::BaseId))
                     .foreign_key(
@@ -182,21 +225,45 @@ impl MigrationTrait for Migration {
                     )
                     .foreign_key(
                         ForeignKey::create()
+                            .name("fk-assignance-time_id")
+                            .from(Issuance::Table, Issuance::AssignanceTimeId)
+                            .to(AssignanceTime::Table, AssignanceTime::Id),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
                             .name("fk-issuance-persona_id")
                             .from(Issuance::Table, Issuance::AssignedPersonaId)
                             .to(Persona::Table, Persona::Id),
                     )
                     .foreign_key(
                         ForeignKey::create()
-                            .name("fk-issuance-weapon_id")
-                            .from(Issuance::Table, Issuance::AssignedWeaponId)
+                            .name("fk-issuance-auth_by_id")
+                            .from(Issuance::Table, Issuance::AuthById)
+                            .to(User::Table, User::Id),
+                    )
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(IssuanceWeapon::Table)
+                    .if_not_exists()
+                    .col(pk_auto(IssuanceWeapon::Id))
+                    .col(integer(IssuanceWeapon::WeaponId))
+                    .col(integer(IssuanceWeapon::IssuanceId))
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk-issuance_weapon_weapon_id")
+                            .from(IssuanceWeapon::Table, IssuanceWeapon::WeaponId)
                             .to(Weapon::Table, Weapon::Id),
                     )
                     .foreign_key(
                         ForeignKey::create()
-                            .name("fk-issuance-auth_by_id")
-                            .from(Issuance::Table, Issuance::AuthById)
-                            .to(User::Table, User::Id),
+                            .name("fk-issuance_weapon_issuance_id")
+                            .from(IssuanceWeapon::Table, IssuanceWeapon::IssuanceId)
+                            .to(Persona::Table, Persona::Id),
                     )
                     .to_owned(),
             )
@@ -283,6 +350,27 @@ pub enum WeaponModel {
 }
 
 #[derive(DeriveIden)]
+pub enum AssignanceTime {
+    Table,
+    Id,
+    Name,
+}
+
+#[derive(DeriveIden)]
+pub enum Calibre {
+    Table,
+    Id,
+    Name,
+}
+
+#[derive(DeriveIden)]
+pub enum Position {
+    Table,
+    Id,
+    Name,
+}
+
+#[derive(DeriveIden)]
 enum Weapon {
     Table,
     Id,
@@ -290,7 +378,8 @@ enum Weapon {
     Serial,
     EntryAt,
     DocumentId,
-    Calibre,
+    CalibreId,
+    PositionId,
     ManteinanceAt,
     HasCharger,
     Observations,
@@ -304,12 +393,9 @@ enum Issuance {
     Table,
     Id,
     AssignedPersonaId,
-    AssignedWeaponId,
-    HasCharger,
-    AmmoCount,
     DateTime,
     Type,
-    AssignanceDays,
+    AssignanceTimeId,
     AuthById,
     BaseId,
 }
@@ -320,21 +406,6 @@ enum IssuanceWeapon {
     Id,
     WeaponId,
     IssuanceId,
-}
-
-#[derive(DeriveIden)]
-enum Issuance {
-    Table,
-    Id,
-    AssignedPersonaId,
-    AssignedWeaponId,
-    HasCharger,
-    AmmoCount,
-    DateTime,
-    Type,
-    AssignanceDays,
-    AuthById,
-    BaseId,
 }
 
 #[derive(DeriveIden)]
