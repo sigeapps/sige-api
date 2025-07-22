@@ -8,30 +8,21 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout código
       uses: actions/checkout@v4
-      
+
     - name: Instalar Rust
       uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
         target: x86_64-unknown-linux-gnu
         override: true
-        
-    - name: Agregar target Windows
-      run: rustup target add x86_64-pc-windows-gnu
-        
-    - name: Instalar dependencias Windows
-      run: sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-x86-64
-        
+
     - name: Compilar para Linux
       run: cargo build --release --target x86_64-unknown-linux-gnu
-        
-    - name: Compilar para Windows
-      run: cargo build --release --target x86_64-pc-windows-gnu
-      
+
     - name: Crear settings Linux
       run: |
         cat > settings-linux.json << 'EOF'
@@ -45,156 +36,49 @@ jobs:
           }
         }
         EOF
-        
-    - name: Crear settings Windows
+
+    # ==== DESPLIEGUE LINUX SOLO ====
+    - name: Verificar existencia del binario
       run: |
-        cat > settings-windows.json << 'EOF'
-        {
-          "database": {
-            "url": "postgresql://postgres:D@et2O25@192.168.1.101:5432/sige"
-          },
-          "address": {
-            "host": "192.168.1.101",
-            "port": 8443
-          }
-        }
-        EOF
+        if [ ! -f target/x86_64-unknown-linux-gnu/release/sige-api ]; then
+          echo "¡Binario no encontrado!"
+          exit 1
+        fi
+        ls -lh target/x86_64-unknown-linux-gnu/release/sige-api
 
-    - name: Desplegar en servidor Linux
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: cpnbdaet.org.ve
-        username: sigepol
-        password: S1geD@et2O25
-        port: 22
-        script: |
-          # Crear directorio temporal
-          mkdir -p /tmp/sige-update
-
-    # ---------- PASOS NUEVOS RECOMENDADOS ----------
-    - name: Verificar binario compilado
-      run: ls -lh target/x86_64-unknown-linux-gnu/release/
-
-    - name: Asegurar directorio destino
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: cpnbdaet.org.ve
-        username: sigepol
-        password: S1geD@et2O25
-        port: 22
-        script: mkdir -p /tmp/sige-update
-    # -----------------------------------------------
-
-    - name: Subir binario Linux
-      uses: appleboy/scp-action@v0.1.4
+    - name: Subir binario Linux a HOME remoto
+      uses: appleboy/scp-action@v0.1.7
       with:
         host: cpnbdaet.org.ve
         username: sigepol
         password: S1geD@et2O25
         port: 22
         source: "target/x86_64-unknown-linux-gnu/release/sige-api"
-        target: "/tmp/sige-update/"
-        
+        target: "/home/sigepol/sige-api-linux"
+        debug: true
+
+    - name: Asignar permisos de ejecución al binario remoto Linux
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: cpnbdaet.org.ve
+        username: sigepol
+        password: S1geD@et2O25
+        port: 22
+        script: chmod +x /home/sigepol/sige-api-linux
+
     - name: Subir configuración Linux
-      uses: appleboy/scp-action@v0.1.4
+      uses: appleboy/scp-action@v0.1.7
       with:
         host: cpnbdaet.org.ve
         username: sigepol
         password: S1geD@et2O25
         port: 22
         source: "settings-linux.json"
-        target: "/tmp/sige-update/"
-        
-    - name: Actualizar servicio Linux
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: cpnbdaet.org.ve
-        username: sigepol
-        password: S1geD@et2O25
-        port: 22
-        script: |
-          # Detener servicio
-          echo "S1geD@et2O25" | sudo -S systemctl stop sige-api.service
-          
-          # Crear backup
-          echo "S1geD@et2O25" | sudo -S cp /usr/local/bin/sige-api /usr/local/bin/sige-api.backup.$(date +%Y%m%d_%H%M%S) 2>/dev/null || true
-          
-          # Instalar nueva versión
-          echo "S1geD@et2O25" | sudo -S cp /tmp/sige-update/sige-api /usr/local/bin/sige-api
-          echo "S1geD@et2O25" | sudo -S chmod +x /usr/local/bin/sige-api
-          
-          # Actualizar configuración
-          echo "S1geD@et2O25" | sudo -S cp /tmp/sige-update/settings-linux.json /home/sigepol/settings.json
-          
-          # Iniciar servicio
-          echo "S1geD@et2O25" | sudo -S systemctl start sige-api.service
-          
-          # Verificar estado
-          sleep 3
-          systemctl status sige-api.service --no-pager
+        target: "/home/sigepol/settings-linux.json"
+        debug: true
 
-    - name: Desplegar en servidor Windows
+    - name: Actualizar servicio Linux (mover binario y config, reiniciar servicio)
       uses: appleboy/ssh-action@v1.0.0
       with:
-        host: app.tecnoelectronics.com.ve
-        username: tecno
-        password: tecno2025
-        port: 22
-        script: |
-          # Crear directorio temporal
-          if not exist "D:\temp\sige-update" mkdir "D:\temp\sige-update"
-          
-    - name: Subir binario Windows
-      uses: appleboy/scp-action@v0.1.4
-      with:
-        host: app.tecnoelectronics.com.ve
-        username: tecno
-        password: tecno2025
-        port: 22
-        source: "target/x86_64-pc-windows-gnu/release/sige-api.exe"
-        target: "D:/temp/sige-update/"
-        
-    - name: Subir configuración Windows
-      uses: appleboy/scp-action@v0.1.4
-      with:
-        host: app.tecnoelectronics.com.ve
-        username: tecno
-        password: tecno2025
-        port: 22
-        source: "settings-windows.json"
-        target: "D:/temp/sige-update/"
-        
-    - name: Actualizar servicio Windows
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: app.tecnoelectronics.com.ve
-        username: tecno
-        password: tecno2025
-        port: 22
-        script: |
-          # Detener servicio
-          net stop "sige-api" 2>nul || sc stop "sige-api" 2>nul || echo "Servicio no estaba corriendo"
-          
-          # Esperar un momento
-          timeout /t 3 /nobreak
-          
-          # Crear backup
-          if exist "D:\SIGE\sige-api\target\release\sige-api.exe" (
-            copy "D:\SIGE\sige-api\target\release\sige-api.exe" "D:\SIGE\sige-api\target\release\sige-api.backup.%date:~-4,4%%date:~-10,2%%date:~-7,2%_%time:~0,2%%time:~3,2%.exe" 2>nul
-          )
-          
-          # Crear directorio si no existe
-          if not exist "D:\SIGE\sige-api\target\release" mkdir "D:\SIGE\sige-api\target\release"
-          
-          # Instalar nueva versión
-          copy "D:\temp\sige-update\sige-api.exe" "D:\SIGE\sige-api\target\release\sige-api.exe"
-          
-          # Actualizar configuración
-          copy "D:\temp\sige-update\settings-windows.json" "D:\SIGE\sige-api\settings.json"
-          
-          # Iniciar servicio
-          net start "sige-api" || sc start "sige-api" || echo "Error iniciando servicio"
-          
-          # Verificar estado
-          timeout /t 3 /nobreak
-          sc query "sige-api" 2>nul || net start | findstr "sige-api" || echo "Verificar servicio manualmente"
+        host: cp](#)
+
