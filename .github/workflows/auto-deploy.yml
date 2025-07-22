@@ -70,7 +70,21 @@ jobs:
         script: |
           # Crear directorio temporal
           mkdir -p /tmp/sige-update
-          
+
+    # ---------- PASOS NUEVOS RECOMENDADOS ----------
+    - name: Verificar binario compilado
+      run: ls -lh target/x86_64-unknown-linux-gnu/release/
+
+    - name: Asegurar directorio destino
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: cpnbdaet.org.ve
+        username: sigepol
+        password: S1geD@et2O25
+        port: 22
+        script: mkdir -p /tmp/sige-update
+    # -----------------------------------------------
+
     - name: Subir binario Linux
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -100,20 +114,20 @@ jobs:
         port: 22
         script: |
           # Detener servicio
-          echo "daet25" | sudo -S systemctl stop sige-api.service
+          echo "S1geD@et2O25" | sudo -S systemctl stop sige-api.service
           
           # Crear backup
-          echo "daet25" | sudo -S cp /usr/local/bin/sige-api /usr/local/bin/sige-api.backup.$(date +%Y%m%d_%H%M%S) 2>/dev/null || true
+          echo "S1geD@et2O25" | sudo -S cp /usr/local/bin/sige-api /usr/local/bin/sige-api.backup.$(date +%Y%m%d_%H%M%S) 2>/dev/null || true
           
           # Instalar nueva versión
-          echo "daet25" | sudo -S cp /tmp/sige-update/sige-api /usr/local/bin/sige-api
-          echo "daet25" | sudo -S chmod +x /usr/local/bin/sige-api
+          echo "S1geD@et2O25" | sudo -S cp /tmp/sige-update/sige-api /usr/local/bin/sige-api
+          echo "S1geD@et2O25" | sudo -S chmod +x /usr/local/bin/sige-api
           
           # Actualizar configuración
-          echo "daet25" | sudo -S cp /tmp/sige-update/settings-linux.json /home/sigepol/settings.json
+          echo "S1geD@et2O25" | sudo -S cp /tmp/sige-update/settings-linux.json /home/sigepol/settings.json
           
           # Iniciar servicio
-          echo "daet25" | sudo -S systemctl start sige-api.service
+          echo "S1geD@et2O25" | sudo -S systemctl start sige-api.service
           
           # Verificar estado
           sleep 3
@@ -183,4 +197,4 @@ jobs:
           
           # Verificar estado
           timeout /t 3 /nobreak
-          sc query "sige-api" 2>nul || net start | findstr "sige-api" || echo "Verificar servicio manualmente" 
+          sc query "sige-api" 2>nul || net start | findstr "sige-api" || echo "Verificar servicio manualmente"
