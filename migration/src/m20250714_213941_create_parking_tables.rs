@@ -315,29 +315,6 @@ enum Issuance {
 }
 
 #[derive(DeriveIden)]
-enum IssuanceWeapon {
-    Table,
-    Id,
-    WeaponId,
-    IssuanceId,
-}
-
-#[derive(DeriveIden)]
-enum Issuance {
-    Table,
-    Id,
-    AssignedPersonaId,
-    AssignedWeaponId,
-    HasCharger,
-    AmmoCount,
-    DateTime,
-    Type,
-    AssignanceDays,
-    AuthById,
-    BaseId,
-}
-
-#[derive(DeriveIden)]
 enum IssuanceReturn {
     Table,
     Id,
