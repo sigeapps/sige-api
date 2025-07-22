@@ -301,6 +301,15 @@ impl MigrationTrait for Migration {
             .drop_table(Table::drop().table(Issuance::Table).to_owned())
             .await?;
         manager
+            .drop_table(Table::drop().table(Calibre::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(Table::drop().table(Position::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(Table::drop().table(AssignanceTime::Table).to_owned())
+            .await?;
+        manager
             .drop_table(Table::drop().table(Weapon::Table).to_owned())
             .await?;
         manager
