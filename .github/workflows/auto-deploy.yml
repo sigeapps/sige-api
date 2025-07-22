@@ -23,21 +23,6 @@ jobs:
     - name: Compilar para Linux
       run: cargo build --release --target x86_64-unknown-linux-gnu
 
-    - name: Crear settings Linux
-      run: |
-        cat > settings-linux.json << 'EOF'
-        {
-          "database": {
-            "url": "postgresql://postgres:D@et2O25*@192.168.11.100:5432/sigepol"
-          },
-          "address": {
-            "host": "192.168.11.100",
-            "port": 8443
-          }
-        }
-        EOF
-
-    # ==== DESPLIEGUE LINUX SOLO ====
     - name: Verificar existencia del binario
       run: |
         if [ ! -f target/x86_64-unknown-linux-gnu/release/sige-api ]; then
@@ -46,38 +31,22 @@ jobs:
         fi
         ls -lh target/x86_64-unknown-linux-gnu/release/sige-api
 
-    - name: Subir binario Linux a HOME remoto
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: cpnbdaet.org.ve
-        username: sigepol
-        password: S1geD@et2O25
-        port: 22
-        source: "target/x86_64-unknown-linux-gnu/release/sige-api"
-        target: "/home/sigepol/sige-api-linux"
-        debug: true
+    - name: Instalar rsync
+      run: sudo apt-get update && sudo apt-get install -y rsync
 
-    - name: Asignar permisos de ejecución al binario remoto Linux
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: cpnbdaet.org.ve
-        username: sigepol
-        password: S1geD@et2O25
-        port: 22
-        script: chmod +x /home/sigepol/sige-api-linux
+    - name: Configurar clave SSH
+      run: |
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > key.pem
+        chmod 600 key.pem
 
-    - name: Subir configuración Linux
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: cpnbdaet.org.ve
-        username: sigepol
-        password: S1geD@et2O25
-        port: 22
-        source: "settings-linux.json"
-        target: "/home/sigepol/settings-linux.json"
-        debug: true
+    - name: Subir binario con rsync
+      run: |
+        rsync -avz -e "ssh -i key.pem -o StrictHostKeyChecking=no -p 22" target/x86_64-unknown-linux-gnu/release/sige-api sigepol@cpnbdaet.org.ve:/home/sigepol/sige-api-linux
 
-    - name: Actualizar servicio Linux (mover binario y config, reiniciar servicio)
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: cp](#)
+    - name: Asignar permisos de ejecución al binario remoto
+      run: |
+        ssh -i key.pem -o StrictHostKeyChecking=no -p 22 sigepol@cpnbdaet.org.ve 'chmod +x /home/sigepol/sige-api-linux'
+
+    - name: Reiniciar servicio sige-api en el servidor remoto
+      run: |
+        ssh -i key.pem -o StrictHostKeyChecking=no -p 22 sigepol@cpnbdaet.org.ve 'sudo systemctl restart sige-api && sudo systemctl status sige-api --no-pager'
