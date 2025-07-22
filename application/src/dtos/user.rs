@@ -1,6 +1,7 @@
 use domain::entities::user::ActiveModel;
 use sea_orm::{ActiveValue::Set, DeriveIntoActiveModel, DerivePartialModel};
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use crate::dtos::prevention::lookup::GetBaseDTO;
 
@@ -29,7 +30,7 @@ pub struct GetRoleDTO {
     pub name: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, ToSchema)]
 pub struct CreateRoleDTO {
     pub name: String,
     pub permissions: Vec<String>,

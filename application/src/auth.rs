@@ -37,10 +37,20 @@ pub trait FilterByClaims {
 #[macro_export]
 macro_rules! impl_filter_by_claims {
     ($entity:ident, $column:ident) => {
+        use domain::auth::permissions::Permission;
+
         impl FilterByClaims for sea_orm::Select<$entity::Entity> {
             fn filter_by_claims(self, claims: Option<UserClaims>) -> Self {
                 if let Some(claims) = claims {
-                    self.filter($entity::Column::$column.eq(claims.user.base.id))
+                    let has_read_bases = claims
+                        .permissions
+                        .iter()
+                        .any(|x| matches!(x, Permission::ReadAllBases));
+
+                    match has_read_bases {
+                        true => self,
+                        false => self.filter($entity::Column::$column.eq(claims.user.base.id)),
+                    }
                 } else {
                     self
                 }

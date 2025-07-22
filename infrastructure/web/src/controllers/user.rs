@@ -1,4 +1,4 @@
-use crate::Result;
+use crate::{tags::USER_TAG, Result};
 use application::{
     dtos::{
         user::{CreateRoleDTO, CreateUserDTO, GetRoleDTO, GetUserDTO, UpdateUserDTO},
@@ -11,6 +11,7 @@ use axum::{
     response::{IntoResponse, Response},
     Extension, Json,
 };
+use domain::auth::permissions::Permission;
 use serde::{Deserialize, Serialize};
 
 use application::api::ApiContext;
@@ -72,6 +73,12 @@ pub async fn update_user(
     Ok(Json(UserBody { id: updated_id }).into_response())
 }
 
+#[utoipa::path(post, path = "", tag = USER_TAG,
+    request_body = CreateRoleDTO,
+    responses(
+    (status = 201, description = "Rol creado de forma correcta"),
+)
+)]
 pub async fn create_role(
     Extension(ctx): Extension<ApiContext>,
     Json(role): Json<CreateRoleDTO>,
@@ -79,4 +86,21 @@ pub async fn create_role(
     UserService::create_role(ctx, role).await?;
 
     Ok(Json("Role created").into_response())
+}
+
+#[utoipa::path(get, path = "", tag = USER_TAG,
+    params(
+        CommonQueryFilterDTO
+    ),
+    responses(
+    (status = 200, description = "Lista de permisos", body = [Permission]),
+)
+)]
+pub async fn get_permissions(
+    Extension(ctx): Extension<ApiContext>,
+    Query(query): Query<CommonQueryFilterDTO>,
+) -> Result<Response> {
+    let permissions = UserService::find_permissions(ctx, query).await?;
+
+    Ok(Json(permissions).into_response())
 }

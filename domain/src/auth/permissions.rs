@@ -1,8 +1,19 @@
 use sea_orm::{DeriveActiveEnum, EnumIter};
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 #[derive(
-    Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, EnumIter, DeriveActiveEnum,
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    Serialize,
+    Deserialize,
+    EnumIter,
+    DeriveActiveEnum,
+    ToSchema,
 )]
 #[sea_orm(rs_type = "String", db_type = "Text")]
 pub enum Permission {
@@ -15,6 +26,9 @@ pub enum Permission {
     ModuleUsers,
     #[sea_orm(string_value = "module:park")]
     ModulePark,
+
+    #[sea_orm(string_value = "bases:read")]
+    ReadAllBases,
 
     // User permissions
     #[sea_orm(string_value = "users:read")]

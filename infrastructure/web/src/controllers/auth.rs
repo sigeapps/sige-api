@@ -53,8 +53,6 @@ pub async fn login(
 
     let permissions = UserService::find_permissions_by_role_id(ctx, user.role.id).await?;
 
-    println!("{:?}", permissions);
-
     let token = UserClaims { user, permissions }.to_jwt()?;
 
     Ok((Json(UserBody { token })).into_response())

@@ -38,10 +38,9 @@ pub struct TransportView {
 }
 
 #[derive(Serialize, Deserialize, ToSchema, DerivePartialModel)]
-#[sea_orm(entity = "domain::entities::weapon::Entity", from_query_result)]
+#[sea_orm(entity = "domain::entities::transport::Entity", from_query_result)]
 pub struct TransportSummary {
     pub id: i32,
-    pub serial: String,
-    pub calibre: String,
-    pub has_charger: bool,
+    pub plate: String,
+    pub unit: String,
 }

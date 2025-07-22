@@ -130,6 +130,24 @@ impl UserService {
         Ok(permissions)
     }
 
+    pub async fn find_permissions(
+        ctx: ApiContext,
+        opts: CommonQueryFilterDTO,
+    ) -> Result<Vec<Permission>, DbErr> {
+        let mut query = role_permission::Entity::find()
+            .left_join(permission::Entity)
+            .select_only()
+            .column(permission::Column::Id);
+
+        if let Some(search) = opts.search {
+            query = query.filter(permission::Column::Name.contains(search));
+        }
+
+        let permissions = query.into_tuple::<Permission>().all(&ctx.db).await?;
+
+        Ok(permissions)
+    }
+
     pub async fn create(ctx: ApiContext, mut user: CreateUserDTO) -> Result<i32, DbErr> {
         user.password_hash = generate_hash(user.password_hash);
 

@@ -4,7 +4,9 @@ use sea_orm::{DeriveIntoActiveModel, DerivePartialModel, FromQueryResult};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-use crate::dtos::{parking::weapon::WeaponSummary, personal::persona::SimplePersonaResponseDTO};
+use crate::dtos::{
+    personal::persona::SimplePersonaResponseDTO, transport::transport::TransportSummary,
+};
 
 #[derive(Deserialize, Serialize, ToSchema, DeriveIntoActiveModel)]
 pub struct StartTransportIssuance {
@@ -28,7 +30,10 @@ pub struct TransportIssuanceSummary {
 }
 
 #[derive(Deserialize, Serialize, ToSchema, DerivePartialModel)]
-#[sea_orm(entity = "domain::entities::issuance::Entity", from_query_result)]
+#[sea_orm(
+    entity = "domain::entities::transport_issuance::Entity",
+    from_query_result
+)]
 pub struct TransportIssuanceView {
     pub id: i32,
     #[schema(value_type = String, format = Date)]
@@ -38,7 +43,7 @@ pub struct TransportIssuanceView {
     #[sea_orm(skip)]
     pub returned_at: Option<NaiveDateTime>,
     #[sea_orm(nested)]
-    pub assigned_weapon: WeaponSummary,
+    pub assigned_transport: TransportSummary,
     #[sea_orm(nested)]
     pub assigned_persona: SimplePersonaResponseDTO,
     pub r#type: String,
@@ -46,7 +51,7 @@ pub struct TransportIssuanceView {
 
 pub mod returns {
     use chrono::NaiveDateTime;
-    use domain::entities::issuance_return::ActiveModel;
+    use domain::entities::transport_issuance_return::ActiveModel;
     use sea_orm::DeriveIntoActiveModel;
     use serde::{Deserialize, Serialize};
     use utoipa::ToSchema;

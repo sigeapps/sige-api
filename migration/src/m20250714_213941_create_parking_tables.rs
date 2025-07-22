@@ -19,7 +19,7 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        let weapon_types = ["Pistola", "Fusil", "Sub-fusil", "Escopeta", "Chaleco",  ];
+        let weapon_types = ["Pistola", "Fusil", "Sub-fusil", "Escopeta", "Chaleco"];
 
         for weapon_type in weapon_types {
             let insert = Query::insert()
@@ -52,7 +52,7 @@ impl MigrationTrait for Migration {
             "Colt",
             "H&K",
             "AK",
-            "FAL"
+            "FAL",
         ];
 
         for weapon_brand in weapon_brands {
@@ -107,7 +107,7 @@ impl MigrationTrait for Migration {
             // FAL
             "FN FAL",
             // Modelo original que ya estaba
-            "Winchester M1897"
+            "Winchester M1897",
         ];
 
         for weapon_model in weapon_models {
@@ -297,6 +297,29 @@ enum Weapon {
     TypeId,
     ModelId,
     BaseId,
+}
+
+#[derive(DeriveIden)]
+enum Issuance {
+    Table,
+    Id,
+    AssignedPersonaId,
+    AssignedWeaponId,
+    HasCharger,
+    AmmoCount,
+    DateTime,
+    Type,
+    AssignanceDays,
+    AuthById,
+    BaseId,
+}
+
+#[derive(DeriveIden)]
+enum IssuanceWeapon {
+    Table,
+    Id,
+    WeaponId,
+    IssuanceId,
 }
 
 #[derive(DeriveIden)]
