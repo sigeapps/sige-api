@@ -8,18 +8,18 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout código
       uses: actions/checkout@v4
-      
+
     - name: Instalar Rust
       uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
         target: x86_64-unknown-linux-gnu
         override: true
-        
+
     - name: Compilar para Linux
       run: cargo build --release --target x86_64-unknown-linux-gnu
 
@@ -38,11 +38,16 @@ jobs:
         EOF
 
     # ==== DESPLIEGUE LINUX SOLO ====
-    - name: Verificar binario compilado antes de subir (Linux)
-      run: ls -lh target/x86_64-unknown-linux-gnu/release/sige-api
+    - name: Verificar existencia del binario
+      run: |
+        if [ ! -f target/x86_64-unknown-linux-gnu/release/sige-api ]; then
+          echo "¡Binario no encontrado!"
+          exit 1
+        fi
+        ls -lh target/x86_64-unknown-linux-gnu/release/sige-api
 
     - name: Subir binario Linux a HOME remoto
-      uses: appleboy/scp-action@v0.1.4
+      uses: appleboy/scp-action@v0.1.7
       with:
         host: cpnbdaet.org.ve
         username: sigepol
@@ -50,6 +55,7 @@ jobs:
         port: 22
         source: "target/x86_64-unknown-linux-gnu/release/sige-api"
         target: "/home/sigepol/sige-api-linux"
+        debug: true
 
     - name: Asignar permisos de ejecución al binario remoto Linux
       uses: appleboy/ssh-action@v1.0.0
@@ -61,7 +67,7 @@ jobs:
         script: chmod +x /home/sigepol/sige-api-linux
 
     - name: Subir configuración Linux
-      uses: appleboy/scp-action@v0.1.4
+      uses: appleboy/scp-action@v0.1.7
       with:
         host: cpnbdaet.org.ve
         username: sigepol
@@ -69,20 +75,10 @@ jobs:
         port: 22
         source: "settings-linux.json"
         target: "/home/sigepol/settings-linux.json"
+        debug: true
 
     - name: Actualizar servicio Linux (mover binario y config, reiniciar servicio)
       uses: appleboy/ssh-action@v1.0.0
       with:
-        host: cpnbdaet.org.ve
-        username: sigepol
-        password: S1geD@et2O25
-        port: 22
-        script: |
-          echo "S1geD@et2O25" | sudo -S systemctl stop sige-api.service
-          echo "S1geD@et2O25" | sudo -S cp /usr/local/bin/sige-api /usr/local/bin/sige-api.backup.$(date +%Y%m%d_%H%M%S) 2>/dev/null || true
-          echo "S1geD@et2O25" | sudo -S mv /home/sigepol/sige-api-linux /usr/local/bin/sige-api
-          echo "S1geD@et2O25" | sudo -S chmod +x /usr/local/bin/sige-api
-          echo "S1geD@et2O25" | sudo -S cp /home/sigepol/settings-linux.json /home/sigepol/settings.json
-          echo "S1geD@et2O25" | sudo -S systemctl start sige-api.service
-          sleep 3
-          systemctl status sige-api.service --no-pager
+        host: cp](#)
+
