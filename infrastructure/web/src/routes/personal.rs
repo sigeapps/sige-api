@@ -1,13 +1,11 @@
-use axum::{
-    routing::{get, patch, post},
-    Router,
-};
+use axum::routing::{get, patch, post};
 use domain::auth::permissions::Permission;
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::{
     authorize,
     controllers::personal::{
-        country::add_verification,
+        country::*,
         persona::{
             add_courses, add_education, add_operational, add_records, add_work_experience,
             create_persona, get_persona, get_personas, update_health, update_persona,
@@ -17,10 +15,11 @@ use crate::{
         process::{create_correspondence, get_correspondence, get_correspondences},
     },
     middleware::{authenticate, authorize},
+    routes::OpenApiRouterExt,
 };
 
-pub fn personal_routes() -> Router {
-    Router::new()
+pub fn personal_routes() -> OpenApiRouter {
+    OpenApiRouter::new()
         .route("/personal/persona", post(create_persona))
         .route("/personal/persona", get(get_personas))
         .route("/personal/persona/{id}", get(get_persona))
@@ -64,6 +63,7 @@ pub fn personal_routes() -> Router {
         .route("/personal/plate", post(create_plate).get(get_plates))
         .route("/personal/plate/{id}", get(get_plate_by_id))
         .route("/personal/country/verification", post(add_verification))
+        .nest_routes("/personal/country/csv", routes!(get_country_csv))
         .route(
             "/personal/correspondence",
             post(create_correspondence).get(get_correspondences),

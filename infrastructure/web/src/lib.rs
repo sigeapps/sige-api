@@ -109,12 +109,14 @@ pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
         .layer(cors)
         .split_for_parts();
 
-    let app = router
-        /* Por alguna razon SwaggerUI si crea correctamente un openapi.json, que puede ser usado
-                correcctamente por los clientes
-        */
-        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()))
-        .merge(Scalar::with_url("/scalar", api));
+    let mut app = router;
+
+    #[cfg(debug_assertions)]
+    {
+        app = app
+            .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()))
+            .merge(Scalar::with_url("/scalar", api));
+    }
 
     let listener = tokio::net::TcpListener::bind(address).await?;
 

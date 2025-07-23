@@ -1,6 +1,9 @@
-use crate::{api::ApiContext, dtos::personal::country::AddVerificationDTO};
-use domain::entities::country_verification;
-use sea_orm::*;
+use crate::{
+    api::ApiContext,
+    dtos::personal::country::{AddVerificationDTO, GetPersonaCSV},
+};
+use domain::entities::{country_verification, persona};
+use sea_orm::{prelude::*, *};
 
 #[derive(Debug, Clone)]
 pub struct CountryService {}
@@ -12,5 +15,22 @@ impl CountryService {
         let res = active_model.insert(&ctx.db).await?;
 
         Ok(res.id)
+    }
+
+    pub async fn get_country_csv(ctx: ApiContext) -> Result<Vec<GetPersonaCSV>, DbErr> {
+        // Usaremos una query cruda ya que sea_orm no soporta el select con cases
+
+        let personas = persona::Entity::find()
+            .from_raw_sql(Statement::from_string(
+                DatabaseBackend::Postgres,
+                "
+SELECT ci, CASE WHEN genre = 'male' THEN 'm' WHEN genre = 'female' THEN 'f' ELSE '?' END AS genre FROM persona
+",
+            ))
+            .into_model::<GetPersonaCSV>()
+            .all(&ctx.db)
+            .await?;
+
+        Ok(personas)
     }
 }

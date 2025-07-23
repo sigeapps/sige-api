@@ -19,3 +19,10 @@ pub struct GetVerificationDTO {
     pub condition_id: i32,
     pub reported: bool,
 }
+
+#[derive(Serialize, Deserialize, DerivePartialModel, Clone, Debug, ToSchema)]
+#[sea_orm(entity = "domain::entities::persona::Entity", from_query_result)]
+pub struct GetPersonaCSV {
+    pub ci: String,
+    pub genre: String,
+}

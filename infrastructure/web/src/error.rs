@@ -1,3 +1,5 @@
+use std::io;
+
 use axum::{extract::rejection, http::StatusCode, response::IntoResponse};
 use sea_orm::DbErr;
 use tracing::error;
@@ -14,8 +16,12 @@ pub enum WebError {
     Database(#[from] DbErr),
     #[error("unprocessable entity")]
     Validation(#[from] rejection::JsonDataError),
+    #[error("csv writing failed")]
+    Csv(#[from] csv::Error),
     #[error("token management failed")]
     Jwt(#[from] jwt::Error),
+    #[error("io failed")]
+    Io(#[from] io::Error),
 }
 
 impl WebError {
@@ -27,6 +33,8 @@ impl WebError {
             Self::Database(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::Validation(_) => StatusCode::UNPROCESSABLE_ENTITY,
             Self::Jwt(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::Csv(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::Io(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }
@@ -49,6 +57,16 @@ impl IntoResponse for WebError {
             }
             Self::Jwt(e) => {
                 error!("jwt error: {}", e);
+
+                self.status_code().into_response()
+            }
+            Self::Csv(e) => {
+                error!("csv error: {}", e);
+
+                self.status_code().into_response()
+            }
+            Self::Io(e) => {
+                error!("io error: {}", e);
 
                 self.status_code().into_response()
             }
