@@ -10,7 +10,7 @@ use application::api::ApiContext;
 use application::connection::connect;
 use axum::http::{HeaderName, HeaderValue, Method};
 use axum::routing::get;
-use axum::{Extension, Json};
+use axum::Extension;
 use error::WebError;
 use routes::parking::parking_routes;
 use tower_http::cors::CorsLayer;
@@ -18,21 +18,15 @@ use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi};
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_scalar::{Scalar, Servable};
+use utoipa_swagger_ui::SwaggerUi;
 
 use crate::routes::transport::transport_routes;
-use crate::tags::REGISTER_TAG;
 
 pub type Result<T, E = WebError> = std::result::Result<T, E>;
 
 #[derive(OpenApi)]
 #[openapi(
     modifiers(&SecurityAddon),
-tags(
-        (name = REGISTER_TAG, description = "API de registros de prevencion")
-    ),
-        paths(
-        openapi
-    )
 )]
 struct ApiDoc;
 
@@ -104,10 +98,9 @@ pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
 
     let (router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .route("/", get(root))
-        .route("/api-docs/openapi.json", get(openapi))
         .nest("/parking", parking_routes())
         .nest("/transport", transport_routes())
-        .merge(routes::user::user_routes().into())
+        .merge(routes::user::user_routes())
         .merge(routes::auth::auth_routes())
         .merge(routes::prevention::prevention_routes())
         .merge(routes::personal::personal_routes().into())
@@ -116,7 +109,12 @@ pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
         .layer(cors)
         .split_for_parts();
 
-    let app = router.merge(Scalar::with_url("/scalar", api));
+    let app = router
+        /* Por alguna razon SwaggerUI si crea correctamente un openapi.json, que puede ser usado
+                correcctamente por los clientes
+        */
+        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()))
+        .merge(Scalar::with_url("/scalar", api));
 
     let listener = tokio::net::TcpListener::bind(address).await?;
 
@@ -127,15 +125,4 @@ pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
 
 async fn root() -> &'static str {
     "Bienvenido a la API de SIGE! Esperando Conexion..."
-}
-
-#[utoipa::path(
-    get,
-    path = "/api-docs/openapi.json",
-    responses(
-        (status = 200, description = "JSON file", body = ())
-    )
-)]
-async fn openapi() -> Json<utoipa::openapi::OpenApi> {
-    Json(ApiDoc::openapi())
 }

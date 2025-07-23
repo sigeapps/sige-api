@@ -4,11 +4,14 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+chrono = "0.4.41"
+tower-sessions = { version = "0.14.0", default-features = false, features = [
+  "signed",
+] }
 anyhow = "1.0.98"
 axum = { version = "0.8.3", features = ["macros", "tower-log"] }
 application = { path = "../../application" }
 domain = { path = "../../domain" }
-axum-login = "0.17.0"
 sea-orm = "1.1.10"
 thiserror = "2.0.12"
 tokio = { version = "1.44.2", features = ["rt-multi-thread"] }
@@ -18,10 +21,6 @@ password-auth = "1.0.0"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 tower-http = { version = "0.6.2", features = ["cors"] }
-chrono = "0.4.41"
-tower-sessions = { version = "0.14.0", default-features = false, features = [
-  "signed",
-] }
 tower-sessions-sqlx-store = { version = "0.15.0", features = ["postgres"] }
 jwt = "0.16.0"
 hmac = "0.12.1"
@@ -30,3 +29,4 @@ serde_json = "1.0.140"
 utoipa-axum = "0.2.0"
 utoipa = { workspace = true }
 utoipa-scalar = { version = "0.3.0", features = ["axum"] }
+utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }

@@ -41,14 +41,10 @@ impl IssuanceService {
             .id;
 
         issuance_weapon::Entity::insert_many(dto.assigned_weapons_ids.into_iter().map(
-            |weapon_id| {
-                let model = issuance_weapon::ActiveModel {
-                    issuance_id: Set(id),
-                    weapon_id: Set(weapon_id),
-                    ..Default::default()
-                };
-
-                model
+            |weapon_id| issuance_weapon::ActiveModel {
+                issuance_id: Set(id),
+                weapon_id: Set(weapon_id),
+                ..Default::default()
             },
         ))
         .exec(&transaction)

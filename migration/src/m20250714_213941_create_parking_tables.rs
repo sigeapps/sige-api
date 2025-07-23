@@ -290,7 +290,7 @@ impl MigrationTrait for Migration {
                         ForeignKey::create()
                             .name("fk-issuance_weapon_issuance_id")
                             .from(IssuanceWeapon::Table, IssuanceWeapon::IssuanceId)
-                            .to(Persona::Table, Persona::Id),
+                            .to(Issuance::Table, Issuance::Id),
                     )
                     .to_owned(),
             )
