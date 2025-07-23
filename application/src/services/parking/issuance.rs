@@ -1,16 +1,16 @@
 use crate::{
     api::ApiContext,
-    auth::HasBaseId,
-    auth::{FilterByClaims, UserClaims, UserStamp},
+    auth::{FilterByClaims, HasBaseId, UserClaims, UserStamp},
     dtos::{
-        parking::issuance::{
-            returns::FinalizeIssuance, IssuanceSummary, IssuanceView, StartIssuance,
+        parking::{
+            issuance::{returns::FinalizeIssuance, IssuanceSummary, IssuanceView, StartIssuance},
+            weapon::WeaponSummary,
         },
         CommonQueryFilterDTO,
     },
     impl_filter_by_claims,
 };
-use domain::entities::{issuance, issuance_return, issuance_weapon, persona, weapon};
+use domain::entities::{calibre, issuance, issuance_return, issuance_weapon, persona, weapon};
 use sea_orm::*;
 
 #[derive(Debug, Clone)]
@@ -119,13 +119,26 @@ impl IssuanceService {
         let issuance = query
             .left_join(issuance_return::Entity)
             .left_join(persona::Entity)
-            .join(JoinType::LeftJoin, weapon::Relation::WeaponModel.def())
-            .join(JoinType::LeftJoin, weapon::Relation::WeaponType.def())
             .filter_by_claims(ctx.claims)
             .into_partial_model::<IssuanceView>()
             .one(&ctx.db)
             .await?;
 
-        Ok(issuance)
+        // If no issuance is found, return None
+        let Some(mut issuance) = issuance else {
+            return Ok(None);
+        };
+
+        let weapons = weapon::Entity::find()
+            .filter(issuance_weapon::Column::IssuanceId.eq(id))
+            .left_join(issuance_weapon::Entity)
+            .left_join(calibre::Entity)
+            .into_partial_model::<WeaponSummary>()
+            .all(&ctx.db)
+            .await?;
+
+        issuance.weapons = weapons;
+
+        Ok(Some(issuance))
     }
 }

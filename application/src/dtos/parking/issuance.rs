@@ -1,6 +1,6 @@
 use chrono::NaiveDateTime;
-use domain::entities::assignance_time;
 use domain::entities::issuance::ActiveModel;
+use domain::entities::issuance_return;
 use sea_orm::{DeriveIntoActiveModel, DerivePartialModel, FromQueryResult};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -30,7 +30,8 @@ pub struct IssuanceSummary {
     pub id: i32,
     #[schema(value_type = String, format = Date)]
     pub date_time: NaiveDateTime,
-    pub assignance_days: i32,
+    #[schema(value_type = String, format = Date)]
+    pub returned_date_time: NaiveDateTime,
     #[schema(value_type = String, format = Date)]
     pub returned_at: Option<NaiveDateTime>,
 }
@@ -41,13 +42,13 @@ pub struct IssuanceView {
     pub id: i32,
     #[schema(value_type = String, format = Date)]
     pub date_time: NaiveDateTime,
-    #[sea_orm(from_expr = "assignance_time::Column::Name")]
-    pub assignance_time: String,
     #[schema(value_type = String, format = Date)]
-    #[sea_orm(skip)]
+    pub returned_date_time: NaiveDateTime,
+    #[schema(value_type = String, format = Date)]
+    #[sea_orm(from_expr = "issuance_return::Column::ReturnedAt")]
     pub returned_at: Option<NaiveDateTime>,
-    #[sea_orm(nested)]
-    pub assigned_weapon: WeaponSummary,
+    #[sea_orm(skip)]
+    pub weapons: Vec<WeaponSummary>,
     #[sea_orm(nested)]
     pub assigned_persona: SimplePersonaResponseDTO,
     pub r#type: String,

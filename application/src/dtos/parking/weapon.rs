@@ -44,7 +44,7 @@ pub struct WeaponView {
 pub struct WeaponSummary {
     pub id: i32,
     pub serial: String,
-    #[sea_orm(from_expr = "calibre::Column::Id")]
+    #[sea_orm(from_expr = "calibre::Column::Name")]
     pub calibre: String,
     pub has_charger: bool,
 }

@@ -1,5 +1,6 @@
 use chrono::NaiveDateTime;
 use domain::entities::transport_issuance::ActiveModel;
+use domain::entities::transport_issuance_return;
 use sea_orm::{DeriveIntoActiveModel, DerivePartialModel, FromQueryResult};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -40,7 +41,7 @@ pub struct TransportIssuanceView {
     pub date_time: NaiveDateTime,
     pub assignance_days: i32,
     #[schema(value_type = String, format = Date)]
-    #[sea_orm(skip)]
+    #[sea_orm(from_expr = "transport_issuance_return::Column::ReturnedAt")]
     pub returned_at: Option<NaiveDateTime>,
     #[sea_orm(nested)]
     pub assigned_transport: TransportSummary,

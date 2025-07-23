@@ -28,6 +28,8 @@ pub enum Relation {
     Base,
     #[sea_orm(has_one = "super::issuance_return::Entity")]
     IssuanceReturn,
+    #[sea_orm(has_many = "super::issuance_weapon::Entity")]
+    IssuanceWeapon,
     #[sea_orm(
         belongs_to = "super::persona::Entity",
         from = "Column::AssignedPersonaId",
@@ -55,6 +57,12 @@ impl Related<super::base::Entity> for Entity {
 impl Related<super::issuance_return::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::IssuanceReturn.def()
+    }
+}
+
+impl Related<super::issuance_weapon::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::IssuanceWeapon.def()
     }
 }
 

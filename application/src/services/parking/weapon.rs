@@ -1,5 +1,5 @@
 use crate::auth::{FilterByClaims, UserClaims, UserStamp};
-use domain::entities::{weapon, weapon_model, weapon_type};
+use domain::entities::{calibre, position, weapon, weapon_model, weapon_type};
 use sea_orm::*;
 
 use crate::{
@@ -57,8 +57,12 @@ impl WeaponService {
         let mut query = weapon::Entity::find()
             .column_as(weapon_type::Column::Name, "type")
             .column_as(weapon_model::Column::Name, "model")
+            .column_as(calibre::Column::Name, "calibre")
+            .column_as(position::Column::Name, "position")
             .filter_by_claims(ctx.claims)
             .left_join(weapon_type::Entity)
+            .left_join(calibre::Entity)
+            .left_join(position::Entity)
             .left_join(weapon_model::Entity);
 
         if let Some(search) = opts.search {
