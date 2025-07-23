@@ -67,8 +67,7 @@ impl WeaponService {
                     .add(weapon::Column::Serial.contains(&search))
                     .add(weapon::Column::EntryAt.contains(&search))
                     .add(weapon::Column::ManteinanceAt.contains(&search))
-                    .add(weapon::Column::Observations.contains(&search))
-                    .add(weapon::Column::Calibre.contains(&search)),
+                    .add(weapon::Column::Observations.contains(&search)),
             );
         }
 

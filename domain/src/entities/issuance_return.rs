@@ -11,8 +11,6 @@ pub struct Model {
     #[sea_orm(unique)]
     pub issuance_id: i32,
     pub returned_at: DateTime,
-    pub has_charger: bool,
-    pub returned_ammo: i32,
     #[sea_orm(column_type = "Text", nullable)]
     pub observations: Option<String>,
 }

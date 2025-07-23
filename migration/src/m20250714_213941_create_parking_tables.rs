@@ -52,6 +52,39 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
+        let weapon_calibres = [
+            "9mm",
+            "7.62mm",
+            ".22LR",
+            ".45 ACP",
+            ".38 Special",
+            ".357 Magnum",
+            "5.56mm",
+            "12 Gauge",
+        ];
+
+        for calibre in weapon_calibres {
+            let insert = Query::insert()
+                .into_table(Calibre::Table)
+                .columns([Calibre::Name])
+                .values_panic([calibre.into()])
+                .to_owned();
+
+            manager.exec_stmt(insert).await?;
+        }
+
+        let positions = ["Principal", "Reserva", "Almacen"];
+
+        for position in positions {
+            let insert = Query::insert()
+                .into_table(Position::Table)
+                .columns([Position::Name])
+                .values_panic([position.into()])
+                .to_owned();
+
+            manager.exec_stmt(insert).await?;
+        }
+
         let weapon_types = ["Pistola", "Fusil", "Sub-fusil", "Escopeta", "Chaleco"];
 
         for weapon_type in weapon_types {
@@ -214,7 +247,7 @@ impl MigrationTrait for Migration {
                     .col(integer(Issuance::AssignedPersonaId))
                     .col(date_time(Issuance::DateTime).default(Expr::current_timestamp()))
                     .col(string(Issuance::Type))
-                    .col(integer(Issuance::AssignanceTimeId))
+                    .col(date_time(Issuance::ReturnedDateTime))
                     .col(integer(Issuance::AuthById))
                     .col(integer(Issuance::BaseId))
                     .foreign_key(
@@ -222,12 +255,6 @@ impl MigrationTrait for Migration {
                             .name("fk-issuance-base_id")
                             .from(Issuance::Table, Issuance::BaseId)
                             .to(Base::Table, Base::Id),
-                    )
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("fk-assignance-time_id")
-                            .from(Issuance::Table, Issuance::AssignanceTimeId)
-                            .to(AssignanceTime::Table, AssignanceTime::Id),
                     )
                     .foreign_key(
                         ForeignKey::create()
@@ -277,8 +304,6 @@ impl MigrationTrait for Migration {
                     .col(pk_auto(IssuanceReturn::Id))
                     .col(integer(IssuanceReturn::IssuanceId).unique_key())
                     .col(date_time(IssuanceReturn::ReturnedAt).default(Expr::current_timestamp()))
-                    .col(boolean(IssuanceReturn::HasCharger).default(false))
-                    .col(integer(IssuanceReturn::ReturnedAmmo))
                     .col(ColumnDef::new(IssuanceReturn::Observations).text().null())
                     .foreign_key(
                         ForeignKey::create()
@@ -467,7 +492,7 @@ enum Issuance {
     AssignedPersonaId,
     DateTime,
     Type,
-    AssignanceTimeId,
+    ReturnedDateTime,
     AuthById,
     BaseId,
 }
@@ -486,7 +511,5 @@ enum IssuanceReturn {
     Id,
     IssuanceId,
     ReturnedAt,
-    HasCharger,
-    ReturnedAmmo,
     Observations,
 }

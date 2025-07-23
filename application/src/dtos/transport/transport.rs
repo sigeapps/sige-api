@@ -13,7 +13,6 @@ pub struct TransportCreate {
     #[schema(value_type = String, format = Date)]
     pub entry_at: NaiveDateTime,
     pub document_id: Option<String>,
-    pub calibre: String,
     #[schema(value_type = String, format = Date)]
     pub manteinance_at: NaiveDateTime,
     pub has_charger: bool,

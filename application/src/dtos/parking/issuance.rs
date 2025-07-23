@@ -1,4 +1,5 @@
 use chrono::NaiveDateTime;
+use domain::entities::assignance_time;
 use domain::entities::issuance::ActiveModel;
 use sea_orm::{DeriveIntoActiveModel, DerivePartialModel, FromQueryResult};
 use serde::{Deserialize, Serialize};
@@ -7,16 +8,21 @@ use utoipa::ToSchema;
 use crate::dtos::{parking::weapon::WeaponSummary, personal::persona::SimplePersonaResponseDTO};
 
 #[derive(Deserialize, Serialize, ToSchema, DeriveIntoActiveModel)]
-pub struct StartIssuance {
+pub struct StartIssuanceBase {
     pub assigned_persona_id: i32,
-    pub assigned_weapon_id: i32,
-    pub has_charger: bool,
-    pub ammo_count: i32,
-    #[schema(value_type = String, format = Date)]
+    #[schema(value_type = String, format = Date, example = "2023-10-27T10:00:00Z")]
     pub date_time: NaiveDateTime,
+    #[schema(value_type = String, format = Date, example = "2023-10-27T10:00:00Z")]
+    pub returned_date_time: NaiveDateTime,
     pub r#type: String,
-    pub assignance_days: i32,
     pub auth_by_id: i32,
+}
+
+#[derive(Deserialize, Serialize, ToSchema)]
+pub struct StartIssuance {
+    #[serde(flatten)]
+    pub base: StartIssuanceBase,
+    pub assigned_weapons_ids: Vec<i32>,
 }
 
 #[derive(Deserialize, Serialize, ToSchema, FromQueryResult)]
@@ -35,7 +41,8 @@ pub struct IssuanceView {
     pub id: i32,
     #[schema(value_type = String, format = Date)]
     pub date_time: NaiveDateTime,
-    pub assignance_days: i32,
+    #[sea_orm(from_expr = "assignance_time::Column::Name")]
+    pub assignance_time: String,
     #[schema(value_type = String, format = Date)]
     #[sea_orm(skip)]
     pub returned_at: Option<NaiveDateTime>,
@@ -58,8 +65,6 @@ pub mod returns {
         pub issuance_id: i32,
         #[schema(value_type = String, format = Date)]
         pub returned_at: NaiveDateTime,
-        pub has_charger: bool,
-        pub returned_ammo: i32,
         pub observations: Option<String>,
     }
 }

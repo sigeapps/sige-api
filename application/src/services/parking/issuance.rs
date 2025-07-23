@@ -10,7 +10,7 @@ use crate::{
     },
     impl_filter_by_claims,
 };
-use domain::entities::{issuance, issuance_return, persona, weapon};
+use domain::entities::{issuance, issuance_return, issuance_weapon, persona, weapon};
 use sea_orm::*;
 
 #[derive(Debug, Clone)]
@@ -30,12 +30,31 @@ impl_filter_by_claims!(issuance, BaseId);
 
 impl IssuanceService {
     pub async fn start(ctx: ApiContext, dto: StartIssuance) -> Result<i32, DbErr> {
+        let transaction = ctx.db.begin().await?;
+
         let id = dto
+            .base
             .into_active_model()
             .stamp_user(ctx.claims)
-            .insert(&ctx.db)
+            .insert(&transaction)
             .await?
             .id;
+
+        issuance_weapon::Entity::insert_many(dto.assigned_weapons_ids.into_iter().map(
+            |weapon_id| {
+                let model = issuance_weapon::ActiveModel {
+                    issuance_id: Set(id),
+                    weapon_id: Set(weapon_id),
+                    ..Default::default()
+                };
+
+                model
+            },
+        ))
+        .exec(&transaction)
+        .await?;
+
+        transaction.commit().await?;
 
         Ok(id)
     }
@@ -51,10 +70,8 @@ impl IssuanceService {
         opts: CommonQueryFilterDTO,
     ) -> Result<Vec<IssuanceSummary>, DbErr> {
         let mut query = issuance::Entity::find()
-            .select_only()
             .column_as(issuance::Column::Id, "id")
             .column_as(issuance::Column::DateTime, "date_time")
-            .column_as(issuance::Column::AssignanceDays, "assignance_days")
             .column_as(issuance_return::Column::ReturnedAt, "returned_at");
 
         if let Some(search) = &opts.search {
@@ -100,14 +117,12 @@ impl IssuanceService {
         let query = issuance::Entity::find_by_id(id)
             .column_as(issuance::Column::Id, "id")
             .column_as(issuance::Column::DateTime, "date_time")
-            .column_as(issuance::Column::AssignanceDays, "assignance_days")
             .column_as(issuance::Column::Type, "type")
             .column_as(issuance_return::Column::ReturnedAt, "returned_at");
 
         let issuance = query
             .left_join(issuance_return::Entity)
             .left_join(persona::Entity)
-            .left_join(weapon::Entity)
             .join(JoinType::LeftJoin, weapon::Relation::WeaponModel.def())
             .join(JoinType::LeftJoin, weapon::Relation::WeaponType.def())
             .filter_by_claims(ctx.claims)
