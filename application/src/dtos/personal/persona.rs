@@ -1,3 +1,4 @@
+use domain::entities::hierarchy;
 use domain::entities::persona::ActiveModel;
 use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
 use serde::{Deserialize, Serialize};
@@ -96,6 +97,17 @@ pub struct SimplePersonaResponseDTO {
     pub ci: String,
     pub name: String,
     pub last_name: String,
+}
+
+#[derive(Serialize, Deserialize, DerivePartialModel, Debug, Clone, ToSchema)]
+#[sea_orm(entity = "domain::entities::persona::Entity", from_query_result)]
+pub struct PersonaSummary {
+    pub id: i32,
+    pub ci: String,
+    pub name: String,
+    pub last_name: String,
+    #[sea_orm(from_expr = "hierarchy::Column::Name")]
+    pub hierarchy: String,
 }
 
 #[derive(Serialize, Deserialize, DerivePartialModel, Clone, Debug, ToSchema)]

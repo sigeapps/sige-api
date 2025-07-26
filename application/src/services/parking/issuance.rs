@@ -65,10 +65,7 @@ impl IssuanceService {
         ctx: ApiContext,
         opts: CommonQueryFilterDTO,
     ) -> Result<Vec<IssuanceSummary>, DbErr> {
-        let mut query = issuance::Entity::find()
-            .column_as(issuance::Column::Id, "id")
-            .column_as(issuance::Column::DateTime, "date_time")
-            .column_as(issuance_return::Column::ReturnedAt, "returned_at");
+        let mut query = issuance::Entity::find();
 
         if let Some(search) = &opts.search {
             query = query.filter(Condition::any().add(issuance::Column::Id.contains(search)))
@@ -97,14 +94,30 @@ impl IssuanceService {
 
         let pagination = &opts.into_pagination();
 
-        let issuances = query
+        let mut issuances = query
             .left_join(issuance_return::Entity)
+            .left_join(persona::Entity)
             .filter_by_claims(ctx.claims)
             .limit(pagination.limit)
             .offset(pagination.offset)
             .into_model::<IssuanceSummary>()
             .all(&ctx.db)
             .await?;
+        println!("en 4 la veo");
+
+        for issuance in &mut issuances {
+            let weapon = weapon::Entity::find()
+                .filter(issuance_weapon::Column::IssuanceId.eq(issuance.id))
+                .left_join(issuance_weapon::Entity)
+                .left_join(calibre::Entity)
+                .into_partial_model::<WeaponSummary>()
+                .one(&ctx.db)
+                .await?;
+
+            if let Some(weapon) = weapon {
+                issuance.random_weapon = weapon;
+            }
+        }
 
         Ok(issuances)
     }

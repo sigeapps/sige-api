@@ -1,6 +1,7 @@
 use chrono::NaiveDateTime;
 use domain::entities::calibre;
 use domain::entities::weapon::ActiveModel;
+use domain::entities::weapon_model;
 use sea_orm::{DeriveIntoActiveModel, DerivePartialModel, FromQueryResult};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -39,12 +40,14 @@ pub struct WeaponView {
     pub observations: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, ToSchema, DerivePartialModel)]
+#[derive(Serialize, Deserialize, ToSchema, DerivePartialModel, Default)]
 #[sea_orm(entity = "domain::entities::weapon::Entity", from_query_result)]
 pub struct WeaponSummary {
     pub id: i32,
     pub serial: String,
     #[sea_orm(from_expr = "calibre::Column::Name")]
     pub calibre: String,
+    #[sea_orm(from_expr = "weapon_model::Column::Name")]
+    pub model: String,
     pub has_charger: bool,
 }

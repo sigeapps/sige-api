@@ -1,7 +1,7 @@
 use chrono::NaiveDateTime;
 use domain::entities::issuance::ActiveModel;
 use domain::entities::issuance_return;
-use sea_orm::{DeriveIntoActiveModel, DerivePartialModel, FromQueryResult};
+use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -25,7 +25,8 @@ pub struct StartIssuance {
     pub assigned_weapons_ids: Vec<i32>,
 }
 
-#[derive(Deserialize, Serialize, ToSchema, FromQueryResult)]
+#[derive(Deserialize, Serialize, ToSchema, DerivePartialModel)]
+#[sea_orm(entity = "domain::entities::issuance::Entity", from_query_result)]
 pub struct IssuanceSummary {
     pub id: i32,
     #[schema(value_type = String, format = Date)]
@@ -33,7 +34,12 @@ pub struct IssuanceSummary {
     #[schema(value_type = String, format = Date)]
     pub returned_date_time: NaiveDateTime,
     #[schema(value_type = String, format = Date)]
+    #[sea_orm(from_expr = "issuance_return::Column::ReturnedAt")]
     pub returned_at: Option<NaiveDateTime>,
+    #[sea_orm(nested)]
+    pub assigned_persona: SimplePersonaResponseDTO,
+    #[sea_orm(skip)]
+    pub random_weapon: WeaponSummary,
 }
 
 #[derive(Deserialize, Serialize, ToSchema, DerivePartialModel)]
