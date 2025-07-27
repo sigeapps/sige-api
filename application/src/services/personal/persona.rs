@@ -16,8 +16,8 @@ use crate::{
             relative::Relative,
             situation::{GetSituationDTO, UpdateSituationDTO},
             traits::Traits,
-            CreatePersonaDTO, GetPersonaDTO, GetPersonaSummaryDTO, UpdatePersonaDTO,
-            UpdatePersonaSummaryDTO,
+            CreatePersonaDTO, CreatePersonaSummaryDTO, GetPersonaDTO, GetPersonaSummaryDTO,
+            UpdatePersonaDTO, UpdatePersonaSummaryDTO,
         },
         CommonQueryFilterDTO, PaginationDTO,
     },
@@ -782,5 +782,60 @@ impl PersonaService {
         transaction.commit().await?;
 
         Ok(id)
+    }
+
+    pub async fn create_summary(
+        ctx: &ApiContext,
+        dto: CreatePersonaSummaryDTO,
+    ) -> Result<i32, DbErr> {
+        let transaction = ctx.db.begin().await?;
+
+        let persona = persona::ActiveModel {
+            ci: Set(dto.persona.ci),
+            genre: Set(dto.persona.genre),
+            // Asignar valores por defecto para los campos requeridos
+            front_photo: Set(None),
+            back_photo: Set(None),
+            passport_number: Set(None),
+            passport_expiration: Set(None),
+            passport_years_valid: Set(None),
+            name: Set(String::from("")),
+            last_name: Set(String::from("")),
+            birthdate: Set(String::from("")),
+            email: Set(String::from("")),
+            age: Set(0),
+            birthplace: Set(String::from("")),
+            address: Set(String::from("")),
+            phone: Set(String::from("")),
+            coordinates: Set(None),
+            status_civil: Set(String::from("")),
+            bank_account: Set(String::from("")),
+            homeland_ci: Set(String::from("")),
+            vehicle_license: Set(String::from("")),
+            state_id: Set(None),
+            others: Set(None),
+            created_at: Set(chrono::Utc::now().naive_utc()),
+            ..Default::default()
+        }
+        .insert(&transaction)
+        .await?;
+
+        persona_situation::ActiveModel {
+            persona_id: Set(persona.id),
+            requested_by_id: Set(1),
+            date: Set(chrono::Utc::now().naive_utc().date()),
+            situation_type: Set(String::from("")),
+            entry_type: Set(None),
+            division_id: Set(Some(dto.situation.division_id)),
+            state_id: Set(Some(dto.situation.state_id)),
+            base_id: Set(Some(dto.situation.base_id)),
+            ..Default::default()
+        }
+        .insert(&transaction)
+        .await?;
+
+        transaction.commit().await?;
+
+        Ok(persona.id)
     }
 }

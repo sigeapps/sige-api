@@ -6,11 +6,7 @@ use crate::{
     authorize,
     controllers::personal::{
         country::*,
-        persona::{
-            add_courses, add_education, add_operational, add_records, add_work_experience,
-            create_persona, get_persona, get_personas, update_health, update_persona,
-            update_persona_summary, update_situation, update_traits,
-        },
+        persona::*,
         plate::{create_plate, get_plate_by_id, get_plates},
         process::{create_correspondence, get_correspondence, get_correspondences},
     },
@@ -22,6 +18,7 @@ pub fn personal_routes() -> OpenApiRouter {
     OpenApiRouter::new()
         .route("/personal/persona", post(create_persona))
         .route("/personal/persona", get(get_personas))
+        .nest_routes("/personal/persona/summary", routes!(create_persona_summary))
         .route("/personal/persona/{id}", get(get_persona))
         .route("/personal/persona/{id}", patch(update_persona))
         .route(

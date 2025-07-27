@@ -47,6 +47,20 @@ pub struct UpdatePersonaSummaryDTO {
     pub persona: UpdatePersonaSummary,
 }
 
+#[derive(Serialize, Deserialize, Debug, ToSchema)]
+pub struct CreatePersonaSummaryDTO {
+    #[serde(flatten)]
+    pub situation: UpdateSituationSummaryDTO,
+    #[serde(flatten)]
+    pub persona: CreatePersonaSummary,
+}
+
+#[derive(Serialize, Deserialize, Debug, DeriveIntoActiveModel, ToSchema)]
+pub struct CreatePersonaSummary {
+    pub ci: String,
+    pub genre: String,
+}
+
 #[derive(Serialize, Deserialize, Debug, DeriveIntoActiveModel)]
 pub struct UpdatePersonaSummary {
     #[serde(skip_deserializing)]
@@ -180,7 +194,7 @@ pub mod situation {
         pub requested_by_id: i32,
     }
 
-    #[derive(Serialize, Deserialize, Debug, DeriveIntoActiveModel)]
+    #[derive(Serialize, Deserialize, Debug, DeriveIntoActiveModel, ToSchema)]
     pub struct UpdateSituationSummaryDTO {
         pub state_id: i32,
         pub base_id: i32,

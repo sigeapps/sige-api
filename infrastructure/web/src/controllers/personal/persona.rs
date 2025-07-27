@@ -1,3 +1,4 @@
+use crate::tags::PERSONA_TAG;
 use crate::Result;
 use application::dtos::personal::persona::child::Child;
 use application::dtos::personal::persona::course::Course;
@@ -10,6 +11,7 @@ use application::dtos::personal::persona::relative::Relative;
 use application::dtos::personal::persona::situation::UpdateSituationDTO;
 use application::dtos::personal::persona::traits::Traits;
 use application::dtos::personal::persona::CreatePersonaDTO;
+use application::dtos::personal::persona::CreatePersonaSummaryDTO;
 use application::dtos::personal::persona::GetPersonaDTO;
 use application::dtos::personal::persona::GetPersonaSummaryDTO;
 use application::dtos::personal::persona::UpdatePersonaDTO;
@@ -23,7 +25,7 @@ use axum::response::{IntoResponse, Response};
 use axum::Json;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, ToSchema)]
 pub struct PersonaBody<T> {
     persona: T,
 }
@@ -38,12 +40,39 @@ use application::api::ApiContext;
 use application::services::personal::persona::PersonaService;
 use axum::Extension;
 use serde_json::json;
+use utoipa::ToSchema;
 
 pub async fn create_persona(
     Extension(ctx): Extension<ApiContext>,
     Json(persona): Json<CreatePersonaDTO>,
 ) -> Result<Response> {
     let persona_id = PersonaService::create(ctx, persona).await?;
+
+    Ok((
+        StatusCode::CREATED,
+        Json(PersonaBody::<i32> {
+            persona: persona_id,
+        }),
+    )
+        .into_response())
+}
+
+#[utoipa::path(
+    post,
+    path = "",
+    request_body = CreatePersonaSummaryDTO,
+    responses(
+        (status = 201, description = "Persona creada exitosamente", body = PersonaBody<i32>),
+        (status = 400, description = "Solicitud inválida"),
+        (status = 500, description = "Error interno del servidor")
+    ),
+    tag = PERSONA_TAG
+)]
+pub async fn create_persona_summary(
+    Extension(ctx): Extension<ApiContext>,
+    Json(persona): Json<CreatePersonaSummaryDTO>,
+) -> Result<Response> {
+    let persona_id = PersonaService::create_summary(&ctx, persona).await?;
 
     Ok((
         StatusCode::CREATED,
