@@ -1,5 +1,7 @@
+use domain::auth::permissions::Permission;
 use sea_orm::{sea_query::Alias, *};
 
+use crate::auth::{FilterByClaims, UserClaims};
 use crate::{
     api::ApiContext,
     dtos::{
@@ -27,6 +29,24 @@ use domain::entities::{
     persona_education, persona_health, persona_operational, persona_record, persona_relative,
     persona_situation, persona_traits, persona_work_experience,
 };
+
+impl FilterByClaims for sea_orm::Select<persona::Entity> {
+    fn filter_by_claims(self, claims: Option<UserClaims>) -> Self {
+        if let Some(claims) = claims {
+            let has_read_bases = claims
+                .permissions
+                .iter()
+                .any(|x| matches!(x, Permission::ReadAllBases));
+
+            match has_read_bases {
+                true => self,
+                false => self.filter(persona_situation::Column::BaseId.eq(claims.user.base.id)),
+            }
+        } else {
+            self
+        }
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct PersonaService {}
@@ -501,8 +521,8 @@ impl PersonaService {
         let pagination = &filter.into_pagination();
 
         let personas = query
-            .filter(persona_situation::Column::BaseId.eq(ctx.claims.unwrap().user.base.id))
             .limit(pagination.limit)
+            .filter_by_claims(ctx.claims)
             .offset(pagination.offset)
             .into_partial_model::<GetPersonaSummaryDTO>()
             .all(&ctx.db)

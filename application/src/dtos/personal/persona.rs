@@ -135,7 +135,7 @@ pub struct GetPersonaSummaryDTO {
     #[sea_orm(nested)]
     pub verification: Option<GetVerificationDTO>,
     #[sea_orm(nested)]
-    pub work_state: GetPersonaStateDTO,
+    pub work_state: Option<GetPersonaStateDTO>,
     #[sea_orm(nested)]
     pub division: Option<SimpleDivisionDTO>,
     #[sea_orm(nested)]
