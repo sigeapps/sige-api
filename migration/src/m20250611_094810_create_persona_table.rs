@@ -1,6 +1,6 @@
 use sea_orm_migration::{
     prelude::{extension::postgres::Type, *},
-    sea_orm::{DeriveActiveEnum, EnumIter, Iterable},
+    sea_orm::{EnumIter, Iterable},
 };
 
 #[derive(DeriveMigrationName)]
