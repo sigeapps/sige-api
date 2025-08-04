@@ -29,6 +29,7 @@ mod m20250628_164625_create_plate_table;
 mod m20250709_180301_create_correspondence_table;
 mod m20250714_213941_create_parking_tables;
 mod m20250715_213942_create_transport_tables;
+mod m20250803_153156_create_operations_tables;
 
 pub struct Migrator;
 
@@ -63,6 +64,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20250709_180301_create_correspondence_table::Migration),
             Box::new(m20250714_213941_create_parking_tables::Migration),
             Box::new(m20250715_213942_create_transport_tables::Migration),
+            Box::new(m20250803_153156_create_operations_tables::Migration),
         ]
     }
 }
@@ -72,7 +74,7 @@ impl Migrator {
     pub async fn from_cli_command(db_url: &str, command: MigrateCommand) -> Result<(), DbErr> {
         let db = Database::connect(db_url).await?;
 
-        println!("Migrating from cli on:{}", db_url);
+        println!("Migrating from cli on:{db_url}");
 
         match command {
             MigrateCommand::Up => {

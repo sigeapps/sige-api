@@ -5,7 +5,7 @@ use sea_orm_migration::{
 
 use crate::{
     m20250419_000002_create_user_table::User,
-    m20250611_094810_create_persona_table::PersonaSituation,
+    m20250611_094810_create_persona_table::{PersonaSituation, TypeEnum},
     m20250612_114832_create_country_tables::CountryVerification,
 };
 
@@ -41,6 +41,7 @@ impl MigrationTrait for Migration {
                         .columns([
                             Persona::Ci,
                             Persona::Name,
+                            Persona::Type,
                             Persona::LastName,
                             Persona::Birthdate,
                             Persona::Age,
@@ -57,6 +58,7 @@ impl MigrationTrait for Migration {
                         .values_panic([
                             "V00000000".into(),
                             "Solicitud".into(),
+                            "official".as_enum(TypeEnum),
                             "Propia".into(),
                             "1985-03-15".into(),
                             38.into(),

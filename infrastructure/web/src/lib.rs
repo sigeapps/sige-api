@@ -103,6 +103,7 @@ pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
         .nest("/transport", transport_routes())
         .merge(routes::user::user_routes())
         .merge(routes::auth::auth_routes())
+        .merge(routes::inclusion::inclusion_routes())
         .merge(routes::prevention::prevention_routes())
         .merge(routes::personal::personal_routes().into())
         .merge(routes::lookup::lookup_routes().into())

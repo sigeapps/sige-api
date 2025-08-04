@@ -5,6 +5,7 @@ use validator::Validate;
 
 pub mod auth;
 pub mod lookup;
+pub mod operations;
 pub mod parking;
 pub mod personal;
 pub mod prevention;
@@ -32,6 +33,7 @@ pub struct CommonQueryFilterDTO {
     pub page: Option<u64>,
     pub limit: Option<u64>,
     pub sort: Option<String>,
+    pub persona_type: Option<String>,
 }
 
 impl CommonQueryFilterDTO {

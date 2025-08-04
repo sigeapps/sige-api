@@ -1,6 +1,7 @@
 use crate::tags::PERSONA_TAG;
 use crate::Result;
 use application::dtos::personal::persona::child::Child;
+use application::dtos::personal::persona::conyuge::GetConyugeDTO;
 use application::dtos::personal::persona::course::Course;
 use application::dtos::personal::persona::educational::Educational;
 use application::dtos::personal::persona::health::Health;
@@ -11,11 +12,8 @@ use application::dtos::personal::persona::relative::Relative;
 use application::dtos::personal::persona::situation::UpdateSituationDTO;
 use application::dtos::personal::persona::traits::Traits;
 use application::dtos::personal::persona::CreatePersonaDTO;
-use application::dtos::personal::persona::CreatePersonaSummaryDTO;
 use application::dtos::personal::persona::GetPersonaDTO;
 use application::dtos::personal::persona::GetPersonaSummaryDTO;
-use application::dtos::personal::persona::UpdatePersonaDTO;
-use application::dtos::personal::persona::UpdatePersonaSummaryDTO;
 use application::dtos::CommonQueryFilterDTO;
 use application::dtos::PaginationDTO;
 use axum::extract::Path;
@@ -30,7 +28,7 @@ pub struct PersonaBody<T> {
     persona: T,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, ToSchema)]
 pub struct MultiplePersonasBody {
     pub personas: Vec<GetPersonaSummaryDTO>,
     pub pagination: PaginationDTO,
@@ -39,14 +37,24 @@ pub struct MultiplePersonasBody {
 use application::api::ApiContext;
 use application::services::personal::persona::PersonaService;
 use axum::Extension;
-use serde_json::json;
 use utoipa::ToSchema;
 
+#[utoipa::path(
+    post,
+    path = "",
+    request_body = CreatePersonaDTO,
+    responses(
+        (status = 201, description = "Persona creada exitosamente", body = PersonaBody<i32>),
+        (status = 400, description = "Solicitud inválida"),
+        (status = 500, description = "Error interno del servidor")
+    ),
+    tag = PERSONA_TAG
+)]
 pub async fn create_persona(
     Extension(ctx): Extension<ApiContext>,
     Json(persona): Json<CreatePersonaDTO>,
 ) -> Result<Response> {
-    let persona_id = PersonaService::create(ctx, persona).await?;
+    let persona_id = PersonaService::create_complete(ctx, persona).await?;
 
     Ok((
         StatusCode::CREATED,
@@ -58,41 +66,18 @@ pub async fn create_persona(
 }
 
 #[utoipa::path(
-    post,
-    path = "",
-    request_body = CreatePersonaSummaryDTO,
+    get,
+    path = "/{id}",
+    params(
+        ("id" = i32, Path, description = "ID de la persona")
+    ),
     responses(
-        (status = 201, description = "Persona creada exitosamente", body = PersonaBody<i32>),
-        (status = 400, description = "Solicitud inválida"),
+        (status = 200, description = "Persona encontrada exitosamente", body = PersonaBody<GetPersonaDTO>),
+        (status = 404, description = "Persona no encontrada"),
         (status = 500, description = "Error interno del servidor")
     ),
     tag = PERSONA_TAG
 )]
-pub async fn create_persona_summary(
-    Extension(ctx): Extension<ApiContext>,
-    Json(persona): Json<CreatePersonaSummaryDTO>,
-) -> Result<Response> {
-    let persona_id = PersonaService::create_summary(&ctx, persona).await?;
-
-    Ok((
-        StatusCode::CREATED,
-        Json(PersonaBody::<i32> {
-            persona: persona_id,
-        }),
-    )
-        .into_response())
-}
-
-pub async fn update_persona(
-    Extension(ctx): Extension<ApiContext>,
-    Path(id): Path<i32>,
-    Json(persona): Json<UpdatePersonaDTO>,
-) -> Result<Response> {
-    let persona_id = PersonaService::update(ctx, id, persona).await?;
-
-    Ok((StatusCode::OK, Json(persona_id)).into_response())
-}
-
 pub async fn get_persona(
     Extension(ctx): Extension<ApiContext>,
     Path(id): Path<i32>,
@@ -106,6 +91,18 @@ pub async fn get_persona(
         .into_response())
 }
 
+#[utoipa::path(
+    get,
+    path = "",
+    params(
+        CommonQueryFilterDTO
+    ),
+    responses(
+        (status = 200, description = "Lista de personas encontrada exitosamente", body = MultiplePersonasBody),
+        (status = 500, description = "Error interno del servidor")
+    ),
+    tag = PERSONA_TAG
+)]
 pub async fn get_personas(
     Extension(ctx): Extension<ApiContext>,
     Query(query): Query<CommonQueryFilterDTO>,
@@ -119,16 +116,6 @@ pub async fn get_personas(
         pagination,
     })
     .into_response())
-}
-
-pub async fn update_persona_summary(
-    Extension(ctx): Extension<ApiContext>,
-    Path(id): Path<i32>,
-    Json(persona): Json<UpdatePersonaSummaryDTO>,
-) -> Result<Response> {
-    let id = PersonaService::update_summary(ctx, id, persona).await?;
-
-    Ok(Json(json!({"persona_id": id})).into_response())
 }
 
 macro_rules! update_entity {
@@ -170,3 +157,201 @@ add_entitys!(add_courses, Course);
 add_entitys!(add_education, Educational);
 add_entitys!(add_work_experience, Labor);
 add_entitys!(add_records, Record);
+
+// ========================================
+// CONTROLADORES PARA CREAR ELEMENTOS INDIVIDUALES
+// ========================================
+
+/// Macro para crear controladores de creación de elementos individuales
+macro_rules! create_entity {
+    ($fn_name:ident, $service_fn:ident, $dto_type:ty, $path:literal, $description:literal) => {
+        #[utoipa::path(
+                            post,
+                            path = "",
+                            request_body = $dto_type,
+                            params(
+                                ("id" = i32, Path, description = "ID de la persona")
+                            ),
+                            responses(
+                                (status = 201, description = $description, body = PersonaBody<i32>),
+                                (status = 400, description = "Solicitud inválida"),
+                                (status = 404, description = "Persona no encontrada"),
+                                (status = 500, description = "Error interno del servidor")
+                            ),
+                            tag = PERSONA_TAG
+                        )]
+        pub async fn $fn_name(
+            Extension(ctx): Extension<ApiContext>,
+            Path(persona_id): Path<i32>,
+            Json(entity): Json<$dto_type>,
+        ) -> Result<Response> {
+            let entity_id = PersonaService::$service_fn(&ctx, persona_id, entity).await?;
+
+            Ok((
+                StatusCode::CREATED,
+                Json(PersonaBody::<i32> { persona: entity_id }),
+            )
+                .into_response())
+        }
+    };
+}
+
+create_entity!(
+    create_operational,
+    create_operational,
+    Operational,
+    "/{id}/operational",
+    "Información operacional creada exitosamente"
+);
+
+create_entity!(
+    create_relative,
+    create_relative,
+    Relative,
+    "/{id}/relatives",
+    "Familiar creado exitosamente"
+);
+
+create_entity!(
+    create_education,
+    create_education,
+    Educational,
+    "/{id}/education",
+    "Educación creada exitosamente"
+);
+
+create_entity!(
+    create_course,
+    create_course,
+    Course,
+    "/{id}/courses",
+    "Curso creado exitosamente"
+);
+
+create_entity!(
+    create_work_experience,
+    create_work_experience,
+    Labor,
+    "/{id}/work-experience",
+    "Experiencia laboral creada exitosamente"
+);
+
+create_entity!(
+    create_child,
+    create_child,
+    Child,
+    "/{id}/children",
+    "Hijo creado exitosamente"
+);
+
+create_entity!(
+    create_record,
+    create_record,
+    Record,
+    "/{id}/records",
+    "Antecedente creado exitosamente"
+);
+
+/// Controlador para crear cónyuge
+#[utoipa::path(
+    post,
+    path = "",
+    request_body = GetConyugeDTO,
+    params(
+        ("id" = i32, Path, description = "ID de la persona")
+    ),
+    responses(
+        (status = 201, description = "Cónyuge creado exitosamente"),
+        (status = 400, description = "Solicitud inválida"),
+        (status = 404, description = "Persona no encontrada"),
+        (status = 500, description = "Error interno del servidor")
+    ),
+    tag = PERSONA_TAG
+)]
+pub async fn create_spouse(
+    Extension(ctx): Extension<ApiContext>,
+    Path(persona_id): Path<i32>,
+    Json(spouse): Json<GetConyugeDTO>,
+) -> Result<Response> {
+    PersonaService::upsert_spouse(&ctx, persona_id, spouse).await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+/// Controlador para crear características físicas
+#[utoipa::path(
+    post,
+    path = "",
+    request_body = Traits,
+    params(
+        ("id" = i32, Path, description = "ID de la persona")
+    ),
+    responses(
+        (status = 201, description = "Características físicas creadas exitosamente"),
+        (status = 400, description = "Solicitud inválida"),
+        (status = 404, description = "Persona no encontrada"),
+        (status = 500, description = "Error interno del servidor")
+    ),
+    tag = PERSONA_TAG
+)]
+pub async fn create_traits(
+    Extension(ctx): Extension<ApiContext>,
+    Path(persona_id): Path<i32>,
+    Json(traits): Json<Traits>,
+) -> Result<Response> {
+    PersonaService::upsert_traits(&ctx, persona_id, traits).await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+/// Controlador para crear información de salud
+#[utoipa::path(
+    post,
+    path = "",
+    request_body = Health,
+    params(
+        ("id" = i32, Path, description = "ID de la persona")
+    ),
+    responses(
+        (status = 201, description = "Información de salud creada exitosamente"),
+        (status = 400, description = "Solicitud inválida"),
+        (status = 404, description = "Persona no encontrada"),
+        (status = 500, description = "Error interno del servidor")
+    ),
+    tag = PERSONA_TAG
+)]
+pub async fn create_health(
+    Extension(ctx): Extension<ApiContext>,
+    Path(persona_id): Path<i32>,
+    Json(health): Json<Health>,
+) -> Result<Response> {
+    PersonaService::upsert_health(&ctx, persona_id, health).await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}
+
+/// Controlador para crear situación
+#[utoipa::path(
+    post,
+    path = "",
+    request_body = UpdateSituationDTO,
+    params(
+        ("id" = i32, Path, description = "ID de la persona")
+    ),
+    responses(
+        (status = 201, description = "Situación creada exitosamente"),
+        (status = 400, description = "Solicitud inválida"),
+        (status = 404, description = "Persona no encontrada"),
+        (status = 500, description = "Error interno del servidor")
+    ),
+    tag = PERSONA_TAG
+)]
+pub async fn create_situation(
+    Extension(ctx): Extension<ApiContext>,
+    Path(persona_id): Path<i32>,
+    Json(situation): Json<UpdateSituationDTO>,
+) -> Result<Response> {
+    PersonaService::upsert_situation(&ctx, persona_id, situation).await?;
+
+    Ok(StatusCode::CREATED.into_response())
+}

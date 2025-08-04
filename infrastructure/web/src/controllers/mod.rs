@@ -1,5 +1,6 @@
 pub mod auth;
 pub mod lookup;
+pub mod operations;
 pub mod parking;
 pub mod personal;
 pub mod prevention;

@@ -11,6 +11,7 @@ pub struct Model {
     #[sea_orm(unique)]
     pub name: String,
     pub state: i32,
+    pub count: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -33,6 +33,7 @@ impl MigrationTrait for Migration {
                             .not_null(),
                     )
                     .col(ColumnDef::new(Division::State).integer().not_null())
+                    .col(ColumnDef::new(Division::Count).integer().not_null())
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_division_state")
@@ -47,17 +48,49 @@ impl MigrationTrait for Migration {
 
         let insert = Query::insert()
             .into_table(Division::Table)
-            .columns([Division::Name, Division::State])
-            .values_panic(["División de Inteligencia Estratégica (D.I.E)".into(), 24.into()])
-            .values_panic(["Division de Operaciones y Tácticas Especiales (D.O.T.E)".into(), 24.into()])
-            .values_panic(["Division Contra Drogas (D.C.D)".into(), 24.into()])
-            .values_panic(["Division Contra la Delincuencia Organizada (D.C.D.O)".into(), 24.into()])
-            .values_panic(["Division Antiextorsión y Secuestro (D.C.S.E)".into(), 24.into()])
-            .values_panic(["Division de Investigaciones Penal (D.I.P)".into(), 24.into()])
-            .values_panic(["División Contra Hurto Y Robo de Vehiculo (C.H.R.V)".into(), 24.into()])
-            .values_panic(["División Canina (D-K9)".into(), 24.into()])
-            .values_panic(["División Motorizada (D.M)".into(), 24.into()])
-            .values_panic(["División de Patrullaje Vehicular (D.P.V)".into(), 24.into()])
+            .columns([Division::Name, Division::State, Division::Count])
+            .values_panic([
+                "División de Inteligencia Estratégica (D.I.E)".into(),
+                24.into(),
+                2000.into(),
+            ])
+            .values_panic([
+                "Division de Operaciones y Tácticas Especiales (D.O.T.E)".into(),
+                24.into(),
+                3000.into(),
+            ])
+            .values_panic([
+                "Division Contra Drogas (D.C.D)".into(),
+                24.into(),
+                6000.into(),
+            ])
+            .values_panic([
+                "Division Contra la Delincuencia Organizada (D.C.D.O)".into(),
+                24.into(),
+                1000.into(),
+            ])
+            .values_panic([
+                "Division Antiextorsión y Secuestro (D.C.S.E)".into(),
+                24.into(),
+                4000.into(),
+            ])
+            .values_panic([
+                "Division de Investigaciones Penal (D.I.P)".into(),
+                24.into(),
+                3000.into(),
+            ])
+            .values_panic([
+                "División Contra Hurto Y Robo de Vehiculo (C.H.R.V)".into(),
+                24.into(),
+                9000.into(),
+            ])
+            .values_panic(["División Canina (D-K9)".into(), 24.into(), 2000.into()])
+            .values_panic(["División Motorizada (D.M)".into(), 24.into(), 2000.into()])
+            .values_panic([
+                "División de Patrullaje Vehicular (D.P.V)".into(),
+                24.into(),
+                8000.into(),
+            ])
             .to_owned();
 
         manager.exec_stmt(insert).await?;
@@ -92,4 +125,5 @@ pub enum Division {
     Id,
     Name,
     State,
+    Count,
 }

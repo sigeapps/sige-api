@@ -61,6 +61,7 @@ impl IssuanceService {
         Ok(id)
     }
 
+    // TODO: error on database Query Error: no column found for name: assigned_persona_ci
     pub async fn find(
         ctx: ApiContext,
         opts: CommonQueryFilterDTO,

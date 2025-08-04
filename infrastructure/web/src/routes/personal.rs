@@ -16,34 +16,34 @@ use crate::{
 
 pub fn personal_routes() -> OpenApiRouter {
     OpenApiRouter::new()
-        .route("/personal/persona", post(create_persona))
-        .route("/personal/persona", get(get_personas))
-        .nest_routes("/personal/persona/summary", routes!(create_persona_summary))
-        .route("/personal/persona/{id}", get(get_persona))
-        .route("/personal/persona/{id}", patch(update_persona))
+        .nest_routes("/personal/persona", routes!(create_persona, get_personas))
+        .nest_routes("/personal/persona", routes!(get_persona))
+        .nest_routes("/personal/persona/{id}/traits", routes!(create_traits))
+        .nest_routes("/personal/persona/{id}/health", routes!(create_health))
+        .nest_routes(
+            "/personal/persona/{id}/situation",
+            routes!(create_situation),
+        )
+        .nest_routes("/personal/persona/{id}/spouse", routes!(create_spouse))
+        .nest_routes("/personal/persona/{id}/children", routes!(create_child))
+        .nest_routes(
+            "/personal/persona/{id}/operational",
+            routes!(create_operational),
+        )
+        .nest_routes("/personal/persona/{id}/relatives", routes!(create_relative))
+        .nest_routes(
+            "/personal/persona/{id}/education",
+            routes!(create_education),
+        )
+        .nest_routes("/personal/persona/{id}/courses", routes!(create_course))
+        .nest_routes(
+            "/personal/persona/{id}/work-experience",
+            routes!(create_work_experience),
+        )
+        .nest_routes("/personal/persona/{id}/records", routes!(create_record))
         .route(
             "/personal/persona/{id}/traits",
             patch(update_traits).layer(authorize!(Permission::PersonasUpdateTraits)),
-        )
-        .route(
-            "/personal/persona/{id}/academic",
-            post(add_education).layer(authorize!(Permission::PersonasUpdateAcademic)),
-        )
-        .route(
-            "/personal/persona/{id}/courses",
-            post(add_courses).layer(authorize!(Permission::PersonasUpdateCourses)),
-        )
-        .route(
-            "/personal/persona/{id}/labor",
-            post(add_work_experience).layer(authorize!(Permission::PersonasUpdateLabor)),
-        )
-        .route(
-            "/personal/persona/{id}/operational",
-            post(add_operational).layer(authorize!(Permission::PersonasUpdateLabor)),
-        )
-        .route(
-            "/personal/persona/{id}/records",
-            post(add_records).layer(authorize!(Permission::PersonasUpdateRecords)),
         )
         .route(
             "/personal/persona/{id}/health",
@@ -52,10 +52,6 @@ pub fn personal_routes() -> OpenApiRouter {
         .route(
             "/personal/persona/{id}/situation",
             patch(update_situation).layer(authorize!(Permission::PersonasUpdateSituation)),
-        )
-        .route(
-            "/personal/persona/{id}/summary",
-            patch(update_persona_summary),
         )
         .route("/personal/plate", post(create_plate).get(get_plates))
         .route("/personal/plate/{id}", get(get_plate_by_id))

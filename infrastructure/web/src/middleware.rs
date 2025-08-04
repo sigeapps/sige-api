@@ -57,6 +57,10 @@ pub async fn authenticate(mut request: Request, next: Next) -> Result<Response> 
     })?;
 
     debug!("✅ Authenticated user: {:?}", claims.user);
+    debug!(
+        "✅ Authenticated user permissions: {:?}",
+        claims.permissions
+    );
 
     if let Some(ext) = request.extensions_mut().get_mut::<ApiContext>() {
         ext.claims = Some(claims);

@@ -1,4 +1,7 @@
-use sea_orm_migration::prelude::*;
+use sea_orm_migration::{
+    prelude::{extension::postgres::Type, *},
+    sea_orm::{DeriveActiveEnum, EnumIter, Iterable},
+};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -35,6 +38,17 @@ impl MigrationTrait for Migration {
             manager.exec_stmt(insert).await?;
         }
 
+        println!("Creating enum type");
+
+        manager
+            .create_type(
+                Type::create()
+                    .as_enum(TypeEnum)
+                    .values(PersonaType::iter())
+                    .to_owned(),
+            )
+            .await?;
+
         manager
             .create_table(
                 Table::create()
@@ -48,6 +62,12 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(Persona::Ci).string().not_null())
+                    .col(
+                        ColumnDef::new(Persona::Type)
+                            .string()
+                            .not_null()
+                            .enumeration(TypeEnum, PersonaType::iter()),
+                    )
                     .col(ColumnDef::new(Persona::FrontPhoto).string().null())
                     .col(ColumnDef::new(Persona::BackPhoto).string().null())
                     .col(ColumnDef::new(Persona::PassportNumber).string().null())
@@ -821,8 +841,24 @@ impl MigrationTrait for Migration {
                     .table(Persona::Table)
                     .to_owned(),
             )
+            .await?;
+
+        manager
+            .drop_type(Type::drop().name(TypeEnum).to_owned())
             .await
     }
+}
+
+#[derive(DeriveIden)]
+pub struct TypeEnum;
+
+#[derive(DeriveIden, EnumIter)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "type_enum")]
+pub enum PersonaType {
+    #[sea_orm(iden = "official")]
+    Official,
+    #[sea_orm(iden = "civil")]
+    Civil,
 }
 
 #[derive(DeriveIden)]
@@ -830,6 +866,7 @@ pub enum Persona {
     Table,
     Id,
     Ci,
+    Type,
     FrontPhoto,
     BackPhoto,
     PassportNumber,
