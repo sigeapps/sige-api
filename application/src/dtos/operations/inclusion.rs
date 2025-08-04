@@ -10,28 +10,24 @@ pub enum CreateInclusion {
     Flagrant {
         #[serde(flatten)]
         base: CreateCompleteInclusionBase,
-        #[schema(value_type = String)]
         flagrant: flagrant::CreateFlagrant,
     },
     #[serde(rename = "complainant")]
     Complainant {
         #[serde(flatten)]
         base: CreateCompleteInclusionBase,
-        #[schema(value_type = String)]
         complainant: complainant::CreateComplainant,
     },
     #[serde(rename = "init_order")]
     InitOrder {
         #[serde(flatten)]
         base: CreateCompleteInclusionBase,
-        #[schema(value_type = String)]
         init_order: init_order::CreateInitOrder,
     },
     #[serde(rename = "investigation")]
     Investigation {
         #[serde(flatten)]
         base: CreateCompleteInclusionBase,
-        #[schema(value_type = String)]
         investigation: investigation::CreateInvestigation,
     },
 }
@@ -59,8 +55,7 @@ pub mod inclusion_record {
     #[derive(Debug, Serialize, Deserialize, DeriveIntoActiveModel, ToSchema, Clone)]
     pub struct CreateInclusionRecord {
         pub record_id: i32,
-        #[schema(value_type = String)]
-        #[sea_orm(skip_deserializing)]
+        #[serde(skip_deserializing)]
         pub r#type: InclusionType,
         pub reason: String,
         #[schema(value_type = String)]

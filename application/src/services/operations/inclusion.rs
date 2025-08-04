@@ -1,6 +1,7 @@
+use domain::entities::sea_orm_active_enums::InclusionTypeEnum;
 use sea_orm::*;
 
-use crate::{api::ApiContext, dtos::operations::inclusion::CreateInclusion};
+use crate::{api::ApiContext, dtos::operations::inclusion::CreateInclusion, enums::InclusionType};
 
 pub struct InclusionService;
 
@@ -10,14 +11,24 @@ impl InclusionService {
         inclusion: CreateInclusion,
     ) -> Result<i32, DbErr> {
         // Extraemos la base y luego insertamos por tipo
-        let base = match inclusion.clone() {
-            CreateInclusion::Flagrant { base, .. } => base,
-            CreateInclusion::Complainant { base, .. } => base,
-            CreateInclusion::InitOrder { base, .. } => base,
-            CreateInclusion::Investigation { base, .. } => base,
+        let (mut base, r#type) = match inclusion.clone() {
+            CreateInclusion::Flagrant { base, .. } => {
+                (base, InclusionType(InclusionTypeEnum::Flagrant))
+            }
+            CreateInclusion::Complainant { base, .. } => {
+                (base, InclusionType(InclusionTypeEnum::Complaint))
+            }
+            CreateInclusion::InitOrder { base, .. } => {
+                (base, InclusionType(InclusionTypeEnum::InitOrder))
+            }
+            CreateInclusion::Investigation { base, .. } => {
+                (base, InclusionType(InclusionTypeEnum::Investigation))
+            }
         };
 
         let conn = ctx.db.begin().await?;
+
+        base.record.r#type = r#type;
 
         // Guardar el registro de inclusión principal
         let inclusion_record = base.record.into_active_model().insert(&conn).await?;
