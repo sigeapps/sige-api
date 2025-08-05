@@ -3,6 +3,8 @@ use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 use validator::Validate;
 
+use crate::enums::InclusionType;
+
 pub mod auth;
 pub mod lookup;
 pub mod operations;
@@ -34,6 +36,7 @@ pub struct CommonQueryFilterDTO {
     pub limit: Option<u64>,
     pub sort: Option<String>,
     pub persona_type: Option<String>,
+    pub inclusion_type: Option<InclusionType>,
 }
 
 impl CommonQueryFilterDTO {

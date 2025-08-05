@@ -12,7 +12,7 @@ pub struct Model {
     pub date_time: DateTime,
     pub authority_assigned: String,
     pub authority_name: String,
-    pub authority_phone: i32,
+    pub authority_phone: String,
     pub assigned_court: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
     pub authority_decision: Option<String>,

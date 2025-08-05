@@ -459,7 +459,7 @@ impl MigrationTrait for Migration {
                     )
                     .col(
                         ColumnDef::new(JudicialPresentations::AuthorityPhone)
-                            .integer()
+                            .string_len(20)
                             .not_null(),
                     )
                     .col(ColumnDef::new(JudicialPresentations::AssignedCourt).string_len(100))

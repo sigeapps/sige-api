@@ -1,9 +1,17 @@
 use domain::entities::{
-    inclusion_records_accuseds, inclusion_records_personas, sea_orm_active_enums::InclusionTypeEnum,
+    arrests, confiscated_items, inclusion_records, inclusion_records_accuseds,
+    inclusion_records_personas, involved_objects, sea_orm_active_enums::InclusionTypeEnum,
 };
 use sea_orm::*;
 
-use crate::{api::ApiContext, dtos::operations::inclusion::CreateInclusion, enums::InclusionType};
+use crate::{
+    api::ApiContext,
+    dtos::{
+        operations::inclusion::{CreateInclusion, InclusionSummary},
+        CommonQueryFilterDTO,
+    },
+    enums::InclusionType,
+};
 
 pub struct InclusionService;
 
@@ -77,7 +85,7 @@ impl InclusionService {
         judicial_presentation.insert(&conn).await?;
 
         let accuseds = base
-            .acusseds
+            .acusseds_ids
             .iter()
             .map(|id| inclusion_records_accuseds::ActiveModel {
                 inclusion_record_id: Set(inclusion_record.id),
@@ -130,5 +138,24 @@ impl InclusionService {
         conn.commit().await?;
 
         Ok(inclusion_record.id)
+    }
+
+    pub async fn find_summary(
+        ctx: ApiContext,
+        filter: CommonQueryFilterDTO,
+    ) -> Result<Vec<InclusionSummary>, DbErr> {
+        let query = inclusion_records::Entity::find()
+            .left_join(inclusion_records_personas::Entity)
+            .left_join(involved_objects::Entity)
+            .left_join(arrests::Entity)
+            .left_join(confiscated_items::Entity)
+            .group_by(inclusion_records::Column::Id);
+
+        let summary = query
+            .into_partial_model::<InclusionSummary>()
+            .all(&ctx.db)
+            .await?;
+
+        Ok(summary)
     }
 }

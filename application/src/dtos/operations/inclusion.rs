@@ -1,3 +1,9 @@
+use chrono::NaiveDateTime;
+use domain::entities::{
+    arrests, confiscated_items, inclusion_records_personas, involved_objects,
+    sea_orm_active_enums::InclusionTypeEnum,
+};
+use sea_orm::{prelude::Expr, DerivePartialModel};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -41,13 +47,46 @@ pub struct CreateCompleteInclusionBase {
     pub arrests: Vec<arrest::CreateArrest>,
     pub confiscated_items: Vec<confiscated_item::CreateConfiscatedItem>,
     pub judicial_presentations: judicial_presentation::CreateJudicialPresentation,
-    pub acusseds: Vec<i32>,
+    pub acusseds_ids: Vec<i32>,
 }
+
+#[derive(Debug, Serialize, Deserialize, ToSchema, Clone, DerivePartialModel)]
+#[sea_orm(
+    entity = "domain::entities::inclusion_records::Entity",
+    from_query_result
+)]
+pub struct InclusionSummary {
+    pub id: i32,
+    pub record_id: i32,
+    #[schema(value_type = String)]
+    pub r#type: InclusionTypeEnum,
+    pub reason: String,
+    #[schema(value_type = String)]
+    pub date_time: NaiveDateTime,
+    #[sea_orm(
+        from_expr = "Expr::col((inclusion_records_personas::Entity, inclusion_records_personas::Column::Id)).count()"
+    )]
+    pub personas_count: Option<i64>,
+    #[sea_orm(
+        from_expr = "Expr::col((involved_objects::Entity, involved_objects::Column::Id)).count()"
+    )]
+    pub objects_count: Option<i64>,
+    #[sea_orm(from_expr = "Expr::col((arrests::Entity, arrests::Column::Id)).count()")]
+    pub arrests_count: Option<i64>,
+    #[sea_orm(
+        from_expr = "Expr::col((confiscated_items::Entity, confiscated_items::Column::Id)).count()"
+    )]
+    pub confiscated_items_count: Option<i64>,
+}
+
+// ... existing code ...
 
 pub mod inclusion_record {
     use chrono::NaiveDateTime;
-    use domain::entities::inclusion_records::ActiveModel;
-    use sea_orm::DeriveIntoActiveModel;
+    use domain::entities::{
+        inclusion_records::ActiveModel, sea_orm_active_enums::InclusionTypeEnum,
+    };
+    use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
     use utoipa::ToSchema;
 
@@ -63,6 +102,23 @@ pub mod inclusion_record {
         #[schema(value_type = String)]
         pub date_time: NaiveDateTime,
         pub auth_persona_id: i32,
+    }
+
+    #[derive(Debug, Serialize, Deserialize, ToSchema, Clone, DerivePartialModel)]
+    #[sea_orm(
+        entity = "domain::entities::inclusion_records::Entity",
+        from_query_result
+    )]
+    pub struct InclusionRecord {
+        pub id: i32,
+        pub record_id: i32,
+        #[schema(value_type = String)]
+        pub r#type: InclusionTypeEnum,
+        pub reason: String,
+        #[schema(value_type = String)]
+        pub date_time: NaiveDateTime,
+        pub auth_persona_id: i32,
+        pub evidences_file_path: Option<String>,
     }
 }
 
@@ -187,7 +243,7 @@ pub mod judicial_presentation {
         pub date_time: NaiveDateTime,
         pub authority_assigned: String,
         pub authority_name: String,
-        pub authority_phone: i32,
+        pub authority_phone: String,
         pub assigned_court: Option<String>,
         pub authority_decision: Option<String>,
         pub confinement_place: String,
