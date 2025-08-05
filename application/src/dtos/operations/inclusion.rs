@@ -142,12 +142,27 @@ pub mod complainant {
 
 pub mod involved_object {
     use domain::entities::involved_objects::ActiveModel;
-    use sea_orm::DeriveIntoActiveModel;
+    use sea_orm::{DeriveIntoActiveModel, DerivePartialModel};
     use serde::{Deserialize, Serialize};
     use utoipa::ToSchema;
 
     #[derive(Debug, Serialize, Deserialize, DeriveIntoActiveModel, ToSchema, Clone)]
     pub struct CreateInvolvedObject {
+        pub r#type: String,
+        pub serial: Option<String>,
+        pub physical_signs: Option<String>,
+        pub description: String,
+        pub photo_path: Option<String>,
+    }
+
+    #[derive(Debug, Serialize, Deserialize, ToSchema, Clone, DerivePartialModel)]
+    #[sea_orm(
+        entity = "domain::entities::involved_objects::Entity",
+        from_query_result
+    )]
+    pub struct InvolvedObjectsSummary {
+        pub id: i32,
+        pub inclusion_record_id: i32,
         pub r#type: String,
         pub serial: Option<String>,
         pub physical_signs: Option<String>,
