@@ -448,7 +448,7 @@ impl MigrationTrait for Migration {
                             .not_null(),
                     )
                     .col(
-                        ColumnDef::new(JudicialPresentations::AuthorityType)
+                        ColumnDef::new(JudicialPresentations::AuthorityAssigned)
                             .string_len(100)
                             .not_null(),
                     )
@@ -458,12 +458,17 @@ impl MigrationTrait for Migration {
                             .not_null(),
                     )
                     .col(
-                        ColumnDef::new(JudicialPresentations::PresentedBy)
+                        ColumnDef::new(JudicialPresentations::AuthorityPhone)
                             .integer()
                             .not_null(),
                     )
-                    .col(ColumnDef::new(JudicialPresentations::CaseNumber).string_len(100))
-                    .col(ColumnDef::new(JudicialPresentations::Outcome).text())
+                    .col(ColumnDef::new(JudicialPresentations::AssignedCourt).string_len(100))
+                    .col(ColumnDef::new(JudicialPresentations::AuthorityDecision).text())
+                    .col(
+                        ColumnDef::new(JudicialPresentations::ConfinementPlace)
+                            .string_len(100)
+                            .not_null(),
+                    )
                     .col(
                         ColumnDef::new(JudicialPresentations::CreatedAt)
                             .date_time()
@@ -1022,10 +1027,11 @@ enum JudicialPresentations {
     Id,
     InclusionRecordId,
     DateTime,
-    AuthorityType,
+    AuthorityAssigned,
     AuthorityName,
-    PresentedBy,
-    CaseNumber,
-    Outcome,
+    AuthorityPhone,
+    AssignedCourt,
+    AuthorityDecision,
+    ConfinementPlace,
     CreatedAt,
 }

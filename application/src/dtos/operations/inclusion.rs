@@ -41,6 +41,7 @@ pub struct CreateCompleteInclusionBase {
     pub arrests: Vec<arrest::CreateArrest>,
     pub confiscated_items: Vec<confiscated_item::CreateConfiscatedItem>,
     pub judicial_presentations: judicial_presentation::CreateJudicialPresentation,
+    pub acusseds: Vec<i32>,
 }
 
 pub mod inclusion_record {
@@ -58,6 +59,7 @@ pub mod inclusion_record {
         #[serde(skip_deserializing)]
         pub r#type: InclusionType,
         pub reason: String,
+        pub evidences_file_path: Option<String>,
         #[schema(value_type = String)]
         pub date_time: NaiveDateTime,
         pub auth_persona_id: i32,
@@ -183,11 +185,12 @@ pub mod judicial_presentation {
     pub struct CreateJudicialPresentation {
         #[schema(value_type = String)]
         pub date_time: NaiveDateTime,
-        pub authority_type: String,
+        pub authority_assigned: String,
         pub authority_name: String,
-        pub presented_by: i32,
-        pub case_number: Option<String>,
-        pub outcome: Option<String>,
+        pub authority_phone: i32,
+        pub assigned_court: Option<String>,
+        pub authority_decision: Option<String>,
+        pub confinement_place: String,
     }
 }
 
@@ -197,8 +200,15 @@ pub mod flagrant {
     use serde::{Deserialize, Serialize};
     use utoipa::ToSchema;
 
-    #[derive(Debug, Serialize, Deserialize, DeriveIntoActiveModel, ToSchema, Clone)]
+    #[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
     pub struct CreateFlagrant {
+        #[serde(flatten)]
+        pub base: Base,
+        pub personas_ids: Vec<i32>,
+    }
+
+    #[derive(Debug, Serialize, Deserialize, DeriveIntoActiveModel, ToSchema, Clone)]
+    pub struct Base {
         #[schema(value_type = i32)]
         pub latitude: Decimal,
         #[schema(value_type = i32)]

@@ -10,12 +10,13 @@ pub struct Model {
     pub id: i32,
     pub inclusion_record_id: i32,
     pub date_time: DateTime,
-    pub authority_type: String,
+    pub authority_assigned: String,
     pub authority_name: String,
-    pub presented_by: i32,
-    pub case_number: Option<String>,
+    pub authority_phone: i32,
+    pub assigned_court: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
-    pub outcome: Option<String>,
+    pub authority_decision: Option<String>,
+    pub confinement_place: String,
     pub created_at: DateTime,
 }
 

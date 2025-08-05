@@ -1,4 +1,6 @@
-use domain::entities::sea_orm_active_enums::InclusionTypeEnum;
+use domain::entities::{
+    inclusion_records_accuseds, inclusion_records_personas, sea_orm_active_enums::InclusionTypeEnum,
+};
 use sea_orm::*;
 
 use crate::{api::ApiContext, dtos::operations::inclusion::CreateInclusion, enums::InclusionType};
@@ -74,11 +76,39 @@ impl InclusionService {
         judicial_presentation.inclusion_record_id = Set(inclusion_record.id);
         judicial_presentation.insert(&conn).await?;
 
+        let accuseds = base
+            .acusseds
+            .iter()
+            .map(|id| inclusion_records_accuseds::ActiveModel {
+                inclusion_record_id: Set(inclusion_record.id),
+                accused_id: Set(*id),
+                ..Default::default()
+            })
+            .collect::<Vec<_>>();
+
+        inclusion_records_accuseds::Entity::insert_many(accuseds)
+            .exec(&conn)
+            .await?;
+
         match inclusion {
             CreateInclusion::Flagrant { flagrant, .. } => {
-                let mut flagrant_model = flagrant.into_active_model();
+                let mut flagrant_model = flagrant.base.into_active_model();
                 flagrant_model.inclusion_record_id = Set(inclusion_record.id);
                 flagrant_model.insert(&conn).await?;
+
+                let models = flagrant
+                    .personas_ids
+                    .iter()
+                    .map(|id| inclusion_records_personas::ActiveModel {
+                        inclusion_record_id: Set(inclusion_record.id),
+                        persona_id: Set(*id),
+                        ..Default::default()
+                    })
+                    .collect::<Vec<_>>();
+
+                inclusion_records_personas::Entity::insert_many(models)
+                    .exec(&conn)
+                    .await?;
             }
             CreateInclusion::Complainant { complainant, .. } => {
                 let mut complainant_model = complainant.into_active_model();
