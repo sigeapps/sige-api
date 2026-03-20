@@ -26,6 +26,12 @@ pub enum Permission {
     ModuleUsers,
     #[sea_orm(string_value = "module:park")]
     ModulePark,
+    #[sea_orm(string_value = "module:transport")]
+    ModuleTransport,
+    #[sea_orm(string_value = "module:operations")]
+    ModuleOperations,
+    #[sea_orm(string_value = "module:analysis")]
+    ModuleAnalysis,
 
     #[sea_orm(string_value = "bases:read")]
     ReadAllBases,
@@ -141,4 +147,64 @@ pub enum Permission {
     LookupsCreate,
     #[sea_orm(string_value = "lookups:update")]
     LookupsUpdate,
+
+    // Individual Park permissions
+    #[sea_orm(string_value = "park:carga:read")]
+    ParkCargaRead,
+    #[sea_orm(string_value = "park:entrega:read")]
+    ParkEntregaRead,
+    #[sea_orm(string_value = "park:recepcion:read")]
+    ParkRecepcionRead,
+    #[sea_orm(string_value = "park:status:read")]
+    ParkStatusRead,
+    #[sea_orm(string_value = "park:report:listado")]
+    ParkReportListado,
+    #[sea_orm(string_value = "park:report:capacidad")]
+    ParkReportCapacidad,
+    #[sea_orm(string_value = "park:report:asignaciones")]
+    ParkReportAsignaciones,
+    #[sea_orm(string_value = "park:report:ticket")]
+    ParkReportTicket,
+
+    // Individual Operations permissions
+    #[sea_orm(string_value = "ops:inclusion:read")]
+    OpsInclusionRead,
+    #[sea_orm(string_value = "ops:inclusion:create")]
+    OpsInclusionCreate,
+    #[sea_orm(string_value = "ops:sigepol:read")]
+    OpsSigepolRead,
+    #[sea_orm(string_value = "ops:avanzada:read")]
+    OpsAvanzadaRead,
+    #[sea_orm(string_value = "ops:rep:informe")]
+    OpsRepInforme,
+    #[sea_orm(string_value = "ops:rep:cadena")]
+    OpsRepCadena,
+    #[sea_orm(string_value = "ops:rep:listados")]
+    OpsRepListados,
+
+    // Individual Analysis permissions
+    #[sea_orm(string_value = "ana:arch:bandas:read")]
+    AnaArchBandasRead,
+    #[sea_orm(string_value = "ana:arch:redip:read")]
+    AnaArchRedipRead,
+    #[sea_orm(string_value = "ana:repein")]
+    AnaRepein,
+    #[sea_orm(string_value = "ana:vinculacion")]
+    AnaVinculacion,
+    #[sea_orm(string_value = "ana:actualizacion")]
+    AnaActualizacion,
+    #[sea_orm(string_value = "ana:consulta")]
+    AnaConsulta,
+    #[sea_orm(string_value = "ana:rod")]
+    AnaROD,
+    #[sea_orm(string_value = "ana:procedimiento")]
+    AnaProcedimiento,
+    #[sea_orm(string_value = "ana:rep:personas")]
+    AnaRepPersonas,
+    #[sea_orm(string_value = "ana:rep:bandas")]
+    AnaRepBandas,
+    #[sea_orm(string_value = "ana:rep:estadisticas")]
+    AnaRepEstadisticas,
+    #[sea_orm(string_value = "ana:rep:graficas")]
+    AnaRepGraficas,
 }

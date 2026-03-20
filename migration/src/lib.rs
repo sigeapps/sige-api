@@ -30,6 +30,9 @@ mod m20250709_180301_create_correspondence_table;
 mod m20250714_213941_create_parking_tables;
 mod m20250715_213942_create_transport_tables;
 mod m20250803_153156_create_operations_tables;
+mod m20260318_154000_add_missing_permissions;
+mod m20260319_100000_add_individual_permissions;
+
 
 pub struct Migrator;
 
@@ -65,6 +68,9 @@ impl MigratorTrait for Migrator {
             Box::new(m20250714_213941_create_parking_tables::Migration),
             Box::new(m20250715_213942_create_transport_tables::Migration),
             Box::new(m20250803_153156_create_operations_tables::Migration),
+            Box::new(m20260318_154000_add_missing_permissions::Migration),
+            Box::new(m20260319_100000_add_individual_permissions::Migration),
+
         ]
     }
 }

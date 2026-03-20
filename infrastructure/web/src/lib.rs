@@ -8,17 +8,23 @@ pub mod types;
 
 use application::api::ApiContext;
 use application::connection::connect;
+use moka::future::Cache;
 use axum::http::{HeaderName, HeaderValue, Method};
 use axum::routing::get;
 use axum::Extension;
 use error::WebError;
 use routes::parking::parking_routes;
 use tower_http::cors::CorsLayer;
+use tower_http::trace::TraceLayer;
+use tower_http::compression::CompressionLayer;
+
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi};
 use utoipa_axum::router::OpenApiRouter;
-use utoipa_scalar::{Scalar, Servable};
+
+#[cfg(debug_assertions)]
 use utoipa_swagger_ui::SwaggerUi;
+
 
 use crate::routes::transport::transport_routes;
 
@@ -53,6 +59,10 @@ impl Modify for SecurityAddon {
 #[tokio::main]
 pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
     let db = connect(db_url).await?;
+    let cache = Cache::builder()
+        .max_capacity(10_000)
+        .time_to_live(std::time::Duration::from_secs(3600)) // 1 hora de vida por defecto
+        .build();
 
     let address = format!("{host}:{port}");
 
@@ -97,7 +107,7 @@ pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
         ])
         .allow_credentials(true);
 
-    let (router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
+    let (router, _api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .route("/", get(root))
         .nest("/parking", parking_routes())
         .nest("/transport", transport_routes())
@@ -107,18 +117,31 @@ pub async fn start(host: &str, port: u16, db_url: &str) -> anyhow::Result<()> {
         .merge(routes::prevention::prevention_routes())
         .merge(routes::personal::personal_routes().into())
         .merge(routes::lookup::lookup_routes().into())
-        .layer(Extension(ApiContext { db, claims: None }))
+        .layer(Extension(ApiContext {
+            db,
+            claims: None,
+            cache,
+        }))
         .layer(cors)
+        .layer(
+            TraceLayer::new_for_http().make_span_with(|request: &axum::http::Request<_>| {
+                tracing::info_span!(
+                    "http",
+                    method = %request.method(),
+                    uri = %request.uri(),
+                    user = tracing::field::Empty,
+                )
+            }),
+        )
+        .layer(CompressionLayer::new())
         .split_for_parts();
 
-    let mut app = router;
+    let app = router;
 
     #[cfg(debug_assertions)]
-    {
-        app = app
-            .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()))
-            .merge(Scalar::with_url("/scalar", api));
-    }
+    let app = app
+        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", _api.clone()));
+
 
     let listener = tokio::net::TcpListener::bind(address).await?;
 

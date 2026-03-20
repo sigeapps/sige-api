@@ -20,7 +20,7 @@ async-trait = { version = "0.1.88" }
 password-auth = "1.0.0"
 tracing = "0.1"
 tracing-subscriber = "0.3"
-tower-http = { version = "0.6.2", features = ["cors"] }
+tower-http = { version = "0.6.2", features = ["cors", "trace", "compression-full"] }
 tower-sessions-sqlx-store = { version = "0.15.0", features = ["postgres"] }
 jwt = "0.16.0"
 hmac = "0.12.1"
@@ -30,4 +30,5 @@ utoipa-axum = "0.2.0"
 utoipa = { workspace = true }
 utoipa-scalar = { version = "0.3.0", features = ["axum"] }
 utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
+moka = { version = "0.12", features = ["future"] }
 csv = { workspace = true }

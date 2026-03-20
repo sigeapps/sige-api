@@ -104,6 +104,11 @@ impl UserService {
             .await
     }
 
+    pub async fn delete_role(ctx: ApiContext, id: i32) -> Result<(), DbErr> {
+        role::Entity::delete_by_id(id).exec(&ctx.db).await?;
+        Ok(())
+    }
+
     pub async fn find_by_id(ctx: ApiContext, id: i32) -> Result<Option<GetUserDTO>, DbErr> {
         let user = user::Entity::find_by_id(id)
             .left_join(role::Entity)

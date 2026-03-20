@@ -62,6 +62,9 @@ pub async fn authenticate(mut request: Request, next: Next) -> Result<Response> 
         claims.permissions
     );
 
+    // Registrar el usuario en el span actual de tracing para que aparezca en los logs
+    tracing::Span::current().record("user", &claims.user.name);
+
     if let Some(ext) = request.extensions_mut().get_mut::<ApiContext>() {
         ext.claims = Some(claims);
     }

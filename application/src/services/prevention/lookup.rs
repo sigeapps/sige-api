@@ -1,5 +1,6 @@
 use domain::entities::{brand, division, state, vehicle_model};
 use sea_orm::*;
+use serde::Serialize;
 
 use crate::{
     api::ApiContext,
@@ -13,10 +14,14 @@ impl LookupService {
     pub async fn find<E, M, A>(ctx: ApiContext) -> Result<Vec<M>, DbErr>
     where
         E: EntityTrait<Model = M, ActiveModel = A> + Send + Sync,
-        M: ModelTrait + Send + Sync + FromQueryResult,
+        M: ModelTrait + Send + Sync + FromQueryResult + Serialize + for<'de> serde::Deserialize<'de> + 'static,
         A: ActiveModelTrait + Send + Sync,
     {
-        E::find().all(&ctx.db).await
+        let key = format!("lookup:{}", E::default().table_name());
+        crate::services::cache_manager::CacheManager::get_or_set(&ctx.cache, &key, || async {
+            E::find().all(&ctx.db).await
+        })
+        .await
     }
 
     pub async fn create<E, M, A>(ctx: ApiContext, active_model: A) -> Result<(), DbErr>
@@ -26,6 +31,10 @@ impl LookupService {
         A: ActiveModelTrait<Entity = E> + Send + Sync,
     {
         E::insert(active_model).exec(&ctx.db).await?;
+
+        // Invalida la caché de esta tabla para que se refresque en la próxima consulta
+        let key = format!("lookup:{}", E::default().table_name());
+        crate::services::cache_manager::CacheManager::invalidate(&ctx.cache, &key).await;
 
         Ok(())
     }

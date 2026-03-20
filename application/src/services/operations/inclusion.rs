@@ -142,7 +142,7 @@ impl InclusionService {
 
     pub async fn find_summary(
         ctx: ApiContext,
-        filter: CommonQueryFilterDTO,
+        _filter: CommonQueryFilterDTO,
     ) -> Result<Vec<InclusionSummary>, DbErr> {
         let query = inclusion_records::Entity::find()
             .left_join(inclusion_records_personas::Entity)

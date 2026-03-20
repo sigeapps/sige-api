@@ -23,7 +23,7 @@ pub struct GetUserDTO {
     pub role: GetRoleDTO,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel)]
+#[derive(Debug, Clone, Deserialize, Serialize, DerivePartialModel, ToSchema)]
 #[sea_orm(entity = "domain::entities::role::Entity", from_query_result)]
 pub struct GetRoleDTO {
     pub id: i32,

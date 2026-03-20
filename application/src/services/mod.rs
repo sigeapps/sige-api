@@ -1,3 +1,4 @@
+pub mod cache_manager;
 pub mod operations;
 pub mod parking;
 pub mod personal;

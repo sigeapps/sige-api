@@ -104,3 +104,23 @@ pub async fn get_permissions(
 
     Ok(Json(permissions).into_response())
 }
+
+#[utoipa::path(get, path = "", tag = USER_TAG,
+    responses((status = 200, description = "Lista de roles", body = [GetRoleDTO]))
+)]
+pub async fn get_roles(Extension(ctx): Extension<ApiContext>) -> Result<Response> {
+    let roles = UserService::find_roles(ctx).await?;
+    Ok(Json(roles).into_response())
+}
+
+#[utoipa::path(delete, path = "/{id}", tag = USER_TAG,
+    params(("id" = i32, Path, description = "Role database id")),
+    responses((status = 200, description = "Rol eliminado correctamente"))
+)]
+pub async fn delete_role(
+    Extension(ctx): Extension<ApiContext>,
+    Path(id): Path<i32>,
+) -> Result<Response> {
+    UserService::delete_role(ctx, id).await?;
+    Ok(Json("Role deleted").into_response())
+}

@@ -13,7 +13,7 @@ pub fn user_routes() -> OpenApiRouter {
         .route("/user", post(create_user).get(get_users))
         .route("/user/{id}", get(get_user_by_id).patch(update_user))
         .nest_routes("/permission", routes!(get_permissions))
-        .nest_routes("/role", routes!(create_role))
+        .nest_routes("/role", routes!(create_role, get_roles, delete_role))
         .route_layer(axum::middleware::from_fn_with_state(
             Permission::UsersCreate,
             authorize,
